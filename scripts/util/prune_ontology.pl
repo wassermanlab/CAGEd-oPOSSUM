@@ -1,0 +1,398 @@
+#!/usr/bin/env perl
+
+#
+# Parse the input FANTOM5 Sample Ontology. Build a pruned tree which only
+# includes nodes starting at the level below "FF:0000102 - sample by type"
+# (i.e. "FF:0000004 - tissue sample", "FF:0000003 - cell line sample" and
+# "FF:0000002 - in vivo cell sample") and with all branches removed with
+# leaf terms which are NOT in the FANTOM5 oPOSSUM DB for the given species.
+#
+# Output the pruned ontology tree in HTML format for use in the FANTOM5-oPOSSUM
+# web application (which is loaded by jstree).
+# 
+
+use strict;
+use warnings;
+
+use lib '/devel/FANTOM5_oPOSSUM/lib';
+
+use Getopt::Long;
+use Pod::Usage;
+use Bio::OntologyIO;
+use OPOSSUM::Include::ExperimentInclude;
+
+my $species;
+my $obo_file;
+my $out_file;
+my $html_file;
+my $missing_file;
+GetOptions(
+    's=s'   => \$species,
+    'f=s'   => \$obo_file,
+    'o=s'   => \$out_file,
+    'h=s'   => \$html_file,
+    'm=s'   => \$missing_file
+);
+
+unless ($species) {
+    pod2usage(
+        -msg        => "No species specified\n",
+        -verbose    => 1 
+    );
+}
+
+unless ($obo_file) {
+    pod2usage(
+        -msg        => "No input OBO file specified\n",
+        -verbose    => 1 
+    );
+}
+
+#unless ($out_file) {
+#    pod2usage(
+#        -msg        => "No output ontology tree file specified\n",
+#        -verbose    => 1 
+#    );
+#}
+
+my $db_name = sprintf("%s_%s", OPOSSUM_DB_NAME, $species);
+
+my $opdba = opossum_db_connect($species)
+    || die "Could not connect to FANTOM5 oPOSSUM database $db_name\n";
+
+my $expa = $opdba->get_ExperimentAdaptor
+    || die "Could not get ExperimentAdaptor\n";
+
+#my $ff_ids = ['FF:11850-124I5','FF:11851-124I6','FF:11853-124I8'];
+#my $ff_ids = ['FF:11851-124I6'];
+my $ff_ids = $expa->fetch_ff_ids;
+unless ($ff_ids) {
+    die "Error fetching FF Ontology IDs from FANTOM5 oPOSSUM DB\n";
+}
+
+my %ff_id_key;
+foreach my $ff_id (@$ff_ids) {
+    $ff_id_key{"FF:$ff_id"} = 1;
+}
+
+my $ontIO = Bio::OntologyIO->new(
+    -format     => "obo",
+    -file       => "$obo_file"
+);
+
+unless ($ontIO) {
+    die "Error opening FANTOM5 OBO file $obo_file\n";
+}
+
+my $IS_A = Bio::Ontology::RelationshipType->get_instance("IS_A");
+
+my @leaf_terms;
+my $sbt_tree;
+my $ems_tree;
+while (my $ont = $ontIO->next_ontology()) {
+    my $ont_name = $ont->name();
+    #print "\nOntology name: $ont_name\n";
+
+    if ($ont_name eq 'FANTOM5') {
+        my @terms = $ont->get_root_terms();
+        #@leaf_terms = $ont->get_leaf_terms();
+
+        foreach my $term (@terms) {
+            if ($term->name eq 'FANTOM5 Sample Ontology') {
+                my @f5_terms = $ont->get_child_terms($term, $IS_A);
+                foreach my $f5_term (@f5_terms) {
+                    if ($f5_term->name eq 'sample by type') {
+                        $sbt_tree = create_node($ont, $f5_term);
+                    }
+                    elsif ($f5_term->name eq 'experimentally modified sample')
+                    {
+                        $ems_tree = create_node($ont, $f5_term);
+                    }
+                }
+            }
+        }
+    }
+}
+
+my $ont_tree = {
+    -id     => 'FF:0000001',
+    -name   => 'FANTOM5 Sample Ontology',
+    -child  => {
+        $sbt_tree->{-id} => $sbt_tree,
+        $ems_tree->{-id} => $ems_tree
+    }
+};
+
+#open(OFH, ">$out_file")
+#    || die "Error opening output ontology tree file $out_file\n";
+
+#print OFH "Ontology tree:\n\n";
+#write_ontology_tree(\*OFH, $ont_tree);
+
+#my $leaves = get_all_leaf_nodes($ont_tree);
+#print OFH "\n\nLeaves:\n\n";
+#write_leaves(\*OFH, $leaves);
+
+prune_tree($ont_tree, \%ff_id_key);
+#print OFH "\n\nPruned tree:\n\n";
+#write_ontology_tree(\*OFH, $ont_tree);
+
+#my $pruned_leaves = get_all_leaf_nodes($ont_tree);
+#print OFH "\n\nRemaining leaves:\n\n";
+#write_leaves(\*OFH, $pruned_leaves);
+
+#write_missing_ids($missing_file, $ff_ids, $pruned_leaves);
+
+if ($html_file) {
+    open(HFH, ">$html_file")
+        || die "Error opening output ontology tree HTML file $html_file\n";
+    write_ontology_tree_html(\*HFH, $ont_tree);
+    close(HFH);
+}
+
+close(OFH);
+
+exit;
+
+sub create_node
+{
+    my ($ont, $term) = @_;
+
+    return unless $term;
+
+    my $node = {
+        -id         => $term->identifier,
+        -name       => $term->name,
+        -parent     => undef,
+        -child      => undef
+    };
+
+    my @child_terms = $ont->get_child_terms($term, $IS_A);
+
+    if (@child_terms) {
+        foreach my $cterm (@child_terms) {
+            my $cnode = create_node($ont, $cterm);
+            $cnode->{-parent} = $node;
+            $node->{-child}->{$cnode->{-id}} = $cnode;
+        }
+    }
+
+    return $node;
+}
+
+sub write_ontology_tree
+{
+    my ($fh, $tree) = @_;
+    
+    write_node($fh, $tree, "");
+}
+
+sub write_node
+{
+    my ($fh, $node, $prefix) = @_;
+
+    return unless $node;
+
+    printf $fh "$prefix%s => %s\n", $node->{-id}, $node->{-name};
+
+    my $cnode = $node->{-child};
+
+    return unless $cnode;
+
+    foreach my $cid (
+        sort {uc $cnode->{$a}->{-name} cmp uc $cnode->{$b}->{-name}}
+        keys %$cnode
+    ) {
+        write_node($fh, $cnode->{$cid}, $prefix . "\t");
+    }
+}
+
+sub write_leaves
+{
+    my ($fh, $leaves) = @_;
+
+    foreach my $leaf (@$leaves) {
+        printf $fh "%s - %s\n", $leaf->{-id}, $leaf->{-name};
+    }
+}
+
+sub prune_tree
+{
+    my ($tree, $ff_id_key) = @_;
+
+    my $leaves = get_all_leaf_nodes($tree);
+
+    foreach my $leaf (@$leaves) {
+        unless ($ff_id_key->{$leaf->{-id}}) {
+            prune_node($leaf);
+        }
+    }
+}
+
+sub prune_node
+{
+    my ($node) = @_;
+
+    return unless $node;
+
+    my $node_id   = $node->{-id};
+    my $node_name = $node->{-name};
+    my $parent    = $node->{-parent};
+
+    printf "Pruning node %s - %s\n", $node_id, $node_name;
+
+    if ($parent) {
+        $node->{-parent} = undef;
+
+        #
+        # Delete this node from the children of it's parent
+        #
+        my $children = $parent->{-child};
+        my $child = $children->{$node_id} if $children;
+
+        if ($children && $children->{$node_id}) {
+            delete $children->{$node_id};
+            undef $node;
+        } else {
+            #
+            # Sanity check. Since this node has a parent the parent must
+            # explicitly refer to this child.
+            #
+            die(
+                sprintf(
+                      "Error: parent node %s - %s of node %s - %s missing"
+                    . " child reference to this node!\n",
+                    $parent->{-id},
+                    $parent->{-name},
+                    $node_id,
+                    $node_name
+                )
+            );
+        }
+
+        my $num_child = scalar keys %$children;
+        unless ($num_child) {
+            #
+            # No more children. Prune the parent.
+            #
+            #$parent->{-child} = undef;
+            prune_node($parent);
+        }
+    } else {
+        #
+        # This node doesn't have a parent, so just delete this node. This
+        # should only happen if we've reached the root node which means we've
+        # effectively deleted the entire tree.
+        #
+        undef $node;
+    }
+}
+
+sub get_all_leaf_nodes
+{
+    my ($tree) = @_;
+
+    my @leaf_nodes;
+    
+    get_leaf_node(\@leaf_nodes, $tree); 
+
+    return \@leaf_nodes;
+}
+
+sub get_leaf_node
+{
+    my ($leaf_nodes, $node) = @_;
+
+    my $children = $node->{-child};
+
+    if ($children) {
+        foreach my $cid (keys %$children) {
+            my $cnode = $children->{$cid};
+            get_leaf_node($leaf_nodes, $cnode); 
+        }
+    } else {
+        push @$leaf_nodes, $node;
+    }
+}
+
+sub write_missing_ids
+{
+    my ($missing_file, $ff_ids, $leaf_terms) = @_;
+
+    open(MFH, ">$missing_file")
+        || die "Error opening missing FF ontology term file $missing_file\n";
+
+    printf MFH "Ontology leaf terms: %d\tDB FF ontology IDs: %d\n\n",
+        scalar @$leaf_terms,
+        scalar @$ff_ids;
+
+    foreach my $ff_id (@$ff_ids) {
+        my $found = 0;
+        foreach my $leaf (@$leaf_terms) {
+            if ($leaf->{-id} eq 'FF:' . $ff_id) {
+                $found = 1;
+                last;
+            }
+        }
+
+        unless ($found) {
+            printf MFH "DB FF ID $ff_id missing from ontology\n";
+        }
+    }
+
+    print MFH "\n";
+
+    foreach my $leaf (@$leaf_terms) {
+        my $found = 0;
+        foreach my $ff_id (@$ff_ids) {
+            if ($leaf->{-id} eq 'FF:' . $ff_id) {
+                $found = 1;
+                last;
+            }
+        }
+
+        unless ($found) {
+            printf MFH "Ontology term %s missing from DB\n", $leaf->{-id};
+        }
+    }
+    close(MFH);
+}
+
+sub write_ontology_tree_html
+{
+    my ($fh, $tree) = @_;
+    
+    my $prefix = "  ";
+
+    print $fh '<ul>';
+    write_node_html($fh, $tree, $prefix);
+    print $fh "\n</ul>\n";
+}
+
+sub write_node_html
+{
+    my ($fh, $node, $prefix) = @_;
+
+    return unless $node;
+
+    printf $fh "\n$prefix<li id=\"%s\"><a href=\"#\">%s</a>", $node->{-id}, $node->{-name};
+
+    my $cnode = $node->{-child};
+
+    unless ($cnode) {
+        print $fh '</li>';
+        return;
+    }
+
+    my $prefix2 = $prefix . "  ";
+
+    print $fh "\n$prefix2<ul>";
+    foreach my $cid (
+        sort {uc $cnode->{$a}->{-name} cmp uc $cnode->{$b}->{-name}}
+        keys %$cnode)
+    {
+        write_node_html($fh, $cnode->{$cid}, $prefix2);
+    }
+    print $fh "\n$prefix2</ul>";
+    print $fh "\n$prefix</li>";
+}

@@ -1,0 +1,9 @@
+Notes on building a FANTOM5_oPOSSUM database from input experiment, tag cluster,
+tpm, tag count files.
+
+General order of running scripts:
+parse_experiments_file.pl
+parse_tag_cluster_files.pl
+parse_expression_files.pl
+compute_tfbss.pl
+update_is_tss_flag.pl

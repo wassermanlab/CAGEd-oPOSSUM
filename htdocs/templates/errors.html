@@ -1,0 +1,16 @@
+<form name="possum_error" enctype="multipart/form-data" method="post" action="none">
+  <p class="subtitle">The following error(s) occured</p>
+  <p class="text">
+  <b>
+  [%FOREACH err = errors%]
+    [%err%]<br>
+  [%END%]
+  </b>
+  </p>
+  <p class="text">
+  If the error was due to inproper input, please correct the input and re-submit the analysis.
+  </p>
+  <p class="text">
+  If there is a problem with the oPOSSUM software please <a href="[%rel_htdocs_path%]/contact.html" target="_blank">contact</a> the oPOSSUM administrators with a detailed description of the error.
+  </p>
+</form>

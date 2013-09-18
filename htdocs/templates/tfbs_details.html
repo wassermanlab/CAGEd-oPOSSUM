@@ -1,0 +1,106 @@
+<html>
+
+<head>
+  <link rel="stylesheet" href="[%rel_htdocs_path%]/styles.css" type="text/css">
+  <title>[%title%]</title>
+</head> <a name="top"></a>
+
+<body>
+<form name="tfbs_genes" enctype="multipart/form-data" method="post" onSubmit="window.close()">
+
+  <table border="0" cellpadding="2" cellspacing="0">
+    <tr class="table_text">
+      <td align="left" class="table_title">TF name:</td>
+      <td align="left" class="table_text">[%tf.name%]</td>
+    </tr>
+    <tr class="table_text">
+      <td align="left" class="table_title">JASPAR ID:</td>
+      <td align="left" class="table_text"><a href="javascript:newWindow=window.open('[%jaspar_url%]?rm=present&collection=[%tf.tag('collection')%]&ID=[%tf.ID%]', '[%tf.ID%]', 'width=850,height=700,toolbar=0,location=0,directories=0,status=0,menuBar=0,scrollBars=1'); newWindow.focus()">[%tf.ID%]</a></td>
+    </tr>
+    <tr class="table_text">
+      <td align="left" class="table_title">Class:</td>
+      <td align="left" class="table_text">[%tf.class%]</td>
+    </tr>
+    <tr class="table_text">
+      <td align="left" class="table_title">Family:</td>
+      <td align="left" class="table_text">[%tf.tag('family')%]</td>
+    </tr>
+    <tr class="table_text">
+      <td align="left" class="table_title">Tax group:</td>
+      <td align="left" class="table_text">[%tf.tag('tax_group')%]</td>
+    </tr>
+    <tr class="table_text">
+      <td align="left" class="table_title">GC content:</td>
+      <td align="left" class="table_text">
+      [%gc = tf.tag('gc_content')%]
+      [%IF gc > high_matrix_gc or gc < low_matrix_gc%]
+        <b class="warn_table_text">[%gc%]</b>
+      [%ELSE%]
+        [%gc%]
+      [%END%]
+      </td>
+    </tr>
+    <tr class="table_text">
+      <td align="left" class="table_title">Information content:</td>
+      <td align="left" class="table_text">
+      [%total_ic = formatf(3, tf.to_ICM.total_ic)%]
+      [%IF total_ic > high_matrix_ic or total_ic < low_matrix_ic%]
+        <b class="warn_table_text">[%total_ic%]</b>
+      [%ELSE%]
+        [%total_ic%]
+      [%END%]
+      </td>
+    </tr>
+  </table>
+
+  <br>
+  <h3>Binding Sites</h3>
+
+  [%USE sites = datafile(data_file, delim = '|')%]
+
+  <table width="100%"  border="0" cellpadding="2" cellspacing="1">
+    <tr align="left" class="table_title">
+      <th align="left">Region</th>
+      <th align="left">Chr</th>
+      <th align="right">Start</th>
+      <th align="right">End</th>
+      <th align="center">Strand</th>
+      <th align="right">Abs. Score</th>
+      <th align="right">Rel. Score</th>
+      <th align="left">Binding Sequence</th>
+    </tr>
+
+    [%last_region = ''%]
+    [%FOREACH site = sites%]
+      <tr align="left" class="table_text">
+        [%IF site.region == last_region%]
+          <td align="left"></td>
+        [%ELSE%]
+          <td align="left">[%site.region%]</td>
+
+          [%last_region = site.region%]
+        [%END%]
+
+        <td align="left">[%site.chr%]</td>
+        <td align="right">[%site.start%]</td>
+        <td align="right">[%site.end%]</td>
+        <td align="center">[%site.strand%]</td>
+        <td align="right">[%site.score%]</td>
+        <td align="right">[%site.rel_score%]%</td>
+        <td align="left" class="seqtext">[%site.seq%]</td>
+      </tr>
+    [%END%] <!--foreach site -->
+  </table>
+<hr solid=1>
+
+<p class="text" align="center">
+<a href="[%rel_results_dir%]/[%tfbs_details_file%]" target="_blank">Download as a tab delimited text file</a> (results will be kept on the server for [%result_retain_days%] days after analysis)
+</p>
+
+<p align="center"><a href="#top"><img src="[%rel_htdocs_path%]/images/arrow-up.gif" border="0" alt="Back to top"></a></p>
+
+<p align="center"><input type="submit" name="Submit" value="Close Window"></p>
+</form>
+</body>
+
+</html>

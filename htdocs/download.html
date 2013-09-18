@@ -1,0 +1,38 @@
+<html>
+<head>
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=iso-8859-15">
+  <link rel="stylesheet" href="styles.css" type="text/css">
+  <title>oPOSSUM 3.0 Download</title>
+</head>
+
+<body class="text">
+  <h1>oPOSSUM 3.0</h1>
+  <h3><center>May 2012</center></h3>
+  <h2>Download</h2>
+  <p class="text">
+    Download just the oPOSSUM-3 API and stand-alone analysis scripts <a href="download/oPOSSUM3_API.tar.gz">here</a> or via <a href="ftp://www.cisreg.ca/pub/oPOSSUM3/oPOSSUM3_API.tar.gz">FTP</a>
+  </p>
+  <p class="text">
+    Download the full oPOSSUM-3 code tree including the API, stand-alone analysis scripts and web code <a href="download/oPOSSUM3_full.tar.gz">here</a> or via <a href="ftp://www.cisreg.ca/pub/oPOSSUM3/oPOSSUM3_full.tar.gz">FTP</a>
+  </p>
+  <p class="text">
+    The oPOSSUM3 source code is also available as a public repository on GitHub under <a href="https://github.com/wassermanlab/oPOSSUM3">wassermanlab/oPOSSUM3</a>.
+  </p>
+  <p class="text">
+    The oPOSSUM-3 databases may be downloaded directly from our database servers using the mysldump facility.
+  </p>
+  <p class="text">
+    There are currently five species databases and one database used for the TF cluster analysis:<br><br>
+        oPOSSUM3_human<br>
+        oPOSSUM3_mouse<br>
+        oPOSSUM3_worm<br>
+        oPOSSUM3_fly<br>
+        oPOSSUM3_yeast<br>
+        TFBS_cluster
+  </p>
+  <p class="text">
+    The databases are hosted on opossum.cmmt.ubc.ca and may be accessed using MySQL username 'opossum_r'. It may be necessary to use the --skip-lock-tables option to mysqldump, e.g.:<br>
+    $ mysqldump -h opossum.cmmt.ubc.ca -u opossum_r --skip-lock-tables oPOSSUM3_human > oPOSSUM3_human.sql
+  </p>
+</body>
+</html>

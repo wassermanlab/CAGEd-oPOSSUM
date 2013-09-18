@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/1999/REC-html401-19991224/loose.dtd">
+<html>
+
+<head>
+  <title>[%title%]</title>
+  <link type="text/css" rel="stylesheet" href="[%rel_htdocs_path%]/opossum.css" />
+  <link rel="stylesheet" href="[%rel_htdocs_path%]/styles.css" type="text/css">
+<!--
+  <script type="text/javascript" src="[%rel_htdocs_path%]/templates/sortable.js"></script>
+-->
+
+  <script type="text/javascript" src="[%rel_htdocs_path%]/templates/sorttable.js"></script>
+  <script type="text/javascript" src="[%rel_htdocs_path%]/templates/jstree/_lib/jquery.js"></script>
+  <script type="text/javascript" src="[%rel_htdocs_path%]/templates/jstree/jquery.jstree.js"></script>
+</head>
+
+<body>
+  <a name="top"></a>
+
+  <div id="pageContainer">
+    <div id="logo">
+      <a href="[%rel_htdocs_path%]"><img src="[%rel_htdocs_path%]/images/FANTOM_Ssize2.png" border="0" alt="FANTOM5"></a>
+      <a href="[%rel_htdocs_path%]"><img src="[%rel_htdocs_path%]/images/logo.gif" border="0" alt="oPOSSUM"></a>
+      <br>
+    </div>
+    <div id="version">
+      Version [%version%]
+    </div>
+    <!--
+    <div id="heading">
+      [%heading%]
+    </div>
+    <div id="version">
+      [%IF devel_version%]
+        &nbsp;<b>(development version)</b>
+      [%END%]
+    </div>
+    -->
+
+    <div id="menuSecondary" class=[%bg_color_class%]>
+      <a href="[%rel_htdocs_path%]">Home</a> |
+      <a href="[%rel_htdocs_path%]/about.html" target="_blank">About</a> | 
+      <a href="[%rel_htdocs_path%]/help.html" target="_blank">Help</a> | 
+      <a href="[%rel_htdocs_path%]/faq.html" target="_blank">FAQ</a> | 
+      <a href="[%rel_htdocs_path%]/news.html" target="_blank">News</a> | 
+      <a href="[%rel_htdocs_path%]/contact.html" target="_blank">Contact</a> |
+      <a href="[%rel_htdocs_path%]/download.html" target="_blank">Download</a>
+    </div>
+
+    <div id="content">
+      <h1>[%heading%]</h1>
+      <h2>[%section%]</h2>
+      [%INCLUDE $var_template%]
+    </div>
+  </div>
+</body>
+</html>
