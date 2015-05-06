@@ -11,7 +11,9 @@ use constant MAX_BACKGROUND_EXPERIMENTS     => 1000;
 use constant DFLT_BG_NUM_RAND_EXPERIMENTS   => 1000;
 use constant DFLT_TARGET_TAG_COUNT          => 10;
 use constant DFLT_TARGET_TPM                => 1;
+use constant DFLT_TARGET_RELATIVE_EXPRESSION    => 1;
 use constant DFLT_BACKGROUND_TAG_COUNT      => 10;
 use constant DFLT_BACKGROUND_TPM            => 1;
+use constant DFLT_BACKGROUND_RELATIVE_EXPRESSION    => 1;
 
 1;

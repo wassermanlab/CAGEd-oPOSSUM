@@ -65,7 +65,7 @@ use constant PAZAR_URL  => 'http://www.pazar.info/cgi-bin/display_JASPAR_profile
 # JASPAR DB Access
 #
 use constant JASPAR_DB_HOST     => 'vm5.cmmt.ubc.ca';
-use constant JASPAR_DB_NAME     => 'JASPAR_2010';
+use constant JASPAR_DB_NAME     => 'JASPAR_2014';
 use constant JASPAR_DB_USER     => 'jaspar_r';
 use constant JASPAR_DB_PASS     => '';
 
@@ -118,12 +118,13 @@ use constant DFLT_THRESHOLD_LEVEL		=> 3;
 use constant DFLT_THRESHOLD             => 85;
 use constant MIN_THRESHOLD              => 75;
 use constant DFLT_CORE_MIN_IC           => 8;
+use constant DFLT_RAND_BG_FOLD          => 1;
 
 use constant DFLT_PEAK_DIST_DISTRIBUTION => 'punif';
 
 # temp. file cleanup no. of days
-use constant REMOVE_TEMPFILES_OLDER_THAN    => 3;
-use constant REMOVE_RESULTFILES_OLDER_THAN  => 7;
+use constant REMOVE_TEMPFILES_OLDER_THAN    => 21;
+use constant REMOVE_RESULTFILES_OLDER_THAN  => 21;
 
 use constant DEBUG          => 0;
 

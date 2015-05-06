@@ -33,8 +33,8 @@ sub error
 
     my $errors = $self->errors();
 
-    my $err_str = join "\n", @$errors;
-    carp "\nERROR:\n$err_str\n";
+    #my $err_str = join "\n", @$errors;
+    #carp "\nERROR:\n$err_str\n";
 
     my $error_html;
     foreach my $err (@$errors) {
@@ -62,7 +62,7 @@ sub error
 
     my $output = $self->process_template('master.html', $vars);
 
-    $self->errors(undef);
+    $self->clear_errors();
 
     return $output;
 }
@@ -173,10 +173,10 @@ sub state
     my $self = shift;
 
     if (@_) {
-        $self->{-state} = shift;
+        $self->param('state', shift);
     }
 
-    return $self->{-state};
+    return $self->param('state');
 }
 
 sub errors
@@ -189,6 +189,13 @@ sub errors
     }
 
     return $self->param('errors');
+}
+
+sub clear_errors
+{
+    my $self = shift;
+
+    $self->param('errors', undef);
 }
 
 sub warnings
@@ -213,8 +220,9 @@ sub jaspar_db_connect
         JASPAR_DB_PASS
     );
 
-    if (!$dbh) {
+    unless ($dbh) {
         $self->_error("Could not connect to JASPAR database " . JASPAR_DB_NAME);
+        return;
     }
 
     $self->jdbh($dbh);
@@ -242,6 +250,19 @@ sub fetch_tf_set
     return $tf_set;
 }
 
+sub parse_textbox_as_list
+{
+    my ($self, $param) = @_;
+
+    my $text = $self->parse_textbox($param);
+
+    return unless $text;
+
+    my @list = split "\n", $text;
+
+    return (@list && $list[0]) ? \@list : undef;
+}
+
 sub parse_textbox
 {
     my ($self, $param) = @_;
@@ -255,6 +276,17 @@ sub parse_textbox
     #
     $text =~ s/^\s+//;
     $text =~ s/\s+$//;
+
+    #
+    # Not sure the newline problem is applicable to pasted text, but to be
+    # safe...
+    #
+
+    # Convert DOS style <CR><LF> to linux <LF>
+    $text =~ s/\r\n/\n/g;
+
+    # Convert older Mac style <CR> to linux <LF>
+    $text =~ s/\r/\n/g;
 
     return unless $text;
 
@@ -308,6 +340,29 @@ sub create_local_file_from_text
     return 1;
 }
 
+sub create_local_file_from_list
+{
+    my ($self, $localpath, $list) = @_;
+
+    unless ($list && $list->[0]) {
+        $self->_error("Not text provided for local file $localpath");
+        return;
+    }
+
+    unless (open(FH, ">$localpath")) {
+        $self->_error("Unable to create local file $localpath");
+        return;
+    }
+
+    foreach my $line (@$list) {
+        print FH "$line\n";
+    }
+
+    close(FH);
+
+    return 1;
+}
+
 sub create_local_file_from_upload
 {
     my ($self, $localpath, $cgi_file_param) = @_;
@@ -326,6 +381,18 @@ sub create_local_file_from_upload
         $self->_error("Upload file $file is empty");
         return;
     }
+
+    #
+    # Strip leading trailing space
+    #
+    $text =~ s/^\s+//;
+    $text =~ s/\s+$//;
+
+    # Convert DOS style <CR><LF> to linux <LF>
+    $text =~ s/\r\n/\n/g;
+
+    # Convert older Mac style <CR> to linux <LF>
+    $text =~ s/\r/\n/g;
 
     unless (open(FH, ">$localpath")) {
         $self->_error("Unable to create local file $localpath");
@@ -366,6 +433,103 @@ sub create_local_working_file
     return $filename;
 }
 
+sub check_file_format
+{
+    my ($self, $file, $format) = @_;
+
+    if ($format eq 'bed3') {
+        return $self->check_file_format_bed3($file);
+    } elsif ($format eq 'bed6') {
+        return $self->check_file_format_bed6($file);
+    } elsif ($format eq 'matrix') {
+        #return $self->check_file_format_matrix($file);
+        $self->_error("Matrix file format check not implemented yet!");
+        return undef;
+    } elsif ($format eq 'cageid') {
+        #return $self->check_file_format_cageid($file);
+        $self->_error("CAGE peak names file format check not implemented yet!");
+        return undef;
+    }
+
+    $self->_error("Unknown file format '$format'");
+
+    return undef;
+}
+
+sub check_file_format_bed3
+{
+    my ($self, $file) = @_;
+
+    unless (open(FH, $file)) {
+        $self->_error(
+            "Error opening file '$file' to check BED 3-column format"
+        );
+        return undef;
+    }
+
+    while (my $line = <FH>) {
+        chomp $line;
+
+        if ($line =~ /^(\w+)\s+\d+\s+\d+/) {
+            # Enforce that the chromosome column explicitly starts with 'chr'
+            my $chrom = $1;
+            unless ($chrom =~ /^chr/ && $chrom !~ /^chrom/) {
+                $self->_error(
+                    "BED file chromosome columns should start with"
+                    . " 'chr', e.g.: chr1"
+                );
+                close(FH);
+                return undef;
+            }
+        } else {
+            $self->_error("Poorly formatted 3-column BED line:\n$line"
+                . "\nShould be, e.g.: chr1\t1166845\t1167892");
+            close(FH);
+            return undef;
+        }
+    }
+
+    close(FH);
+
+    return 1;
+}
+
+sub check_file_format_bed6
+{
+    my ($self, $file) = @_;
+
+    unless (open(FH, $file)) {
+        $self->_error(
+            "Error opening file '$file' to check BED 6-column format"
+        );
+        return undef;
+    }
+
+    while (my $line = <FH>) {
+        chomp $line;
+
+        if ($line =~ /^(\w+)\s+\d+\s+\d+\s+\S+\s+\w+\s+[+-]{1}(\s+|$)/) {
+            # Enforce that the chromosome column explicitly starts with 'chr'
+            my $chrom = $1;
+            unless ($chrom =~ /^chr/ && $chrom !~ /^chrom/) {
+                $self->_error("BED file chromosome columns should start with"
+                    . " 'chr', e.g.: chr1");
+                close(FH);
+                return undef;
+            }
+        } else {
+            $self->_error("Poorly formatted 6-column BED line:\n$line"
+                . "\nShould be, e.g.: chr1\t1166845\t1167892\tname\t0\t+");
+            close(FH);
+            return undef;
+        }
+    }
+
+    close(FH);
+
+    return 1;
+}
+
 #
 # Low-level error routine. Add latest error to internal error list and
 # output to stderr (log file).
@@ -387,7 +551,7 @@ sub _error
     # above.
     # DJA 2012/10/17
     #
-    #carp "\nERROR: $error\n";
+    carp "\nERROR: $error\n";
 
     #
     # Now put new errors on the front of the list so errors will be written
@@ -475,13 +639,6 @@ sub _time
         "$hour:$minute:$second, $weekDays[$dayOfWeek] $months[$month] $dayOfMonth, $year";
     #print STDERR $theTime;
     return $theTime;
-}
-
-sub _session_tmp_file
-{
-    my $sid = shift;
-
-    return sprintf("%s/$sid", ABS_HTDOCS_TMP_PATH);
 }
 
 1;

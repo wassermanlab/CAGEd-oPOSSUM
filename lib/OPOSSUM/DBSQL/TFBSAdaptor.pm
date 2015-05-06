@@ -107,9 +107,9 @@ sub fetch_tf_ids
                 -tf_ids             => $tf_ids,
                 -tf_set             => $tf_set,
                 -threshold          => $threshold,
-                -search_region_ids  => $sr_ids,
                 -search_region_map  => $search_region_map,
-                -results_dir        => $results_dir
+                -results_dir        => $results_dir,
+                -logger             => $logger
             );
  Function : Fetch counts of the number of binding sites. Optionally limit
             to a given set of TFs, TFBS score threshold and search regions.
@@ -119,12 +119,6 @@ sub fetch_tf_ids
                                    take precedent over TF set).
             -threshold          => OPTIONAL TFBS score threshold
                                    (range 0.0 - 1.0).
-            -search_region_ids  => OPTIONAL search region ID or list ref
-                                   of search region IDs. The search region
-                                   IDs should be the IDs of the pre-computed
-                                   search region and are essentially "bins"
-                                   which allow for MUCH faster retrieval of
-                                   TFBSs than using search region postions.
             -search_region_map  => A hash which maps the actual search
                                    regions to the pre-computed search region
                                    IDs, i.e. the hash keys are the
@@ -141,6 +135,21 @@ sub fetch_tf_ids
                                    HTML format. This functionality also
                                    requires specific TFs to be passed either
                                    by the -tf_set or -tf_ids arguments.
+            -logger             => OPTIONAL for debugging purposes. If a 
+                                   Log::Log4perl logger object is provided,
+                                   log DEBUG/INFO messages.
+
+ This is the version of fetch_tfbs_counts after the SQL query was split up
+ to use multiple queries (one for each pre-computed search region) rather
+ then using a giant 'in' clause to search for all regions simultaneously,
+ modified from what is now renamed fetch_tfbs_counts_old. In testing,
+ splitting into multiple SQL statements based on pre-computed search regions
+ versus a single SQL with an in clause showed this version to be much faster
+ (~10 secs vs. ~50 secs for ~1300 search regions).
+ 
+ Other modifications were made to better keep track of whether and how TF IDs
+ were passed in and how this affects initialization and storage of the search
+ regions / TFBS binding site counts.
 
 =cut
 
@@ -151,23 +160,76 @@ sub fetch_tfbs_counts
     my $tf_set              = $args{-tf_set};
     my $tf_ids              = $args{-tf_ids};
     my $threshold           = $args{-threshold};
-    my $pc_sr_ids           = $args{-search_region_ids};
     my $search_region_map   = $args{-search_region_map};
     my $results_dir         = $args{-results_dir};
+    #my $logger              = $args{-logger};
 
     unless ($search_region_map) {
         carp "No search region map provided\n";
         return;
     }
 
-    unless ($tf_ids) {
-        $tf_ids = $tf_set->ids if $tf_set;
+    my @pc_sr_ids = keys %$search_region_map;
+    unless (@pc_sr_ids && $pc_sr_ids[0]) {
+        carp "Search region map is empty\n";
+        return;
     }
 
+    my @sr_ids;
+    foreach my $pc_sr_id (@pc_sr_ids) {
+        foreach my $sr (@{$search_region_map->{$pc_sr_id}}) {
+            if ($sr) {
+                push @sr_ids, $sr->id;
+            }
+        }
+    }
+
+    #
+    # Build the SQL query
+    #
     my $sql = "select search_region_id, tf_id, chrom, start, end, strand,"
             . " score, rel_score, seq from tfbss";
 
-    my $where;
+    my $where = " search_region_id = ?";
+
+    my $tf_ids_passed = 0;
+    my @passed_tf_ids;
+    if ($tf_ids) {
+        my $ref = ref $tf_ids;
+        if ($ref eq 'ARRAY') {
+            # -tf_ids value is an array ref of TF ID
+            if ($tf_ids->[0]) {
+                $where .= " and" if $where;
+                $where .= " tf_id in ('";
+                $where .= join("','", @$tf_ids);
+                $where .= "')";
+
+                # Also store TF IDs in a definitive array context
+                $tf_ids_passed = 1;
+                @passed_tf_ids = @$tf_ids;
+            }
+        } else {
+            # -tf_ids value is actually a (scalar) single TF ID
+            $where .= " and" if $where;
+            $where .= " tf_id = '$tf_ids'";
+
+            # Also store TF IDs in a definitive array context
+            $tf_ids_passed = 1;
+            push @passed_tf_ids, $tf_ids;
+        }
+    } elsif ($tf_set) {
+        my $tf_set_ids = $tf_set->ids;
+        if ($tf_set_ids->[0]) {
+            $where .= " and" if $where;
+            $where .= " tf_id in ('";
+            $where .= join("','", @$tf_set_ids);
+            $where .= "')";
+
+            # Also store TF IDs in a definitive array context
+            $tf_ids_passed = 1;
+            @passed_tf_ids = @$tf_set_ids;
+        }
+    }
 
     if ($threshold) {
         $where .= " and" if $where;
@@ -179,47 +241,9 @@ sub fetch_tfbs_counts
         $where .= " rel_score >= $threshold";
     }
 
-    my $ref = ref $pc_sr_ids;
-    if (defined $pc_sr_ids
-        && (!$ref || ($ref eq 'ARRAY' && $pc_sr_ids->[0]))
-    ) {
-        $where .= " and" if $where;
-
-        if ($ref eq 'ARRAY') {
-            if ($pc_sr_ids->[0]) {
-                $where .= " search_region_id in (";
-                $where .= join ',', @$pc_sr_ids;
-                $where .= ")";
-            }
-        } else {
-            $where .= " search_region_id = $pc_sr_ids";
-        }
-    }
-
-    my @fh_tf_ids;
-
-    $ref = ref $tf_ids;
-    if (defined $tf_ids
-        && (!$ref || ($ref eq 'ARRAY' && $tf_ids->[0]))
-    ) {
-        $where .= " and" if $where;
-
-        if ($ref eq 'ARRAY') {
-            if ($tf_ids->[0]) {
-                $where .= " tf_id in ('";
-                $where .= join("','", @$tf_ids);
-                $where .= "')";
-            }
-
-            @fh_tf_ids = @$tf_ids;
-        } else {
-            $where .= " tf_id = '$tf_ids'";
-
-            push @fh_tf_ids, $tf_ids;
-        }
-    }
-
     $sql .= " where $where" if $where;
+
+    #$logger->info("fetch_tfbs_counts SQL:\n$sql\n");
 
     #
     # Don't use extra memory/time sorting in SQL as chromosome sorting is
@@ -234,126 +258,147 @@ sub fetch_tfbs_counts
         return;
     }
 
-    unless ($sth->execute) {
-        carp "Error executing fetch TFBSs with:\n$sql\n"
-            . $self->errstr . "\n";
-        return;
-    }
-
-    my %tf_fh;
-    if ($results_dir && @fh_tf_ids && $fh_tf_ids[0]) {
-        foreach my $tf_id (@fh_tf_ids) {
-            my $fname = $tf_id;
-            $fname =~ s/\//_/g;
-
-            my $data_file = "$results_dir/$fname.data";
-            my $fh;
-
-            unless (open($fh, ">$data_file")) {
-                carp  "Error opening output TFBS details data file"
-                    . " $data_file - $!\n";
-                return;
+    #
+    # XXX
+    # If the actual TF IDs were passed in via either the -tf_ids or the -tf_set
+    # arguments then initialize the counts for all the search region / TF
+    # combinations to 0 as we want to report the 0 counts in the final results.
+    # Howerer if we don't have these (fetching binding site counts for all TFs)
+    # we will only initialize / store counts when there is at least 1
+    # binding site for a given TF in a given search region. So we will lose the
+    # 0 counts in the final results, but perhaps this is not such an issue?
+    # XXX
+    #
+    my %sr_tfbs_count;
+    if ($tf_ids_passed) {
+        foreach my $sr_id (@sr_ids) {
+            foreach my $tf_id (@passed_tf_ids) {
+                $sr_tfbs_count{$sr_id}->{$tf_id} = 0;
             }
-
-            $tf_fh{$tf_id} = $fh;
-
-            #
-            # Specific header format recognized by Datafile plugin of the
-            # Template Toolkit.
-            #
-            print $fh "region|chr|start|end|strand|score|rel_score|seq\n";
         }
     }
 
-    my %sr_tfbs_count;
     my %tf_hit_lines;
-    while (my @row = $sth->fetchrow_array) {
+    my %found_tf_ids_hash;
+    foreach my $pc_sr_id (@pc_sr_ids) {
+        unless ($sth->execute($pc_sr_id)) {
+            carp "Error executing fetch TFBSs with:\n$sql\n"
+                ."pre-computed search region id = $pc_sr_id\n"
+                . $self->errstr . "\n";
+            return;
+        }
+
         #
         # Get actual search regions corresponding to this pre-computed search
         # region ID.
         #
-        my $search_regions = $search_region_map->{$row[0]};
+        my $search_regions = $search_region_map->{$pc_sr_id};
 
-        #
-        # Loop through actual search regions to see which one the TFBS
-        # falls into.
-        #
-        foreach my $sr (@$search_regions) {
-            if ($row[3] >= $sr->start && $row[4] <= $sr->end) {
-                #
-                # Increment count for this TF in this search region.
-                #
-                $sr_tfbs_count{$sr->id}->{$row[1]}++;
+        while (my @row = $sth->fetchrow_array) {
+            my $tf_id = $row[1];
 
-                #
-                # Write binding site details to file
-                #
-                # Actually, don't write. Store lines by TF for sorting
-                # before writing out to file.
-                #
-                if ($results_dir) {
-                    my $region_str = sprintf "chr%s:%d-%d",
-                        $sr->chrom,
-                        $sr->start,
-                        $sr->end;
+            #
+            # Loop through actual search regions to see which one the TFBS
+            # falls into.
+            #
+            foreach my $sr (@$search_regions) {
+                if ($row[3] >= $sr->start && $row[4] <= $sr->end) {
+                    #
+                    # Increment count for this TF in this search region.
+                    #
+                    $sr_tfbs_count{$sr->id}->{$tf_id}++;
 
-                    #my $fh = $tf_fh{$row[1]};
+                    #
+                    # Keep track of all (unique) TF IDs actually found
+                    # within at least one of the search region.
+                    #
+                    $found_tf_ids_hash{$tf_id} = 1;
 
-                    #if ($fh) {
-                    #    printf($fh "$region_str|%s|%d|%d|%s|%.3f|%.1f|%s\n",
-                    #        $row[2],
-                    #        $row[3],
-                    #        $row[4],
-                    #        $row[5],
-                    #        $row[6],
-                    #        $row[7] * 100,
-                    #        $row[8]
-                    #    );
-                    #}
+                    #
+                    # Write binding site details to file
+                    #
+                    # Actually, don't write. Store lines by TF for sorting
+                    # before writing out to file.
+                    #
+                    if ($results_dir) {
+                        my $region_str = sprintf "chr%s:%d-%d",
+                            $sr->chrom,
+                            $sr->start,
+                            $sr->end;
 
-                    push @{$tf_hit_lines{$row[1]}},
-                        sprintf(
-                            "$region_str|%s|%d|%d|%s|%.3f|%.1f|%s",
-                            $row[2],
-                            $row[3],
-                            $row[4],
-                            $row[5],
-                            $row[6],
-                            $row[7] * 100,
-                            $row[8]
-                        );
+                        push @{$tf_hit_lines{$tf_id}},
+                            sprintf(
+                                "$region_str|%s|%d|%d|%s|%.3f|%.1f|%s",
+                                $row[2],
+                                $row[3],
+                                $row[4],
+                                $row[5],
+                                $row[6],
+                                $row[7] * 100,
+                                $row[8]
+                            );
+                    }
+
+                    last;
                 }
-
-                last;
             }
         }
     }
 
     if ($results_dir) {
-        foreach my $tf_id (@$tf_ids) {
-            my $fh = $tf_fh{$tf_id};
+        #
+        # Loop through the actual TF IDs fetched as we have not necessarily
+        # passed in any TF IDs or a TF Set and even if so, the TFs retrieved
+        # may be fewer than the number queried.
+        #
+        foreach my $tf_id (keys %found_tf_ids_hash) {
+            my $hit_lines = $tf_hit_lines{$tf_id};
 
-            if ($fh) {
-                my $hit_lines = $tf_hit_lines{$tf_id};
+            if ($hit_lines) {
+                my $fname = $tf_id;
+                $fname =~ s/\//_/g;
 
-                if ($hit_lines) {
-                    @$hit_lines = sort _sort_hit_line @$hit_lines;
+                my $data_file = "$results_dir/$fname.data";
 
-                    foreach my $hit_line (@$hit_lines) {
-                        printf $fh "$hit_line\n";
+                if (open(FH, ">$data_file")) {
+                    #
+                    # Specific header format recognized by Datafile plugin
+                    # of the Template Toolkit.
+                    #
+                    print FH
+                        "region|chr|start|end|strand|score|rel_score|seq\n";
+
+                    if ($hit_lines) {
+                        @$hit_lines = sort _sort_hit_line @$hit_lines;
+
+                        foreach my $hit_line (@$hit_lines) {
+                            printf FH "$hit_line\n";
+                        }
                     }
-                }
 
-                close $fh;
+                    close FH;
+                } else {
+                    carp  "Error opening output TFBS details data file"
+                        . " $data_file - $!\n";
+                }
             }
         }
     }
 
-    my $counts = OPOSSUM::Analysis::Counts->new(
-        -seq_ids    => [sort keys %sr_tfbs_count],
-        -tf_ids     => $tf_ids,
-        -counts     => \%sr_tfbs_count
-    );
+    my $counts;
+    if ($tf_ids_passed) {
+        $counts = OPOSSUM::Analysis::Counts->new(
+            -seq_ids    => [sort keys %sr_tfbs_count],
+            -tf_ids     => \@passed_tf_ids,
+            -counts     => \%sr_tfbs_count
+        );
+    } else {
+        $counts = OPOSSUM::Analysis::Counts->new(
+            -seq_ids    => [sort keys %sr_tfbs_count],
+            -tf_ids     => [sort keys %found_tf_ids_hash],
+            -counts     => \%sr_tfbs_count
+        );
+    }
 
     return $counts;
 }
@@ -491,13 +536,13 @@ sub fetch_tfbss
 
     my $sth = $self->prepare($sql);
     if (!$sth) {
-        carp "Error preparing fetch TF site count with:\n$sql\n"
+        carp "Error preparing fetch TFBSs with:\n$sql\n"
             . $self->errstr . "\n";
         return;
     }
 
     if (!$sth->execute) {
-        carp "Error executing fetch TF site counts with:\n$sql\n"
+        carp "Error executing fetch TFBSs with:\n$sql\n"
             . $self->errstr . "\n";
         return;
     }
@@ -521,7 +566,245 @@ sub fetch_tfbss
     return @tfbss ? \@tfbss : undef;
 }
 
+=head2 fetch_tfbs_counts_old
+
+ This is the version of fetch_tfbs_counts before the SQL query was split up
+ to use multiple queries (one for each pre-computed search region) rather
+ then using a giant 'in' clause to search for all regions simultaneously.
+ Testing, the 'in' clause query this was much slower (~50 secs vs. ~10 secs
+ for ~1300 search regions).
+
+ Title    : fetch_tfbs_counts_old
+ Usage    : $counts = $tfbsa->fetch_tfbs_counts_old(
+                -tf_ids             => $tf_ids,
+                -tf_set             => $tf_set,
+                -threshold          => $threshold,
+                -search_region_ids  => $sr_ids,
+                -search_region_map  => $search_region_map,
+                -results_dir        => $results_dir,
+                -logger             => $logger
+            );
+ Function : Fetch counts of the number of binding sites. Optionally limit
+            to a given set of TFs, TFBS score threshold and search regions.
+ Returns  : A listref of OPOSSUM::TFBSCount objects.
+ Args	  : -tf_ids             => OPTIONAL TF ID or list ref of TF IDs.
+            -tf_set             => OPTIONAL OPOSSUM::TFSet object (TF IDs
+                                   take precedent over TF set).
+            -threshold          => OPTIONAL TFBS score threshold
+                                   (range 0.0 - 1.0).
+            -search_region_ids  => OPTIONAL search region ID or list ref
+                                   of search region IDs. The search region
+                                   IDs should be the IDs of the pre-computed
+                                   search region and are essentially "bins"
+                                   which allow for MUCH faster retrieval of
+                                   TFBSs than using search region postions.
+            -search_region_map  => A hash which maps the actual search
+                                   regions to the pre-computed search region
+                                   IDs, i.e. the hash keys are the
+                                   pre-computed search region IDs
+                                   and the elements are listrefs of
+                                   OPOSSUM::SearchRegion objects.
+            -results_dir        => OPTIONAL directory path into which are
+                                   written the TFBS details in a data format
+                                   which is specific to the Template Toolkit
+                                   Datafile plugin
+                                   (see Template::Manual::Plugins). These
+                                   datafile may be used later to format
+                                   the TFBS details in both simple text and
+                                   HTML format. This functionality also
+                                   requires specific TFs to be passed either
+                                   by the -tf_set or -tf_ids arguments.
+            -logger             => OPTIONAL for debugging purposes. If a 
+                                   Log::Log4perl logger object is provided,
+                                   log DEBUG/INFO messages.
+
+=cut
+
 sub fetch_tfbs_counts_old
+{
+    my ($self, %args) = @_;
+
+    my $tf_set              = $args{-tf_set};
+    my $tf_ids              = $args{-tf_ids};
+    my $threshold           = $args{-threshold};
+    my $pc_sr_ids           = $args{-search_region_ids};
+    my $search_region_map   = $args{-search_region_map};
+    my $results_dir         = $args{-results_dir};
+    #my $logger              = $args{-logger};
+
+    unless ($search_region_map) {
+        carp "No search region map provided\n";
+        return;
+    }
+
+    unless ($tf_ids) {
+        $tf_ids = $tf_set->ids if $tf_set;
+    }
+
+    my $sql = "select search_region_id, tf_id, chrom, start, end, strand,"
+            . " score, rel_score, seq from tfbss";
+
+    my $where;
+
+    if ($threshold) {
+        $where .= " and" if $where;
+
+        if ($threshold =~ /(.+)%$/) {
+            $threshold = $1 / 100;
+        }
+            
+        $where .= " rel_score >= $threshold";
+    }
+
+    my $ref = ref $pc_sr_ids;
+    if (defined $pc_sr_ids
+        && (!$ref || ($ref eq 'ARRAY' && $pc_sr_ids->[0]))
+    ) {
+        $where .= " and" if $where;
+
+        if ($ref eq 'ARRAY') {
+            if ($pc_sr_ids->[0]) {
+                $where .= " search_region_id in (";
+                $where .= join ',', @$pc_sr_ids;
+                $where .= ")";
+            }
+        } else {
+            $where .= " search_region_id = $pc_sr_ids";
+        }
+    }
+
+    $ref = ref $tf_ids;
+    if (defined $tf_ids
+        && (!$ref || ($ref eq 'ARRAY' && $tf_ids->[0]))
+    ) {
+        $where .= " and" if $where;
+
+        if ($ref eq 'ARRAY') {
+            if ($tf_ids->[0]) {
+                $where .= " tf_id in ('";
+                $where .= join("','", @$tf_ids);
+                $where .= "')";
+            }
+        } else {
+            $where .= " tf_id = '$tf_ids'";
+        }
+    }
+
+    $sql .= " where $where" if $where;
+
+    #$logger->info("fetch_tfbs_counts SQL:\n$sql\n");
+
+    #
+    # Don't use extra memory/time sorting in SQL as chromosome sorting is
+    # not correct and we need to resort anyway.
+    #
+    #$sql .= " order by chrom, start, end";
+
+    my $sth = $self->prepare($sql);
+    unless ($sth) {
+        carp "Error preparing fetch TFBSs with:\n$sql\n"
+            . $self->errstr . "\n";
+        return;
+    }
+
+    unless ($sth->execute) {
+        carp "Error executing fetch TFBSs with:\n$sql\n"
+            . $self->errstr . "\n";
+        return;
+    }
+
+    my %sr_tfbs_count;
+    my %tf_hit_lines;
+    while (my @row = $sth->fetchrow_array) {
+        #
+        # Get actual search regions corresponding to this pre-computed search
+        # region ID.
+        #
+        my $search_regions = $search_region_map->{$row[0]};
+
+        #
+        # Loop through actual search regions to see which one the TFBS
+        # falls into.
+        #
+        foreach my $sr (@$search_regions) {
+            if ($row[3] >= $sr->start && $row[4] <= $sr->end) {
+                #
+                # Increment count for this TF in this search region.
+                #
+                $sr_tfbs_count{$sr->id}->{$row[1]}++;
+
+                #
+                # Write binding site details to file
+                #
+                # Actually, don't write. Store lines by TF for sorting
+                # before writing out to file.
+                #
+                if ($results_dir) {
+                    my $region_str = sprintf "chr%s:%d-%d",
+                        $sr->chrom,
+                        $sr->start,
+                        $sr->end;
+
+                    push @{$tf_hit_lines{$row[1]}},
+                        sprintf(
+                            "$region_str|%s|%d|%d|%s|%.3f|%.1f|%s",
+                            $row[2],
+                            $row[3],
+                            $row[4],
+                            $row[5],
+                            $row[6],
+                            $row[7] * 100,
+                            $row[8]
+                        );
+                }
+
+                last;
+            }
+        }
+    }
+
+    if ($results_dir) {
+        foreach my $tf_id (@$tf_ids) {
+            my $fname = $tf_id;
+            $fname =~ s/\//_/g;
+
+            my $data_file = "$results_dir/$fname.data";
+
+            if (open(FH, ">$data_file")) {
+                #
+                # Specific header format recognized by Datafile plugin of the
+                # Template Toolkit.
+                #
+                print FH "region|chr|start|end|strand|score|rel_score|seq\n";
+
+                my $hit_lines = $tf_hit_lines{$tf_id};
+
+                if ($hit_lines) {
+                    @$hit_lines = sort _sort_hit_line @$hit_lines;
+
+                    foreach my $hit_line (@$hit_lines) {
+                        printf FH "$hit_line\n";
+                    }
+                }
+
+                close FH;
+            } else {
+                carp  "Error opening output TFBS details data file"
+                    . " $data_file - $!\n";
+            }
+        }
+    }
+
+    my $counts = OPOSSUM::Analysis::Counts->new(
+        -seq_ids    => [sort keys %sr_tfbs_count],
+        -tf_ids     => $tf_ids,
+        -counts     => \%sr_tfbs_count
+    );
+
+    return $counts;
+}
+
+sub fetch_tfbs_counts_older
 {
     my ($self, %args) = @_;
 

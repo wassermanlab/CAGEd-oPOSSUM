@@ -178,7 +178,7 @@ sub fetch_experiment_ids
 {
     my ($self, $where) = @_;
 
-    my $sql = "select experiment_id from experiments";
+    my $sql = "select id from experiments";
 
 	if ($where) {
         unless ($where =~ /^\s*where / or $where =~ /^\s*order /) {

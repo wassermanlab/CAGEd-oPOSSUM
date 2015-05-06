@@ -144,8 +144,8 @@ sub get_experiments
 sub fetch_tss_by_experimental_criteria
 {
     my (
-        $tssa, $torb, $experiments, $tag_count, $tpm, $tss_only, $gene_ids,
-        $job_args
+        $tssa, $torb, $experiments, $tag_count, $tpm, $rel_expr, $tss_only,
+        $gene_ids, $job_args
     ) = @_;
 
     my $logger = $job_args->{-logger};
@@ -167,6 +167,7 @@ sub fetch_tss_by_experimental_criteria
         -experiment_ids => \@exp_ids,
         -min_tag_count  => $tag_count,
         -min_tpm        => $tpm,
+        -min_rel_expr   => $rel_expr,
         -gene_ids       => $gene_ids
     );
 

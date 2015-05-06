@@ -10,6 +10,30 @@ use constant OPOSSUM_DB_USER    => 'opossum_r';
 use constant OPOSSUM_DB_PASS    => '';
 
 #
+# XXX
+# Below commented out did not get included properly! No idea why. Defined
+# these explicityl in the modules which use them.
+#
+# Used by OPOSSUM::Tools::SearchRegionTool to run BedTools
+#
+# BedTools executables
+#
+#use constant BT_MERGE_EXEC      => 'mergeBed';
+#use constant BT_INTERSECT_EXEC  => 'intersectBed';
+#
+# Reference whole genome fasta files used to extract sequences based on
+# regions defined in BED files.
+#
+#use constant HUMAN_REF_FASTA    => '/space/data/resources/fasta/hg19/hg19.fa';
+#use constant MOUSE_REF_FASTA    => '/space/data/resources/fasta/mm9/mm9.fa';
+
+#
+# Used by OPOSSUM::Tools::BiasAway
+#
+#use constant BA_EXEC        => 'python2.7 /apps/BiasAway/BiasAway.py g';
+#use constant BA_DFLT_FOLD   => 1;
+
+#
 # NOTE: The actual Ensembl species DB name is stored in the db_info record
 # of the specific FANTOM5-oPOSSUM species DB. The Ensembl lib version has to
 # be in sync with this Ensembl DB.
@@ -28,6 +52,7 @@ use constant MAX_BACKGROUND_TSS => 20000;
 # Form selection values and default settings. These may need to be overriden 
 # by specific oPOSSUM variants.
 #
+use constant DFLT_JASPAR_COLLECTION => 'CORE';
 use constant DFLT_MIN_IC            => '8';
 use constant DFLT_TFBS_THRESHOLD    => '85';
 use constant DFLT_UPSTREAM_BP       => '1500';

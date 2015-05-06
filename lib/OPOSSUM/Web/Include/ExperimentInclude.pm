@@ -44,6 +44,18 @@ sub opossum_db_connect
     $self->opdba($dba);
 }
 
+sub opossum_db_disconnect
+{
+    my $self = shift;
+
+    if ($self->opdba()) {
+        if ($self->opdba()->dbc()) {
+            $self->opdba()->dbc()->disconnect();
+        }
+        $self->opdba(undef);
+    }
+}
+
 sub opdba
 {
     my $self = shift;

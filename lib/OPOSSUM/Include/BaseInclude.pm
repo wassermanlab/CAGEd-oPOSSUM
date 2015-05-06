@@ -29,6 +29,8 @@ use OPOSSUM::Web::Opt::BaseOpt;
 #use Data::Dumper;    # for debugging only
 use Carp;
 
+use File::Temp qw/ tempfile /;
+
 use Template;
 use CGI;
 
@@ -39,6 +41,8 @@ use OPOSSUM::TFSet;
 use OPOSSUM::TFBS;
 use OPOSSUM::Analysis::Counts;
 use OPOSSUM::TSS;
+
+use Bio::SeqIO;
 
 
 #
@@ -397,10 +401,13 @@ sub read_matrices
             $line_count++;
 
             if ($line_count == 4) {
-                $id = sprintf "matrix%d", $matrix_count + 1 unless $id;
-
-                unless ($name) {
-                    $name = $id;
+                #$id = sprintf "matrix%d", $matrix_count + 1 unless $id;
+                #
+                #unless ($name) {
+                #    $name = $id;
+                #}
+                unless ($id) {
+                    $id = $name;
                 }
 
                 #
@@ -835,7 +842,7 @@ sub warning
     
     $error = 'Unknown error' unless $error;
 
-    $logger->warning("$error") if $logger;
+    $logger->warn("$error") if $logger;
 
     carp "$error\n";
 }
@@ -858,21 +865,59 @@ sub opossum_db_connect
 
 sub write_search_regions
 {
-    my ($search_regions, $outfile) = @_;
+    my ($search_regions, $outfile, $format) = @_;
     
     unless (open(FH, ">$outfile")) {
         return;
     }
 
-    foreach my $sr (@$search_regions) {
-        printf FH "%d\tchr%s:%d-%d\n",
-            $sr->id,
-            $sr->chrom,
-            $sr->start,
-            $sr->end;
+    if ($format && lc $format eq 'bed') {
+        foreach my $sr (@$search_regions) {
+            printf FH "chr%s\t%d\t%d\n",
+                $sr->chrom,
+                $sr->start - 1,
+                $sr->end;
+        }
+    } else {
+        foreach my $sr (@$search_regions) {
+            printf FH "%d\tchr%s:%d-%d\n",
+                $sr->id,
+                $sr->chrom,
+                $sr->start,
+                $sr->end;
+        }
     }
 
     close(FH);
+}
+
+sub read_sequences
+{
+    my ($file, $job_args) = @_;
+
+    my $seqIO = Bio::SeqIO->new(-file => $file, -format => "fasta");
+
+    unless ($seqIO) {
+        fatal("Error opening fasta sequence file $file", $job_args);
+    }
+
+    my @seqs;
+    while (my $seq = $seqIO->next_seq()) {
+        push @seqs, $seq;
+    }
+
+    return @seqs ? \@seqs : undef;
+}
+
+sub write_sequences
+{
+    my ($seqs, $outfile) = @_;
+    
+    my $seqIO = Bio::SeqIO->new(-file => ">$outfile", -format => 'fasta');
+
+    foreach my $seq (@$seqs) {
+        $seqIO->write_seq($seq);
+    }
 }
 
 sub fetch_tss_by_names_file
@@ -913,18 +958,21 @@ sub fetch_tss_by_names_file
 
     my $num_tss = scalar @$tss;
 
-    $logger->info("Fetched $num_tss $torb TSSs from DB");
+    $logger->info("Fetched $num_tss $torb CAGE peaks from DB");
 
     #
     # Check for missing TSSs - TSSs fetched from DB is less than the
-    # number of unique TSS names read from the file
+    # number of unique TSS names read from the file. This can happen
+    # normally if any filters are on.
     #
-    if ($num_tss < $num_tss_names) {
-        $logger->warning(
-              "Number of TSSs fetched from DB $num_tss is less than the"
-            . " number of TSS names provided in the TSS names file"
-            . " $tss_names_file"
-        );
+    unless ($tss_only || $gene_ids) {
+        if ($num_tss < $num_tss_names) {
+            warning(
+                  "The number of $torb CAGE peaks fetched from DB ($num_tss)"
+                . " is less than the number of TSS names provided in the TSS"
+                . " names file $tss_names_file ($num_tss_names)", $job_args
+            );
+        }
     }
 
     return $tss;
@@ -940,285 +988,6 @@ sub compute_search_region_length
     }
 
     return $length;
-}
-
-#
-# Compute a list of search regions from a list of TSSs by applying the
-# provided upstream/downstream flanks, merging any overlapping regions and
-# filtering these regions by an optionally provided set of filtering regions. 
-#
-sub compute_tss_search_regions
-{
-    my (
-        $tss_list, $upstream_bp, $downstream_bp, $filter_regions, $job_args
-    ) = @_;
-
-    my $tss_search_regions = create_tss_search_regions(
-        $tss_list, $upstream_bp, $downstream_bp
-    );
-
-    unless ($tss_search_regions) {
-        fatal("Computing TSS search regions", $job_args);
-    }
-
-    if ($filter_regions) {
-        $filter_regions = merge_search_regions($filter_regions);
-
-        my $srf = OPOSSUM::Tools::SearchRegionFilter->new();
-
-        unless ($srf) {
-            fatal("Coult not create search region filter", $job_args);
-        }
-
-        $tss_search_regions = $srf->filter_search_regions(
-            -search_regions => $tss_search_regions,
-            -filter_regions => $filter_regions
-        );
-
-        unless ($tss_search_regions) {
-            fatal(
-                  "Error filtering search regions by specified BED filter"
-                . " regions", $job_args
-            );
-        }
-    }
-
-    #
-    # Assign search region IDs to the combined regions.
-    # These IDs DO NOT correspond directly to the IDs/search regions retrieved
-    # from the database!
-    #
-    my $sr_id = 1;
-    foreach my $sr (@$tss_search_regions) {
-        $sr->id($sr_id++);
-    }
-
-    return $tss_search_regions;
-}
-
-#
-# Create a list of search regions from a list of TSSs by applying the
-# provided upstream/downstream flanks and merging any overlapping regions. 
-#
-sub create_tss_search_regions
-{
-    my ($tss_list, $upstream_bp, $downstream_bp) = @_;
-
-    return unless $tss_list;
-
-    $upstream_bp = 0 unless defined $upstream_bp;
-    $downstream_bp = 0 unless defined $downstream_bp;
-
-    my @search_regions;
-    foreach my $tss (@$tss_list) {
-        my $chrom  = $tss->chrom;
-        my $start  = $tss->start;
-        my $end    = $tss->end;
-        my $strand = $tss->strand;
-
-        if ($strand eq '-') {
-            $start = $start - $downstream_bp;
-            $end   = $end + $upstream_bp;
-        } else {
-            $start = $start - $upstream_bp;
-            $end   = $end + $downstream_bp;
-        }
-
-        $start = 1 if $start < 1;
-
-        push @search_regions, OPOSSUM::SearchRegion->new(
-            -chrom      => $chrom,
-            -start      => $start,
-            -end        => $end,
-
-            #
-            # The parent (pre-computed search region) ID of this search
-            # region is the search region ID of the TSS used to create it.
-            #
-            # NOTE: The parent ID may not be set if the TSSs were read from
-            # a user supplied BED file rather than retrieved from the database.
-            # This is OK.
-            #
-            -parent_id  => $tss->search_region_id,
-
-            #
-            # For now don't do this. May be required in the future for
-            # displaying more detailed information about the relationship
-            # between search regions and the TSSs used to generate them.
-            #
-            #-tss        => [$tss]
-        );
-    }
-
-    return merge_search_regions(\@search_regions);
-}
-
-sub merge_search_regions
-{
-    my ($regions) = @_;
-
-    return unless $regions;
-
-    #
-    # Divide regions by chromosome
-    #
-    my %chrom_regions;
-    foreach my $reg (@$regions) {
-        push @{$chrom_regions{$reg->chrom}}, $reg;
-    }
-
-    my @chroms = keys %chrom_regions;
-
-    @chroms = sort chrom_compare @chroms;
-
-    my @merged_regions;
-    foreach my $chrom (@chroms) {
-        my $regions = $chrom_regions{$chrom};
-
-        $regions = combine_search_regions($chrom, $regions);
-
-        push @merged_regions, @$regions if $regions;
-    }
-
-    return @merged_regions ? \@merged_regions : undef;
-}
-
-sub combine_search_regions
-{
-    my ($chrom, $regs) = @_;
-
-    return if !$regs || !$regs->[0];
-
-    my $num_regs = scalar @$regs;
-
-    unless ($num_regs > 1) {
-        return $regs
-    }
-
-    @$regs = sort {$a->start <=> $b->start} @$regs;
-
-    my @combined_regs;
-
-    my $reg1 = $regs->[0];
-
-    push @combined_regs, $reg1;
-
-    my $i = 1;
-    while ($i < $num_regs) {
-        my $reg2 = $regs->[$i];
-
-        #if (do_features_combine($reg1, $reg2)) {
-        if ($reg2->start <= $reg1->end + 1) {
-            #$logger->debug(
-            #    sprintf(
-            #        "Combining chr$chrom regions %d-%d and %d-%d",
-            #        $reg1->chrom,
-            #        $reg1->start, $reg1->end,
-            #        $reg2->start, $reg2->end
-            #    )
-            #);
-            if ($reg2->end > $reg1->end) {
-                $reg1->end($reg2->end);
-            }
-
-            #
-            # Sanity check
-            #
-            #unless ($reg1->parent_id == $reg2->parent_id) {
-            #    fatal(
-            #        sprintf(
-            #              "Error combining search regions %s:%d-%d and %s:%d-%d"
-            #            . " - parent ID %d != %d",
-            #            $reg1->chrom, $reg1->start, $reg1->end,
-            #            $reg2->chrom, $reg2->start, $reg2->end,
-            #            $reg1->parent_id, $reg2->parent_id
-            #        )
-            #    );
-            #}
-
-            #$reg1->add_tss($reg2->tss);
-        } else {
-            $reg1 = $reg2;
-            push @combined_regs, $reg1;
-        }
-
-        $i++;
-    }
-
-    return @combined_regs ? \@combined_regs : undef;
-}
-
-sub filter_search_regions
-{
-    my ($search_regions, $filter_regions) = @_;
-
-    my $filtered_regions = $search_regions;
-    while (my $filt_reg = filter_regions($filtered_regions, $filter_regions)) {
-        $filtered_regions = $filt_reg;
-    }
-
-    return $filtered_regions;
-}
-
-sub filter_regions
-{
-    my ($search_regions, $filter_regions) = @_;
-
-    my @filtered_regions;
-    foreach my $sr (@$search_regions) {
-        foreach my $fr (@$filter_regions) {
-            next if
-                   $fr->chrom ne $sr->chrom
-                || $fr->end < $sr->start
-                || $fr->start > $sr->end;
-
-            if ($fr->start <= $sr->end) {
-                # Filter region encompasses search region start
-                if ($fr->end >= $sr->end) {
-                    # Filter region encompasses search region end
-                    # Add entire original search region
-                    push @filtered_regions, OPOSSUM::SearchRegion->new(
-                        -parent_id  => $sr->parent_id,
-                        -chrom      => $sr->chrom,
-                        -start      => $sr->start,
-                        -end        => $sr->end
-                    );
-                } else {
-                    # Filter region end cuts search region
-                    # Add left hand part of original search region
-                    push @filtered_regions, OPOSSUM::SearchRegion->new(
-                        -parent_id  => $sr->parent_id,
-                        -chrom      => $sr->chrom,
-                        -start      => $sr->start,
-                        -end        => $fr->end
-                    );
-                }
-            } else {
-                # Filter region start cuts search region
-                if ($fr->end >= $sr->end) {
-                    # Filter region encompasses search region end
-                    # Add right hand part original search region
-                    push @filtered_regions, OPOSSUM::SearchRegion->new(
-                        -parent_id  => $sr->parent_id,
-                        -chrom      => $sr->chrom,
-                        -start      => $fr->start,
-                        -end        => $sr->end
-                    );
-                } else {
-                    # Filter region end cuts search region
-                    # Add center part of original search region
-                    push @filtered_regions, OPOSSUM::SearchRegion->new(
-                        -parent_id  => $sr->parent_id,
-                        -chrom      => $sr->chrom,
-                        -start      => $fr->start,
-                        -end        => $fr->end
-                    );
-                }
-            }
-        }
-    }
-
-    return @filtered_regions ? \@filtered_regions : undef;
 }
 
 #
@@ -1541,18 +1310,24 @@ sub write_tfbs_details
 
         my $data_file = "$results_dir/$fname.data";
 
-        my $text_file = "$results_dir/$fname.txt";
+        #
+        # If there were no hits for this TF then the data file will not exist.
+        # DJA 2014/11/24
+        #
+        if (-e $data_file) {
+            my $text_file = "$results_dir/$fname.txt";
 
-        write_tfbs_details_text_from_data(
-            $tf, $data_file, $text_file, $job_args
-        );
-
-        if ($web) {
-            my $html_file = "$results_dir/$fname.html";
-
-            write_tfbs_details_html_from_data(
-                $tf, $data_file, $html_file, $job_args
+            write_tfbs_details_text_from_data(
+                $tf, $data_file, $text_file, $job_args
             );
+
+            if ($web) {
+                my $html_file = "$results_dir/$fname.html";
+
+                write_tfbs_details_html_from_data(
+                    $tf, $data_file, $html_file, $job_args
+                );
+            }
         }
 
         #
@@ -1657,15 +1432,16 @@ sub write_tfbs_details_text_header
 
     printf $fh "TF name:\t%s\n", $tf->name();
     printf $fh "JASPAR ID:\t%s\n", $tf->ID();
-    printf $fh "Class:\t%s\n", $tf->class() || 'NA';
-    printf $fh "Family:\t%s\n", $tf->tag('family') || 'NA';
-    printf $fh "Tax group:\t%s\n", $tf->tag('tax_group') || 'NA';
-    printf $fh "GC content:\t%s\n", $tf->tag('gc_content') || 'NA';
+    printf $fh "Class:\t%s\n", $tf->class() || '';
+    printf $fh "Family:\t%s\n", $tf->tag('family') || '';
+    printf $fh "Tax group:\t%s\n", $tf->tag('tax_group') || '';
+    printf $fh "GC content:\t%s\n",
+        sprintf("%.3f", $tf->tag('gc_content')) || '';
     printf $fh "Information content:\t%s\n", $total_ic;
 
     print $fh "\n\nBinding Sites:\n\n";
 
-    print $fh "Region\tChr\tStart\tEnd\tStrand\tAbs. Score\tRel. Score\tBinding Sequence\n";
+    print $fh "Region\tChr\tStart\tEnd\tStrand\tAbs. Score\tRel. Score\tSequence\n";
 }
 
 sub write_tfbs_details_html_from_data

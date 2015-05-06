@@ -10,12 +10,13 @@ $tssa = $db_adaptor->get_TSSAdaptor();
 =head1 DESCRIPTION
 
 The tss table contains records which store TSS tag cluster information.
-This table stores the id, name, chromosomal coordinate information, max.
-tag count and tpm values for these TSSs.
+This table stores the id, name, chromosomal coordinate information, tag
+count, tpm (tags per million) and relative expression values for these
+TSSs.
 
 NOTE: The tss_extra table contains the short_description, description and
-transcript association of the TSSs and the tss_genes table contains the genes
-associated with the TSSs.
+transcript association of the TSSs and the tss_genes table contains the
+genes associated with the TSSs.
 
 =head1 AUTHOR
 
@@ -231,7 +232,7 @@ sub fetch_by_names
                 $where .= sprintf(" name = '%s'", $names->[0]);
             }
         } else {
-            $where .= " name = $names";
+            $where .= " name = '$names'";
         }
     }
 
@@ -285,8 +286,10 @@ sub fetch_by_region
                 -experiment_ids     => $experiment_ids,
                 -min_tag_count      => $min_tag_count,
                 -min_tpm            => $min_tpm,
+                -min_rel_expr       => $min_rel_expr,
                 -max_tag_count      => $max_tag_count,
                 -max_tpm            => $max_tpm,
+                -max_rel_expr       => $max_rel_expr,
                 -is_tss             => $is_tss,
                 -search_region_ids  => $search_region_ids,
                 -search_region_map  => $search_region_map
@@ -311,11 +314,17 @@ sub fetch_by_region
             -min_tpm            => OPTIONAL minimum tags per million (TPM)
                                    of experiments associated with the TSSs
                                    to retrieve
+            -min_rel_expr       => OPTIONAL minimum relative expression of
+                                   experiments associated with the TSSs to
+                                   retrieve
             -max_tag_count      => OPTIONAL maximum tag count of experiments
                                    associated with the TSSs to retrieve
             -max_tpm            => OPTIONAL maximum tags per million (TPM)
                                    of experiments associated with the TSSs
                                    to retrieve
+            -max_rel_expr       => OPTIONAL maximum relative expression of
+                                   experiments associated with the TSSs to
+                                   retrieve
             -search_region_ids  => OPTIONAL search region ID or list ref
                                    of search region IDs. The search region
                                    IDs should be the IDs of the pre-computed
@@ -341,8 +350,10 @@ sub fetch
     my $exp_ids       = $args{-experiment_ids};
     my $min_tag_count = $args{-min_tag_count};
     my $min_tpm       = $args{-min_tpm};
+    my $min_rel_expr  = $args{-min_rel_expr};
     my $max_tag_count = $args{-max_tag_count};
     my $max_tpm       = $args{-max_tpm};
+    my $max_rel_expr  = $args{-max_rel_expr};
     my $pc_sr_ids     = $args{-search_region_ids};
     my $sr_map        = $args{-search_region_map};
 
@@ -356,7 +367,8 @@ sub fetch
 
     if (
         defined $exp_ids || defined $min_tag_count || defined $min_tpm
-        || defined $max_tag_count || defined $max_tpm
+        || defined $min_rel_expr || defined $max_tag_count || defined $max_tpm
+        || defined $max_rel_expr
     ) {
         $sql .= ", expression x";
         $join .= " and " if $join;
@@ -378,6 +390,11 @@ sub fetch
         $where .= "x.tpm >= $min_tpm";
     }
 
+    if (defined $min_rel_expr) {
+        $where .= " and " if $where;
+        $where .= "x.relative_expression >= $min_rel_expr";
+    }
+
     if (defined $max_tag_count) {
         $where .= " and " if $where;
         $where .= "x.tag_count <= $max_tag_count";
@@ -386,6 +403,11 @@ sub fetch
     if (defined $max_tpm) {
         $where .= " and " if $where;
         $where .= "x.tpm <= $max_tpm";
+    }
+
+    if (defined $max_rel_expr) {
+        $where .= " and " if $where;
+        $where .= "x.relative_expression <= $max_rel_expr";
     }
 
     if (defined $names) {
@@ -485,6 +507,100 @@ sub fetch
     if ($where) {
         $sql .= " and " if $join;
         $sql .= "$where";
+    }
+
+    my $sth = $self->prepare($sql);
+    if (!$sth) {
+        carp "Error preparing fetch TSSs:\n$sql\n" . $self->errstr;
+        return;
+    }
+
+    if (!$sth->execute) {
+        carp "Error executing fetch TSSs:\n$sql\n" . $self->errstr;
+        return;
+    }
+
+    my @tss;
+    while (my @row = $sth->fetchrow_array) {
+        push @tss, OPOSSUM::TSS->new(
+            -id                             => $row[0],
+            -search_region_id               => $row[1],
+            -name                           => $row[2],
+            -chrom                          => $row[3],
+            -start                          => $row[4],
+            -end                            => $row[5],
+            -strand                         => $row[6]
+        );
+    }
+
+    return @tss ? \@tss : undef;
+}
+
+=head2 fetch_random
+
+ Title    : fetch_random
+ Usage    : $tss = $tssa->fetch_random
+                -num_tss            => $num_tss
+                -excluded_tss_ids   => $excluded_tss_ids,
+            );
+ Function : Fetch a list of "random" OPOSSUM::TSSs. This is generally
+            used for fetching background TSS. If num_tss is set, fetch
+            this number of TSS randomly. If excluded_tss_ids is set,
+            do NOT fetch these TSS as part of the set. Thus if BOTH
+            excluded_tss_ids AND num_tss are set, then fetch a set of
+            num_tss TSS from the the DB which also does NOT include the
+            TSSs with excluded_tss_ids. If neither num_tss nor
+            excluded_tss_ids is set then ALL the TSS are fetched.
+
+ Returns  : A list ref of OPOSSUM::TSS objects.
+ Args     : 
+            -num_tss            => OPTIONAL fetch this number of TSS
+                                   randomly from the DB
+            -excluded_tss_ids   => OPTIONAL exclude TSS with these TSS IDs
+                                   from the returned set
+
+=cut
+
+sub fetch_random
+{
+    my ($self, %args) = @_;
+
+    my $num_tss       = $args{-num_tss};
+    my $excl_tss_ids  = $args{-excluded_tss_ids};
+
+    my $sql = qq{
+        select distinct id, search_region_id, name, chrom,
+        start, end, strand from tss
+    };
+
+    my $where;
+    if (defined $excl_tss_ids) {
+        my $ref = ref $excl_tss_ids;
+
+         if ($ref) {
+            if ($ref eq 'ARRAY' && defined $excl_tss_ids->[0]) {
+                #$where .= " and " if $where;
+
+                if (scalar @$excl_tss_ids > 1) {
+                    $where .= "id not in (";
+                    $where .= join ",", @$excl_tss_ids;
+                    $where .= ")";
+                } else {
+                    $where .= sprintf("id = %s", $excl_tss_ids->[0]);
+                }
+            }
+        } else {
+            #$where .= " and " if $where;
+            $where .= "id = $excl_tss_ids";
+        }
+    }
+
+    if ($where) {
+        $sql .= "where $where";
+    }
+
+    if ($num_tss) {
+        $sql .= " order by RAND() limit $num_tss";
     }
 
     my $sth = $self->prepare($sql);
