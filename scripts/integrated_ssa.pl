@@ -956,6 +956,11 @@ if ($b_is_rand) {
     $logger->info("Finished running BiasAway");
 
     #
+    # This file is large so remove it to free some disk space.
+    #
+    unlink $b_pool_seq_file;
+
+    #
     # From the GC composition matched sequences return by BiasAway, fetch
     # the corresponding regions. First create regions from the sequences
     # using the coordinate information stored in the fasta headers. These
