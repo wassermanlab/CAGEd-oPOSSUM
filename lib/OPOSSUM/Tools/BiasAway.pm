@@ -29,8 +29,9 @@ use Readonly;
 
 use strict;
 
-Readonly::Scalar my $BA_EXEC        => 'python2.7 /apps/BiasAway/BiasAway.py g';
-Readonly::Scalar my $BA_DFLT_FOLD   => 1;
+Readonly::Scalar my $BA_EXEC
+        => '/usr/local/python2.7.3/bin/python2.7 /apps/BiasAway/BiasAway.py g';
+Readonly::Scalar my $BA_DFLT_FOLD => 1;
 
 =head2 new
 
