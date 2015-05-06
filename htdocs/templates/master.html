@@ -39,17 +39,27 @@
 
     <div id="menuSecondary" class=[%bg_color_class%]>
       <a href="[%rel_htdocs_path%]">Home</a> |
-      <a href="[%rel_htdocs_path%]/about.html" target="_blank">About</a> | 
-      <a href="[%rel_htdocs_path%]/help.html" target="_blank">Help</a> | 
-      <a href="[%rel_htdocs_path%]/faq.html" target="_blank">FAQ</a> | 
-      <a href="[%rel_htdocs_path%]/news.html" target="_blank">News</a> | 
-      <a href="[%rel_htdocs_path%]/contact.html" target="_blank">Contact</a> |
-      <a href="[%rel_htdocs_path%]/download.html" target="_blank">Download</a>
+      <a href="[%rel_htdocs_path%]/about.html" target="about">About</a> | 
+      <a href="[%rel_htdocs_path%]/help.html" target="help">Help</a> | 
+      <a href="[%rel_htdocs_path%]/faq.html" target="faq">FAQ</a> | 
+      <a href="[%rel_htdocs_path%]/news.html" target="news">News</a> | 
+      <a href="[%rel_htdocs_path%]/contact.html" target="contact">Contact</a> |
+      <a href="[%rel_htdocs_path%]/download.html" target="download">Download</a>
     </div>
 
     <div id="content">
       <h1>[%heading%]</h1>
-      <h2>[%section%]</h2>
+      [%IF progress_svg%]
+        <center>
+        <!--
+        <img width="80%" src="[%rel_htdocs_path%]/images/[%progress_svg%]">
+        <svg width=1285px height=63px>[%rel_htdocs_path%]/images/[%progress_svg%]</svg>
+        <img src="[%rel_htdocs_path%]/images/[%progress_svg%]" style="width: 80%;"/>
+        -->
+        <object data="[%rel_htdocs_path%]/images/[%progress_svg%]" type="image/svg+xml" width="100%"></object>
+
+        </center>
+      [%END%]
       [%INCLUDE $var_template%]
     </div>
   </div>
