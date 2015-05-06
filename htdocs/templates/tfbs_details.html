@@ -54,7 +54,9 @@
   </table>
 
   <br>
+  <br>
   <h3>Binding Sites</h3>
+  <br>
 
   [%USE sites = datafile(data_file, delim = '|')%]
 
@@ -67,7 +69,7 @@
       <th align="center">Strand</th>
       <th align="right">Abs. Score</th>
       <th align="right">Rel. Score</th>
-      <th align="left">Binding Sequence</th>
+      <th align="left">Sequence</th>
     </tr>
 
     [%last_region = ''%]
@@ -77,7 +79,6 @@
           <td align="left"></td>
         [%ELSE%]
           <td align="left">[%site.region%]</td>
-
           [%last_region = site.region%]
         [%END%]
 
