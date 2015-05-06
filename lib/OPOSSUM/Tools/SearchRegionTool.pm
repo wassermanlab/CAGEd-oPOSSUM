@@ -34,6 +34,8 @@ use Bio::SeqIO;
 
 use OPOSSUM::SearchRegion;
 
+Readonly::Scalar my $DEBUG  => 1;
+
 #
 # XXX
 # These were originally defined in OPOSSUM::Opt::BaseOpt but there seemed
@@ -1209,15 +1211,32 @@ sub _cleanup
 {
     my ($self) = @_;
 
-    if ($self->{-search_regions_file}) {
-        unlink $self->{-search_regions_file};
+    if ($self->{-initial_regions_file}) {
+        unlink $self->{-initial_regions_file};
+    }
+
+    if ($self->{-merged_regions_file}) {
+        unlink $self->{-merged_regions_file};
     }
 
     if ($self->{-filtering_regions_file}) {
         unlink $self->{-filtering_regions_file};
     }
 
+    if ($self->{-filtered_regions_file}) {
+        unlink $self->{-filtered_regions_file};
+    }
+
     return;
+}
+
+sub DESTROY
+{
+    my $self = shift;
+
+    unless ($DEBUG) {
+        $self->_cleanup();
+    }
 }
 
 1;
