@@ -1,0 +1,138 @@
+<script type="text/javascript">
+
+function isblank(s)
+{
+    for (var i = 0; i < s.length; i++) {
+        var c = s.charAt(i);
+
+        if ((c != ' ') && (c != '\n') && (c != '\t'))
+            return false;
+    }
+    return true;
+}
+
+function verify(f)
+{
+    var msg;
+    var errors = "";
+    var v;
+
+    if (!errors) return true;
+
+    msg = "_________________________________________________________\n\n";
+    msg += "The analysis was not submitted due to the following problem(s).\n";
+    msg += "Please correct these problem(s) and re-submit.\n";
+    msg += "________________________________________________________\n\n";
+    msg += errors;
+    alert(msg);
+
+    return false;
+}
+
+</script>
+
+<form name="input" enctype="multipart/form-data" method="post" onSubmit="return verify(this)">
+
+  <input type="hidden" name="species" value=[%species%]>
+
+  <div class="stepPane">
+    <br>
+    <h2>[%section%]</h2>
+
+    <!--
+      We can only filter the FANTOM5 CAGE peaks by TSS status or gene
+      association, not custom CAGE peaks
+    -->
+    [%IF tss_type == 'fantom5'%] 
+      <br>
+      <h4>Filter FANTOM5 CAGE peaks by TSS status</h4>
+      &nbsp;[[%IF t_or_b == 'target'%]<a href="[%rel_htdocs_path%]/help/option_details.html#select_t_filt_tss" target="help">HELP</a>[%ELSIF t_or_b == 'background'%]<a href="[%rel_htdocs_path%]/help/option_details.html#select_b_filt_tss" target="help">HELP</a>[%END%]]
+      <br><br>
+
+      Use only FANTOM5 CAGE peaks identified as true TSSs by the TSS classifier&nbsp;
+        <!--
+        <input type="checkbox" name="use_tss_only" [%IF use_tss_only%]checked[%END%]>
+        -->
+      <!--
+        Only default to checked if we selected CAGE peaks by specifying
+        FANTOM5 experiments???
+      -->
+      <input type="checkbox" name="use_tss_only" [%IF tss_input_method == 'experiment'%]checked[%END%]>
+
+      <br>
+      <br>
+      <h4>Filter FANTOM5 CAGE peaks to those associated with specific genes</h4>
+      &nbsp;[[%IF t_or_b == 'target'%]<a href="[%rel_htdocs_path%]/help/option_details.html#select_t_filt_genes" target="help">HELP</a>[%ELSIF t_or_b == 'background'%]<a href="[%rel_htdocs_path%]/help/option_details.html#select_b_filt_genes" target="help">HELP</a>[%END%]]
+
+      <br>
+      <br>
+      Specify genes using [%IF species == 'human'%]HGNC IDs/symbols, [%END%]EntrezGene IDs or UniProt IDs<br><br>
+      Paste gene IDs/symbols (one per line):
+      <br>
+      <textarea name="filter_gene_ids_text" rows=10 cols=60 wrap=SOFT"></textarea>
+      <input type="button" name="clear_filter_gene_ids" value="Clear"
+        onClick="{input.filter_gene_ids_text.value=''}">
+      <br>
+      <br>
+
+      <b>OR</b> upload a plain text file containing gene IDs/symbols (one per line):
+      <br>
+      <span class="subtext">
+        <input type="file" name="filter_gene_ids_file" size="33">
+        <input type="button" name="clear_filter_gene_ids_file" value="Clear"
+          onClick="{input.filter_gene_ids_file.value=''}">
+      </span>
+      <br>
+      <br>
+    [%END%] <!-- tss_type == 'fantom5'-->
+
+    <!--
+      We can filter both FANTOM5 and custom CAGE peaks by regions.
+      Just use different heading text.
+    -->
+    <br>
+    [%IF tss_type == 'fantom5'%] 
+      <h4>Filter FANTOM5 CAGE peak regions to those which intersect with a specific set of genomic regions</h4>
+    [%ELSE%] 
+      <h4>Filter custom CAGE peak regions to those which intersect with a specific set of genomic regions</h4>
+    [%END%] 
+    &nbsp;[[%IF t_or_b == 'target'%]<a href="[%rel_htdocs_path%]/help/option_details.html#select_t_filt_regions" target="help">HELP</a>[%ELSIF t_or_b == 'background'%]<a href="[%rel_htdocs_path%]/help/option_details.html#select_b_filt_regions" target="help">HELP</a>[%END%]]
+    <br><br>
+
+    Specify genomic regions in <a href="http://genome.ucsc.edu/FAQ/FAQformat.html#format1" target="_blank">BED</a> format. Only the first 3 BED fields (chromosome, start, end) are required<br><br>
+    Paste genomic regions:
+    <br>
+    <textarea name="filter_regions_text" rows=10 cols=60 wrap=SOFT"></textarea>
+    <input type="button" name="clear_filter_regions_text" value="Clear"
+      onClick="{input.filter_regions_text.value=''}">
+    <br>
+    <br>
+
+    <b>OR</b> upload a file containing genomic regions:
+    <br>
+    <span class="subtext">
+      <input type="file" name="filter_regions_file" size="33">
+      <input type="button" name="clear_filter_regions_file" value="Clear"
+        onClick="{input.filter_regions_file.value=''}">
+    </span>
+  </div>  <!-- end stepPane -->
+
+  <br>
+  <br>
+  <hr noshade>
+
+  <p class="text">
+    <br>
+    [%IF t_or_b == 'target'%]
+      Press the <b>Select background CAGE peaks</b> button to select these filters or <b>Reset</b> to reset the filters to their previous values.<br>
+      <input type="submit" name="Submit" value="Select background CAGE peaks">
+    [%ELSE%]
+      Press the <b>Select TFBS parameters</b> button to select these filters or <b>Reset</b> to reset the filters to their previous values.<br>
+      <input type="submit" name="Submit" value="Select TFBS parameters">
+    [%END%]
+    <input type="reset" name="Reset" value="Reset">
+    <input type="hidden" name="rm" value="[%rm%]">
+    <input type="hidden" name="event" value="[%event%]">
+    <input type="hidden" name="sid" value="[%sid%]">
+  </p>
+</form>

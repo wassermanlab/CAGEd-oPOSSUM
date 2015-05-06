@@ -1,0 +1,343 @@
+<script type="text/javascript">
+
+\$(document).ready(function() {
+  \$("#experiment_tree")
+    .jstree({
+      "core" : {
+        "initially_closed" : [ "0000001" ]
+      },
+      "checkbox" : {
+        "real_checkboxes" : true,
+        "real_checkboxes_names" : function(n) {
+          return [(n[0].id), 1]; 
+        }
+      },
+      "themes" : {
+        "icons" : false
+      },
+      "plugins" : ["themes","html_data","checkbox","ui"]
+    })
+    .bind("loaded.jstree", function (e, data) {})
+});
+
+function isblank(s)
+{
+    for (var i = 0; i < s.length; i++) {
+        var c = s.charAt(i);
+
+        if ((c != ' ') && (c != '\n') && (c != '\t'))
+            return false;
+    }
+    return true;
+}
+
+function verify(f)
+{
+    var msg;
+    var errors = "";
+    var v;
+
+    var is_experiments = false;
+    var is_tss_names_text = false;
+    var is_tss_names_file = false;
+    var is_custom_tss_text = false;
+    var is_custom_tss_file = false;
+    var is_rand = false;
+
+    // XXX This doen't work!
+    var tree_selected_items_ary = \$('#experiment_tree').jstree('get_checked').attr('id');
+    if (typeof tree_selected_items_ary !== 'undefined'
+        && tree_selected_items_ary != null
+        && tree_selected_items_ary.length > 0)
+    {
+        is_experiments = true;
+        // errors += "is_experiments == true\n";
+    }
+
+    var tss_names_text = f.tss_names_text.value.trim();
+    if (tss_names_text != '') {
+        is_tss_names_text = true;
+        // errors += "is_tss_names_text == true\n";
+    }
+
+    var tss_names_file = f.tss_names_file.value.trim();
+    if (tss_names_file != '') {
+        is_tss_names_file = true;
+        // errors += "is_tss_names_file == true\n";
+    }
+
+    var custom_tss_text = f.custom_tss_text.value.trim();
+    if (custom_tss_text != '') {
+        is_custom_tss_text = true;
+        // errors += "is_custom_tss_text == true\n";
+    }
+
+    var custom_tss_file = f.custom_tss_file.value.trim();
+    if (custom_tss_file != '') {
+        is_custom_tss_file = true;
+        // errors += "is_custom_tss_file == true\n";
+    }
+
+    // Random selection is only valid for background so first check if the
+    // field is even defined and then whether it is set or not.
+    if (typeof(f.is_rand) != 'undefined') {
+        if (f.is_rand.checked()) {
+          is_rand = true;
+        }
+    }
+
+    if (!(is_experiments || is_tss_names_text || is_tss_names_file
+        || is_custom_tss_text || is_custom_tss_file || is_rand)
+    ) {
+        errors += "You have not entered any CAGE peak selection criteria.\n"; 
+    }
+
+    if ( ((is_experiments ? 1 : 0) + (is_tss_names_text ? 1 : 0)
+        + (is_tss_names_file ? 1 : 0) + (is_custom_tss_text ? 1 : 0)
+        + (is_custom_tss_file ? 1 : 0) + (is_rand ? 1 : 0)) > 1)
+    {
+        errors += "You appear to have selected more than one method of specifying CAGE peaks. Please use only ONE method of CAGE peak data entry.\n"; 
+    }
+
+    //
+    // Maybe we shouldn't require any expression level threshold
+    // (defaults to 0). The code below does not seem to work anyway???
+    //
+    if (is_experiments) {
+        var tag_count = f.tag_count.value.trim();
+        var tpm = f.tpm.value.trim();
+        var rel_expr = f.relative_expression.value.trim();
+
+        var is_expr_level_vals = false;
+        if (tag_count != '' && tag_count != 0) {
+            is_expr_level_vals = true;
+        }
+
+        if (tpm != '' && tpm != 0) {
+            is_expr_level_vals = true;
+        }
+
+        if (relative_expression != '' && relative_expression != 0) {
+            is_expr_level_vals = true;
+        }
+
+        if (!is_expr_level_vals) {
+            errors += "No expression level thresholds have been selected for FANTOM5 experiments.\n";
+        }
+    }
+
+    if (!errors) return true;
+
+    msg = "_________________________________________________________\n\n";
+    msg += "The analysis was not submitted due to the following problem(s).\n";
+    msg += "Please correct these problem(s) and re-submit.\n";
+    msg += "________________________________________________________\n\n";
+    msg += errors;
+
+    alert(msg);
+
+    return false;
+}
+
+</script>
+
+<form name="input" enctype="multipart/form-data" method="post" onSubmit="return verify(this)">
+
+  <input type="hidden" name="species" value=[%species%]>
+
+  [%IF species == 'human'%]
+    [%IF t_or_b == 'target'%]
+      [%INCLUDE sample_t_tss_names_human.html%]
+      [%INCLUDE sample_t_tss_regions_human.html%]
+    [%ELSIF t_or_b == 'background'%]
+      [%INCLUDE sample_b_tss_names_human.html%]
+      [%INCLUDE sample_b_tss_regions_human.html%]
+    [%END%]
+  [%ELSIF species == 'mouse'%]
+    [%IF t_or_b == 'target'%]
+      [%INCLUDE sample_t_tss_names_mouse.html%]
+      [%INCLUDE sample_t_tss_regions_mouse.html%]
+    [%ELSIF t_or_b == 'background'%]
+      [%INCLUDE sample_b_tss_names_mouse.html%]
+      [%INCLUDE sample_b_tss_regions_mouse.html%]
+    [%END%]
+  [%END%]
+
+  <div class="stepPane">
+    <br>
+    <h2>[%section%]</h2>
+
+    <!--<h3>Select CAGE peaks</h3>-->
+    <br>
+
+    [%IF t_or_b == 'background'%]
+      <h4>Use a random set of FANTOM5 CAGE peaks</h4>
+      <br>
+      Use a random set of CAGE peaks GC composition matched to the target set <input type=checkbox name="is_rand">
+      <br>
+      <br>
+    [%END%]
+
+    <h4>Select by FANTOM5 experiment</h4>
+    &nbsp;[[%IF t_or_b == 'target'%]<a href="[%rel_htdocs_path%]/help/option_details.html#select_t_cage_exp" target="help">HELP</a>[%ELSIF t_or_b == 'background'%]<a href="[%rel_htdocs_path%]/help/option_details.html#select_b_cage_exp" target="help">HELP</a>[%END%]]
+    <br><br>
+
+    Specify CAGE peaks by their level of expression in specific FANTOM5 experiment(s)
+    <br><br>
+
+    Select FANTOM5 [%species%] experiment(s):<br>
+    (right click on name and "Open Link" to open relevant FANTOM5 samples page)
+    <br>
+    <br>
+
+    <div id="experiment_tree" class="jstree-open">
+      [%IF species == 'human'%]
+        [%INCLUDE sample_ontology_human.html%]
+      [%ELSIF species == 'mouse'%]
+        [%INCLUDE sample_ontology_mouse.html%]
+      [%END%]
+    </div>
+    <br>
+
+    <input type="radio" name="expression_input_method" value="tag_count_and_tpm" checked>
+    with raw tag count >= <input type="text" name="tag_count" value="[%tag_count%]" size="3" maxlength="4" align="right"
+      onFocus="{
+        if (!isblank(input.tag_count.value) && input.tag_count.value != 0)
+          {input.expression_input_method[0].checked=true}
+      }"
+      onChange="{
+        if (
+              (!isblank(input.tag_count.value) && input.tag_count.value != 0)
+           || (!isblank(input.tpm.value) && input.tpm.value != 0)
+        )
+          {input.expression_input_method[0].checked=true}
+        if (isblank(input.tag_count.value))
+          {input.tag_count.value = 0}
+      }">
+    and tags per million (TPM) >= <input type="text" name="tpm" value="[%tpm%]" size="3" maxlength="4" align="right"
+      onFocus="{
+        if (!isblank(input.tpm.value) && input.tpm.value != 0)
+          {input.expression_input_method[0].checked=true}
+      }"
+      onChange="{
+        if (
+              (!isblank(input.tag_count.value) && input.tag_count.value != 0)
+           || (!isblank(input.tpm.value) && input.tpm.value != 0)
+        )
+          {input.expression_input_method[0].checked=true}
+        if (isblank(input.tpm.value))
+          {input.tpm.value = 0}
+      }">
+    <br>
+    <input type="radio" name="expression_input_method" value="relative_expression">
+    <b>OR</b> relative expression >= <input type="text" name="relative_expression" value="[%relative_expression%]" size="3" maxlength="4" align="right"
+      onFocus="{
+        if (
+            !isblank(input.relative_expression.value)
+            && input.relative_expression.value != 0
+        )
+          {input.expression_input_method[1].checked=true}
+      }"
+      onChange="{
+        if (
+            !isblank(input.relative_expression.value)
+            && input.relative_expression.value != 0
+        )
+          {input.expression_input_method[1].checked=true}
+        if (isblank(input.relative_expression.value))
+          {input.relative_expression.value = 0}
+      }">
+    <br>
+    <br>
+
+    <br>
+    <h4>OR Select specific FANTOM5 CAGE peak IDs</h4>
+    &nbsp;
+    [[%IF t_or_b == 'target'%]
+      <a href="[%rel_htdocs_path%]/help/option_details.html#select_t_cage_ids" target="help">HELP</a>
+    [%ELSIF t_or_b == 'background'%]
+      <a href="[%rel_htdocs_path%]/help/option_details.html#select_b_cage_ids" target="help">HELP</a>
+    [%END%]]
+    <br><br>
+
+    Specify FANTOM5 CAGE peak IDs (e.g. chr1:8938736..8938756,-)<br><br>
+    Paste FANTOM5 CAGE peak IDs (one per line):
+    <br>
+    [%IF t_or_b == 'target'%]
+      <input type="button" name="use_sample_tss_names" value="Use sample FANTOM5 CAGE peak IDs" onClick="{input.tss_names_text.value=document.getElementById('sample_t_tss_names_[%species%]').value}">
+    [%ELSIF t_or_b == 'background'%]
+      <input type="button" name="use_sample_tss_names" value="Use sample FANTOM5 CAGE peak IDs" onClick="{input.tss_names_text.value=document.getElementById('sample_b_tss_names_[%species%]').value}">
+    [%END%]
+    <br>
+    <textarea name="tss_names_text" rows=10 cols=60 wrap=SOFT"></textarea>
+    <input type="button" name="clear_tss_names_text" value="Clear"
+      onClick="{input.tss_names_text.value=''}">
+    <br>
+    <br>
+
+    <b>OR</b> upload a plain text file containing FANTOM5 CAGE peak IDs (one per line):
+    <br>
+    <span class="subtext">
+      <input type="file" name="tss_names_file" size="33">
+    </span>
+    <input type="button" name="clear_tss_names_file" value="Clear"
+      onClick="{input.tss_names_file.value='[%tss_names_file%]'}">
+    <br>
+    <br>
+
+    <br>
+    <h4>OR Select custom CAGE peaks</h4>
+    &nbsp;
+    [[%IF t_or_b == 'target'%]
+      <a href="[%rel_htdocs_path%]/help/option_details.html#select_t_cage_cust" target="help">HELP</a>
+    [%ELSIF t_or_b == 'background'%]
+      <a href="[%rel_htdocs_path%]/help/option_details.html#select_b_cage_cust" target="help">HELP</a>
+    [%END%]]
+    <br><br>
+
+    Specify custom CAGE peaks in <a href="http://genome.ucsc.edu/FAQ/FAQformat.html#format1" target="_blank">BED</a> format. Only the first 6 fields are required.<br><br>
+    Paste custom CAGE peaks (one per line):
+    <br>
+    [%IF t_or_b == 'target'%]
+      <input type="button" name="use_sample_tss_regions" value="Use sample custom CAGE peaks" onClick="{input.custom_tss_text.value=document.getElementById('sample_t_tss_regions_[%species%]').value}">
+    [%ELSIF t_or_b == 'background'%]
+      <input type="button" name="use_sample_tss_regions" value="Use sample custom CAGE peaks" onClick="{input.custom_tss_text.value=document.getElementById('sample_b_tss_regions_[%species%]').value}">
+    [%END%]
+    <br>
+    <textarea name="custom_tss_text" rows=10 cols=85 wrap=SOFT"></textarea>
+    <input type="button" name="clear_custom_tss_text" value="Clear"
+      onClick="{input.custom_tss_text.value=''}">
+    <br>
+    <br>
+
+    <b>OR</b> upload a plain text file containing custom CAGE peaks (one per line):
+    <br>
+    <span class="subtext">
+      <input type="file" name="custom_tss_file" size="33">
+      <input type="button" name="clear_custom_tss_file" value="Clear"
+        onClick="{input.custom_tss_file.value=''}">
+    </span>
+  </div>  <!-- end stepPane -->
+
+  <br>
+  <br>
+  <hr noshade>
+
+  <p class="text">
+    <br>
+    [%IF t_or_b == 'target'%]
+      Press the <b>Select target CAGE peak filters</b> button to accept these analysis parameters or <b>Reset</b> to reset the analysis parameters to their previous values.<br>
+      <input type="submit" name="Submit" value="Select target CAGE peak filters">
+    [%ELSIF t_or_b == 'background'%]
+      Press the <b>Select background CAGE peak filters</b> button to accept these analysis parameters or <b>Reset</b> to reset the analysis parameters to their previous values.<br>
+      <input type="submit" name="Submit" value="Select background CAGE peak filters">
+    [%END%]
+    <!--
+    <input type="reset" name="Reset" value="Reset" onClick="{\$('#experiment_tree').jstree(true).uncheck_all()}">
+    -->
+    <input type="reset" name="Reset" value="Reset">
+    <input type="hidden" name="rm" value="[%rm%]">
+    <input type="hidden" name="event" value="[%event%]">
+    <input type="hidden" name="sid" value="[%sid%]">
+  </p>
+</form>
