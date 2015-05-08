@@ -49,6 +49,12 @@ use constant MAX_TARGET_TSS     => 20000;
 use constant MAX_BACKGROUND_TSS => 20000;
 
 #
+# For random background generation set the number of background CAGE peaks
+# selected is equal to the number target CAGE peaks multiplied by this number.
+#
+use constant RAND_BG_TSS_FOLD    => 10;
+
+#
 # Form selection values and default settings. These may need to be overriden 
 # by specific oPOSSUM variants.
 #

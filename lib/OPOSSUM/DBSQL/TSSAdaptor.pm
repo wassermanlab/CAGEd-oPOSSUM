@@ -577,7 +577,7 @@ sub fetch_random
     if (defined $excl_tss_ids) {
         my $ref = ref $excl_tss_ids;
 
-         if ($ref) {
+        if ($ref) {
             if ($ref eq 'ARRAY' && defined $excl_tss_ids->[0]) {
                 #$where .= " and " if $where;
 
@@ -586,12 +586,12 @@ sub fetch_random
                     $where .= join ",", @$excl_tss_ids;
                     $where .= ")";
                 } else {
-                    $where .= sprintf("id = %s", $excl_tss_ids->[0]);
+                    $where .= sprintf("id != %d", $excl_tss_ids->[0]);
                 }
             }
         } else {
             #$where .= " and " if $where;
-            $where .= "id = $excl_tss_ids";
+            $where .= "id != $excl_tss_ids";
         }
     }
 

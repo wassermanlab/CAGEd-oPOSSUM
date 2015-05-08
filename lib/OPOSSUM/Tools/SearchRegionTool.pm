@@ -259,6 +259,7 @@ sub compute_tss_search_regions
     }
 
     $self->merged_regions_file($merged_regions_file);
+    $self->final_regions_file($merged_regions_file);
 
     my $tss_search_regions;
     if ($filtering_regions_file) {
@@ -304,6 +305,7 @@ sub compute_tss_search_regions
         }
 
         $self->filtered_regions_file($merged_filtered_regions_file);
+        $self->final_regions_file($merged_filtered_regions_file);
 
         $tss_search_regions = $self->read_bed(
             -filename => $merged_filtered_regions_file
@@ -989,13 +991,11 @@ sub final_regions_file
 {
     my $self = shift;
 
-    if ($self->filtered_regions_file) {
-        return $self->filtered_regions_file;
-    } elsif ($self->merged_regions_file) {
-        return $self->merged_regions_file;
+    if (@_) {
+        $self->{-final_regions_file} = shift;
     }
 
-    return undef;
+    return $self->{-final_regions_file};
 }
 
 sub read_bed

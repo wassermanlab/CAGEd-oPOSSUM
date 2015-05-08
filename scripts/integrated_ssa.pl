@@ -844,6 +844,7 @@ if ($b_tss_regions_file) {
 
         $b_tss = $tssa->fetch_random(
             -excluded_tss_ids   => \@t_tss_ids,
+            -num_tss            => $num_t_tss * RAND_BG_TSS_FOLD
         );
     }
 } else {
@@ -887,8 +888,8 @@ unless ($b_srt) {
 #
 my $t_seq_file = catfile($results_dir, 't_search_sequences.fa');
 my $b_seq_file = catfile($results_dir, 'b_search_sequences.fa');
-
 my $b_search_regions;
+my $b_search_regions_file;
 if ($b_is_rand) {
     $logger->info(
         "Computing initial pool of background CAGE peak search regions"
@@ -988,7 +989,7 @@ if ($b_is_rand) {
     # corresponding to the sequences returned from BiasAway with the
     # pre-computed parent search region IDs included.
     #
-    my $b_search_regions_file = catfile($results_dir, 'b_search_regions.bed');
+    $b_search_regions_file = catfile($results_dir, 'b_search_regions.bed');
     $ok = $b_srt->filter_regions(
         -in_regions_file        => $b_srt->final_regions_file(),
         -filtering_regions_file => $b_temp_seq_regions_file,
@@ -1002,7 +1003,7 @@ if ($b_is_rand) {
     }
 
     $b_search_regions = $b_srt->read_bed(
-        -filename => catfile($results_dir, 'b_search_regions.bed')
+        -filename => $b_search_regions_file
     );
 } else {
     $logger->info("Computing background CAGE peak search regions");
@@ -1169,6 +1170,10 @@ if ($b_tss_type eq 'custom' || $tf_type eq 'custom') {
     #    $b_search_regions, $slice_adaptor, \%job_args
     #);
 
+    #
+    # We may have already created the background sequences file for BiasAway.
+    # In which case we do not need to create it again.
+    #
     unless (-f $b_seq_file) {
         my $ok = $b_srt->extract_search_region_sequences(
             -regions_file   => $b_srt->final_regions_file(),
