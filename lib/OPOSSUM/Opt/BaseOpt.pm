@@ -51,7 +51,7 @@ use constant MAX_BACKGROUND_TSS => 20000;
 #
 # For random background generation set the number of background CAGE peaks
 # selected is equal to the number target CAGE peaks multiplied by this number.
-#
+# Currently this is not used
 use constant RAND_BG_TSS_FOLD    => 10;
 
 #

@@ -90,7 +90,7 @@
   <!-- Target TSS filters summary -->
   [%IF t_tss_type == 'fantom5'%]
     <tr>
-      <td class="table_title">TSS only filter provided:</td>
+      <td class="table_title">Target TSS only filter provided:</td>
       [%IF t_use_tss_only == 1%]
         <td class="table_text">Yes</td>
       [%ELSE%]
@@ -100,12 +100,12 @@
 
     [%IF t_gene_ids_input_method == 'upload'%]
       <tr>
-        <td class="table_title">Associated gene IDs filter file:</td>
+        <td class="table_title">Target associated gene IDs filter file:</td>
         <td class="table_text">[%t_user_gene_ids_file%]</td>
       </tr>
     [%ELSIF t_gene_ids_input_method == 'paste'%]
       <tr>
-        <td class="table_title">Associated gene IDs filter provided:</td>
+        <td class="table_title">Target Associated gene IDs filter provided:</td>
         <td class="table_text">Yes</td>
       </tr>
     [%END%]
@@ -114,12 +114,12 @@
   <!-- Applies to both FANTOM5 and custom CAGE peaks -->
   [%IF t_filter_regions_input_method == 'upload'%]
     <tr>
-      <td class="table_title">Filtering regions file:</td>
+      <td class="table_title">Target filtering regions file:</td>
       <td class="table_text">[%t_user_filter_regions_file%]</td>
     </tr>
   [%ELSIF t_filter_regions_input_method == 'paste'%]
     <tr>
-      <td class="table_title">Filtering regions provided:</td>
+      <td class="table_title">Target filtering regions provided:</td>
       <td class="table_text">Yes</td>
     </tr>
   [%END%]
@@ -132,7 +132,7 @@
     </tr>
     [%IF b_tss_input_method == 'experiment'%]
       <tr>
-        <td class="table_title">Target FANTOM5 experiments:</td>
+        <td class="table_title">Background FANTOM5 experiments:</td>
         <td>
           <table>
           [%FOREACH exp = b_experiments%]
@@ -167,7 +167,7 @@
       [%END%]
     [%ELSIF b_tss_input_method == 'upload'%]
       <tr>
-        <td class="table_title">Target FANTOM5 CAGE peak names file:</td>
+        <td class="table_title">Background FANTOM5 CAGE peak names file:</td>
         <td class="table_text">[%b_user_tss_names_file%]</td>
       </tr>
     [%ELSIF b_tss_input_method == 'paste'%]
@@ -181,23 +181,23 @@
     </tr>
     [%IF b_tss_input_method == 'upload'%]
       <tr>
-        <td class="table_title">Target custom CAGE peaks</td>
+        <td class="table_title">Background custom CAGE peaks</td>
         <td class="table_text">Uploaded file: [%b_user_custom_tss_file%]</td>
       </tr>
     [%ELSIF b_tss_input_method == 'paste'%]
       <!-- Do not want to display all pasted regions here but perhaps give a
            count of the number of regions pasted? -->
       <tr>
-        <td class="table_title">Target custom CAGE peaks:</td>
+        <td class="table_title">Background custom CAGE peaks:</td>
         <td class="table_text">Pasted</td>
       </tr>
     [%END%]
   [%END%]
 
-  <!-- Target TSS filters summary -->
+  <!-- Background TSS filters summary -->
   [%IF b_tss_type == 'fantom5'%]
     <tr>
-      <td class="table_title">TSS only filter provided:</td>
+      <td class="table_title">Background TSS only filter provided:</td>
       [%IF b_use_tss_only == 1%]
         <td class="table_text">Yes</td>
       [%ELSE%]
@@ -207,12 +207,12 @@
 
     [%IF b_gene_ids_input_method == 'upload'%]
       <tr>
-        <td class="table_title">Associated gene IDs filter file:</td>
+        <td class="table_title">Background associated gene IDs filter file:</td>
         <td class="table_text">[%b_user_gene_ids_file%]</td>
       </tr>
     [%ELSIF b_gene_ids_input_method == 'paste'%]
       <tr>
-        <td class="table_title">Associated gene IDs filter provided:</td>
+        <td class="table_title">Background associated gene IDs filter provided:</td>
         <td class="table_text">Yes</td>
       </tr>
     [%END%]
@@ -221,12 +221,12 @@
   <!-- Applies to both FANTOM5 and custom CAGE peaks -->
   [%IF b_filter_regions_input_method == 'upload'%]
     <tr>
-      <td class="table_title">Filtering regions file:</td>
+      <td class="table_title">Background filtering regions file:</td>
       <td class="table_text">[%b_user_filter_regions_file%]</td>
     </tr>
   [%ELSIF b_filter_regions_input_method == 'paste'%]
     <tr>
-      <td class="table_title">Filtering regions provided:</td>
+      <td class="table_title">Background filtering regions provided:</td>
       <td class="table_text">Yes</td>
     </tr>
   [%END%]

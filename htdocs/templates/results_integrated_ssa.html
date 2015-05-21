@@ -13,6 +13,26 @@
       <td class="table_text">[%num_t_experiments%]</td>
     </tr>
   [%END%]
+  [%IF t_tag_count%]
+  <tr>
+    <td class="table_title">Target minimum tag count:</td>
+    <td class="table_text">[%t_tag_count%]</td>
+  </tr>
+  [%END%]
+
+  [%IF t_tpm%]
+  <tr>
+    <td class="table_title">Target minimum tags per million (TPM):</td>
+    <td class="table_text">[%t_tpm%]</td>
+  </tr>
+  [%END%]
+
+  [%IF t_relative_expression%]
+  <tr>
+    <td class="table_title">Target minimum relative expression:</td>
+    <td class="table_text">[%t_relative_expression%]</td>
+  </tr>
+  [%END%]
   <tr>
     <td class="table_title">Number of target CAGE peaks:</td>
     <td class="table_text">[%num_t_tss%]</td>
@@ -26,6 +46,26 @@
       <td class="table_title">Number of background experiments:</td>
       <td class="table_text">[%num_b_experiments%]</td>
     </tr>
+  [%END%]
+  [%IF b_tag_count%]
+  <tr>
+    <td class="table_title">Background minimum tag count:</td>
+    <td class="table_text">[%b_tag_count%]</td>
+  </tr>
+  [%END%]
+
+  [%IF b_tpm%]
+  <tr>
+    <td class="table_title">Background minimum tags per million (TPM):</td>
+    <td class="table_text">[%b_tpm%]</td>
+  </tr>
+  [%END%]
+
+  [%IF b_relative_expression%]
+  <tr>
+    <td class="table_title">Background minimum relative expression:</td>
+    <td class="table_text">[%b_relative_expression%]</td>
+  </tr>
   [%END%]
   [%IF b_is_rand%]
   <tr>

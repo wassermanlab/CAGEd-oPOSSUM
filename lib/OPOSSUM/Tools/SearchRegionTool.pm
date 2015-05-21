@@ -1,7 +1,7 @@
 =head1 NAME
 
 OPOSSUM::Tools::SearchRegionTool - quick and dirty class to perform
-search region merging and filtering (intersections) using bedools.
+search region merging and filtering (intersection, subtraction) using bedools.
 
 =head1 DESCRIPTION
 
@@ -177,16 +177,17 @@ sub new
 
  Title   : compute_tss_search_regions
  Usage   : $srt = OPOSSUM::Tools::SearchRegionTool->compute_tss_search_regions(
-                -tss                    => $tss_list,
-                -upstream_bp            => $upstream_bp,
-                -downstream_bp          => $downstream_bp,
-                -filtering_regions_file => $filtering_regions_file
+                -tss                        => $tss_list,
+                -upstream_bp                => $upstream_bp,
+                -downstream_bp              => $downstream_bp,
+                -intersecting_regions_file  => $intersecting_regions_file,
+                -out_regions_file           => $out_regions_file
             );
 
  Function: Compute a list of search regions from a list of TSSs by applying
            the provided upstream/downstream flanks, merging any overlapping
            regions and filtering these regions by an optionally provided
-           set of filtering regions. 
+           set of intersecting regions. 
 
  Args    : -tss
                 A list of OPOSSUM::TSS objects defining the CAGE peaks
@@ -197,10 +198,23 @@ sub new
            -downstream_bp
                 Amount of downstream flanking seuquence to apply to the CAGE
                 peaks.
-           -filtering_regions_file
+           -out_regions_file
+                The file to which the final merged and optionally filtered
+                regions are written.
+           -intersecting_regions_file
                 OPTIONAL. The name of a BED file file containing regions
                 used to filter (intersect) with the search regions computed
                 from the CAGE peaks.
+                NOTE: If -intersecting_regions_file and -excluded_regions_file
+                are both specified it is considered and error.
+           -excluded_regions_file
+                OPTIONAL. The name of a BED file file containing regions
+                used to exclude search regions computed from the CAGE peaks.
+                Any region initially computed from the CAGE peaks which
+                overlaps any part of an excluded regions is excluded from
+                the final set of regions.
+                NOTE: If -intersecting_regions_file and -excluded_regions_file
+                are both specified it is considered and error.
 
  Returns : A new OPOSSUM::Tools::SearchRegionFilter object
 
@@ -210,10 +224,12 @@ sub compute_tss_search_regions
 {
     my ($self, %args) = @_;
 
-    my $tss_list                = $args{-tss};
-    my $upstream_bp             = $args{-upstream_bp};
-    my $downstream_bp           = $args{-downstream_bp};
-    my $filtering_regions_file  = $args{-filtering_regions_file};
+    my $tss_list                    = $args{-tss};
+    my $upstream_bp                 = $args{-upstream_bp};
+    my $downstream_bp               = $args{-downstream_bp};
+    my $intersecting_regions_file   = $args{-intersecting_regions_file};
+    my $excluded_regions_file       = $args{-excluded_regions_file};
+    my $out_regions_file            = $args{-out_regions_file};
 
     my $t_or_b = $self->t_or_b();
     my $dir = $self->dir();
@@ -221,6 +237,18 @@ sub compute_tss_search_regions
     unless ($tss_list && $tss_list->[0]) {
         carp "No $t_or_b TSSs passed to compute_tss_search_regions\n";
         return undef;
+    }
+
+    unless ($out_regions_file) {
+        carp "No $t_or_b ouput regions file passed to"
+            . " compute_tss_search_regions\n";
+        return undef;
+    }
+
+    if ($intersecting_regions_file && $excluded_regions_file) {
+        carp "Intersecting regions and excluded regions cannot both be"
+            . " specified for compute_tss_search_regions";
+        return 0;
     }
 
     #
@@ -245,7 +273,16 @@ sub compute_tss_search_regions
 
     $self->initial_regions_file($initial_regions_file);
 
-    my $merged_regions_file  = catfile($dir, $prefix . '_merged_regions.bed');
+    #
+    # If no intersecting or excluded regions files were provided, then the
+    # merged regions are the final regions.
+    #
+    my $merged_regions_file;
+    if ($intersecting_regions_file || $excluded_regions_file) {
+        $merged_regions_file  = catfile($dir, $prefix . '_merged_regions.bed');
+    } else {
+        $merged_regions_file  = $out_regions_file;
+    }
 
     $ok = $self->merge_regions(
         -in_regions_file        => $initial_regions_file,
@@ -259,14 +296,12 @@ sub compute_tss_search_regions
     }
 
     $self->merged_regions_file($merged_regions_file);
-    $self->final_regions_file($merged_regions_file);
 
-    my $tss_search_regions;
-    if ($filtering_regions_file) {
-        $self->filtering_regions_file($filtering_regions_file);
+    if ($intersecting_regions_file) {
+        $self->intersecting_regions_file($intersecting_regions_file);
 
         #
-        # We cannot assume that the filtering regions are non-overlapping
+        # We cannot assume that the intersecting regions are non-overlapping
         # (merged). We can EITHER sort/merge them first and then intersect
         # them with our merged regions from above OR intersect them with the
         # merged regions above first and then sort/merge the results. The
@@ -278,10 +313,10 @@ sub compute_tss_search_regions
         my $initial_filtered_regions_file
             = catfile($dir, $prefix . '_initial_filtered_regions.bed');
 
-        $ok = $self->filter_regions(
-            -in_regions_file        => $merged_regions_file,
-            -filtering_regions_file => $filtering_regions_file,
-            -filtered_regions_file  => $initial_filtered_regions_file
+        $ok = $self->intersect_regions(
+            -in_regions_file            => $merged_regions_file,
+            -intersecting_regions_file  => $intersecting_regions_file,
+            -out_regions_file           => $initial_filtered_regions_file
         );
 
         unless ($ok) {
@@ -289,49 +324,42 @@ sub compute_tss_search_regions
             return undef;
         }
 
-        my $merged_filtered_regions_file
-            = catfile($dir, $prefix . '_filtered_regions.bed');
-
         $ok = $self->merge_regions(
             -in_regions_file        => $initial_filtered_regions_file,
-            -merged_regions_file    => $merged_filtered_regions_file,
+            -merged_regions_file    => $out_regions_file,
             -has_region_id          => $self->has_region_id()
         );
 
         unless ($ok) {
-            carp "Could not create $t_or_b final merged filtered regions file"
+            carp "Could not create $t_or_b final merged/filtered regions file"
                 . "\n";
             return undef;
         }
 
-        $self->filtered_regions_file($merged_filtered_regions_file);
-        $self->final_regions_file($merged_filtered_regions_file);
+        $self->filtered_regions_file($out_regions_file);
+    } elsif ($excluded_regions_file) {
+        $self->excluded_regions_file($excluded_regions_file);
 
-        $tss_search_regions = $self->read_bed(
-            -filename => $merged_filtered_regions_file
+        #
+        # We should not have to worry about whether the excluded regions are
+        # unique, non-overlapping.
+        #
+        $ok = $self->exclude_regions(
+            -in_regions_file        => $merged_regions_file,
+            -excluded_regions_file  => $excluded_regions_file,
+            -out_regions_file       => $out_regions_file
         );
-    } else {
-        $tss_search_regions = $self->read_bed(
-            -filename => $merged_regions_file
-        );
+
+        unless ($ok) {
+            carp "Could not create $t_or_b final merged/filtered regions file"
+                . "\n";
+            return undef;
+        }
+
+        $self->filtered_regions_file($out_regions_file);
     }
 
-    #
-    # Assign unique IDs to the final merged / filtered search regions.
-    # These IDs are completely independent from the IDs of the pre-computed
-    # search regions retrieved stored in the database.
-    #
-    # XXX
-    # For future consideration, we could use chr:start-end as the ID
-    # rather than a meaningless numeric ID.
-    # XXX Do we even need this?
-    #
-    my $sr_id = 1;
-    foreach my $sr (@$tss_search_regions) {
-        $sr->id($sr_id++);
-    }
-
-    return $tss_search_regions;
+    return 1;
 }
 
 =head2 create_initial_tss_search_regions
@@ -359,10 +387,6 @@ sub compute_tss_search_regions
            -downstream_bp
                 Amount of downstream flanking seuquence to apply to the CAGE
                 peaks.
-           -filtering_regions
-                OPTIONAL. A listref of OPOSSUM::SearchRegion objects used to
-                filter (intersect) with the search regions computed from
-                the CAGE peaks.
            -filename
                 OPTIONAL. Name of a file to which the regions are written.
            -fh
@@ -584,45 +608,45 @@ sub merge_regions
     return 1;
 }
 
-=head2 filter_regions
+=head2 intersect_regions
 
- Title   : filter_regions
- Usage   : $srt->filter_regions(
-               -in_regions_file        => $in_file,
-               -filtering_regions_file => $filtering_file,
-               -filtered_regions_file  => $out_file
+ Title   : intersect_regions
+ Usage   : $srt->intersect_regions(
+               -in_regions_file             => $in_file,
+               -intersecting_regions_file   => $intersecting_file,
+               -out_regions_file            => $out_file
            );
 
- Function: Run BEDTools intersect using the input and filtering region files
+ Function: Run BEDTools intersect using the input and intersecting region files
            and write the intersection of the two sets of regions to the
            specified output file.
 
- Args    : An input regions file name, a filtering regions file and an
+ Args    : An input regions file name, an intersecting regions file and an
            output filtered regions file name.
  Returns : True on success, false otherwise.
 
 =cut
 
-sub filter_regions
+sub intersect_regions
 {
     my ($self, %args) = @_;
 
-    my $in_file         = $args{-in_regions_file};
-    my $filtering_file  = $args{-filtering_regions_file};
-    my $out_file        = $args{-filtered_regions_file};
+    my $in_file             = $args{-in_regions_file};
+    my $intersecting_file   = $args{-intersecting_regions_file};
+    my $out_file            = $args{-out_regions_file};
 
     unless ($in_file) {
-        carp "filter_regions: no input regions file name provided!\n";
+        carp "intersect_regions: no input regions file name provided!\n";
         return 0;
     }
 
-    unless ($filtering_file) {
-        carp "filter_regions: no filtering regions file name provided!\n";
+    unless ($intersecting_file) {
+        carp "intersect_regions: no intersecting regions file name provided!\n";
         return 0;
     }
 
     unless ($out_file) {
-        carp "filter_regions: no output regions file name provided!\n";
+        carp "intersect_regions: no output regions file name provided!\n";
         return 0;
     }
 
@@ -631,14 +655,88 @@ sub filter_regions
     # the filenames and prepend it.
     #
     #$in_file = catfile($self->dir, $in_file) if $self->dir;
-    #$filtering_file = catfile($self->dir, $filtering_file) if $self->dir;
+    #$intersecting_file = catfile($self->dir, $intersecting_file) if $self->dir;
     #$out_file = catfile($self->dir, $out_file) if $self->dir;
 
-    my $cmd = "$BT_INTERSECT_EXEC -a $in_file -b $filtering_file > $out_file";
+    my $cmd =
+        "$BT_INTERSECT_EXEC -a $in_file -b $intersecting_file > $out_file";
+
     my $out = `exec 2>&1; $cmd`;
     my $status = $? >> 8;
     if ($status) {
-        carp "filter_regions '$cmd' failed! Exited with status $status - $out\n";
+        carp "intersect_regions '$cmd' failed! Exited with status $status"
+            . " - $out\n";
+        return 0;
+    }
+
+    return 1;
+}
+
+=head2 exclude_regions
+
+ Title   : exclude_regions
+ Usage   : $srt->exclude_regions(
+               -in_regions_file         => $in_file,
+               -excluded_regions_file   => $excluded_file,
+               -out_regions_file        => $out_file
+           );
+
+ Function: Run BEDTools intersect using the input and intersecting region files
+           and write the intersection of the two sets of regions to the
+           specified output file.
+
+ Args    : An input regions file name, an excluded regions file and an
+           output filtered regions file name.
+ Returns : True on success, false otherwise.
+
+=cut
+
+sub exclude_regions
+{
+    my ($self, %args) = @_;
+
+    my $in_file         = $args{-in_regions_file};
+    my $excluded_file   = $args{-excluded_regions_file};
+    my $out_file        = $args{-out_regions_file};
+
+    unless ($in_file) {
+        carp "exclude_regions: no input regions file name provided!\n";
+        return 0;
+    }
+
+    unless ($excluded_file) {
+        carp "exclude_regions: no excluded regions file name provided!\n";
+        return 0;
+    }
+
+    unless ($out_file) {
+        carp "exclude_regions: no output regions file name provided!\n";
+        return 0;
+    }
+
+    #
+    # If directory is set, ASSUME the full path is not included in
+    # the filenames and prepend it.
+    #
+    #$in_file = catfile($self->dir, $in_file) if $self->dir;
+    #$excluded_file = catfile($self->dir, $excluded_file) if $self->dir;
+    #$out_file = catfile($self->dir, $out_file) if $self->dir;
+
+    #
+    # We are running bedtools intersect with the -v option to exclude
+    # all regions in the input file which overlap any part of any region
+    # in the excluded regions file. Alternatively we could run bedtools
+    # subtract which just removes the parts of the input regions which
+    # overlap any parts of any regions in the excluded file.
+    #
+    my $cmd =
+        "$BT_INTERSECT_EXEC -a $in_file -b $excluded_file -v > $out_file";
+
+    my $out = `exec 2>&1; $cmd`;
+    my $status = $? >> 8;
+    if ($status) {
+        carp "exclude_regions '$cmd' failed! Exited with status $status"
+            . " - $out\n";
         return 0;
     }
 
@@ -914,32 +1012,60 @@ sub merged_regions_file
     return $self->{-merged_regions_file};
 }
 
-sub filtering_regions
+sub intersecting_regions
 {
     my $self = shift;
 
-    unless ($self->{-filtering_regions}) {
-        my $filtering_regions_file = $self->filtering_regions_file();
-        if ($filtering_regions_file) {
-            my $filtering_regions = $self->read_bed(
-                -filename => $filtering_regions_file
+    unless ($self->{-intersecting_regions}) {
+        my $intersecting_regions_file = $self->intersecting_regions_file();
+        if ($intersecting_regions_file) {
+            my $intersecting_regions = $self->read_bed(
+                -filename => $intersecting_regions_file
             );
-            $self->{-filtering_regions} = $filtering_regions;
+            $self->{-intersecting_regions} = $intersecting_regions;
         }
     }
 
-    return $self->{-filtering_regions};
+    return $self->{-intersecting_regions};
 }
 
-sub filtering_regions_file
+sub intersecting_regions_file
 {
     my $self = shift;
 
     if (@_) {
-        $self->{-filtering_regions_file} = shift;
+        $self->{-intersecting_regions_file} = shift;
     }
 
-    return $self->{-filtering_regions_file};
+    return $self->{-intersecting_regions_file};
+}
+
+sub excluded_regions
+{
+    my $self = shift;
+
+    unless ($self->{-excluded_regions}) {
+        my $excluded_regions_file = $self->excluded_regions_file();
+        if ($excluded_regions_file) {
+            my $excluded_regions = $self->read_bed(
+                -filename => $excluded_regions_file
+            );
+            $self->{-excluded_regions} = $excluded_regions;
+        }
+    }
+
+    return $self->{-excluded_regions};
+}
+
+sub excluded_regions_file
+{
+    my $self = shift;
+
+    if (@_) {
+        $self->{-excluded_regions_file} = shift;
+    }
+
+    return $self->{-excluded_regions_file};
 }
 
 sub filtered_regions
@@ -1219,8 +1345,8 @@ sub _cleanup
         unlink $self->{-merged_regions_file};
     }
 
-    if ($self->{-filtering_regions_file}) {
-        unlink $self->{-filtering_regions_file};
+    if ($self->{-intersecting_regions_file}) {
+        unlink $self->{-intersecting_regions_file};
     }
 
     if ($self->{-filtered_regions_file}) {

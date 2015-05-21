@@ -352,6 +352,7 @@ use Pod::Usage;
 use Carp;
 use Array::Utils qw(:all);   # for debugging only
 use File::Spec::Functions qw/ catfile /;
+use POSIX qw/ floor /;
 
 use Log::Log4perl qw(get_logger :levels);
 
@@ -703,19 +704,23 @@ unless ($t_srt) {
     fatal("Error initializing target search region tool", \%job_args);
 }
 
-my $t_search_regions = $t_srt->compute_tss_search_regions(
-    -tss                    => $t_tss,
-    -upstream_bp            => $upstream_bp,
-    -downstream_bp          => $downstream_bp,
-    -filtering_regions_file => $t_filter_regions_file
+my $t_search_regions_file = catfile($results_dir, 't_search_regions.bed');
+my $ok = $t_srt->compute_tss_search_regions(
+    -tss                        => $t_tss,
+    -upstream_bp                => $upstream_bp,
+    -downstream_bp              => $downstream_bp,
+    -intersecting_regions_file  => $t_filter_regions_file,
+    -out_regions_file           => $t_search_regions_file
 );
 
-unless ($t_search_regions) {
+unless ($ok) {
     fatal("Error computing target CAGE peak search regions", \%job_args);
 }
 
 # For debugging
 #write_search_regions($t_search_regions, "$results_dir/t_search_regions.txt");
+
+my $t_search_regions = $t_srt->read_bed(-filename => $t_search_regions_file);
 
 $job_args{-t_search_regions} = $t_search_regions;
 
@@ -844,7 +849,7 @@ if ($b_tss_regions_file) {
 
         $b_tss = $tssa->fetch_random(
             -excluded_tss_ids   => \@t_tss_ids,
-            -num_tss            => $num_t_tss * RAND_BG_TSS_FOLD
+            #-num_tss            => $num_t_tss * RAND_BG_TSS_FOLD
         );
     }
 } else {
@@ -886,41 +891,82 @@ unless ($b_srt) {
 #
 # We may need these for BiasAway or custom analysis so declare here.
 #
+my $b_search_regions_file = catfile($results_dir, 'b_search_regions.bed');
 my $t_seq_file = catfile($results_dir, 't_search_sequences.fa');
 my $b_seq_file = catfile($results_dir, 'b_search_sequences.fa');
-my $b_search_regions;
-my $b_search_regions_file;
 if ($b_is_rand) {
     $logger->info(
-        "Computing initial pool of background CAGE peak search regions"
-    );
-
-    my $b_pool_search_regions = $b_srt->compute_tss_search_regions(
-        -tss                    => $b_tss,
-        -upstream_bp            => $upstream_bp,
-        -downstream_bp          => $downstream_bp
+        "Computing background from random selection of FANTOM5 CAGE peaks"
     );
 
     $logger->info(
-        sprintf "Number of initial pool of background search regions: %d",
-        scalar @$b_pool_search_regions
+        "Computing initial pool of random background CAGE peak search regions"
     );
 
-    my $b_pool_seq_file = catfile($results_dir, 'b_pool_sequences.fa');
-
     #
-    # Fetch background pool of search region sequences
+    # Create pool of random background CAGE peak search regions, filtering
+    # out any regions which overlap the target CAGE peak search regions.
     #
-    $logger->info("Fetching initial pool of background search region"
-        . " sequences for BiasAway computation");
-
-    my $ok = $b_srt->extract_search_region_sequences(
-        -regions_file   => $b_srt->final_regions_file(),
-        -out_seq_file   => $b_pool_seq_file
+    my $b_pooled_regions_file = catfile($results_dir, 'b_pooled_regions.bed');
+    $ok = $b_srt->compute_tss_search_regions(
+        -tss                    => $b_tss,
+        -upstream_bp            => $upstream_bp,
+        -downstream_bp          => $downstream_bp,
+        -excluded_regions_file  => $t_search_regions_file,
+        -out_regions_file       => $b_pooled_regions_file
     );
 
     unless ($ok) {
-        fatal("Error extracting initial pool of background search region"
+        fatal("Error computing initial pool of random background CAGE peak"
+            . " search regions", \%job_args);
+    }
+
+    my $b_pooled_regions = $b_srt->read_bed(
+        -filename => $b_pooled_regions_file
+    );
+
+    #
+    # Match the background regions for length against the target regions.
+    #
+    $logger->info(
+        "Adjusting lengths of initial pool of random background CAGE peak"
+        . " search regions according to length range or target search regions"
+    );
+
+    my $b_adjusted_pooled_regions = adjust_background_region_lengths(
+        $t_search_regions, $b_pooled_regions
+    );
+
+    unless ($b_adjusted_pooled_regions) {
+        fatal("Error adjusting random background search regions according to"
+            . " length range of target search regions", \%job_args);
+    }
+
+    my $b_adjusted_pooled_regions_file = catfile(
+        $results_dir, 'b_adjusted_pooled_regions.bed'
+    );
+
+    $b_srt->write_bed(
+        -regions  => $b_adjusted_pooled_regions,
+        -filename => $b_adjusted_pooled_regions_file
+    );
+
+    #
+    # Extract sequences corresponding to the pool of random background regions.
+    #
+    $logger->info("Extracting random background search region sequences"
+        . " for BiasAway computation");
+
+    my $b_adjusted_pooled_seq_file = catfile(
+        $results_dir, 'b_adjusted_pooled_sequences.fa'
+    );
+    $ok = $b_srt->extract_search_region_sequences(
+        -regions_file   => $b_adjusted_pooled_regions_file,
+        -out_seq_file   => $b_adjusted_pooled_seq_file
+    );
+
+    unless ($ok) {
+        fatal("Error extracting pool of random background search region"
             . " sequences for BiasAway", \%job_args);
     }
 
@@ -929,7 +975,7 @@ if ($b_is_rand) {
     # Need to extract sequences for target regions and save to a file.
     #
     $ok = $t_srt->extract_search_region_sequences(
-        -regions_file   => $t_srt->final_regions_file(),
+        -regions_file   => $t_search_regions_file,
         -out_seq_file   => $t_seq_file
     );
 
@@ -949,17 +995,18 @@ if ($b_is_rand) {
     $logger->info("Running BiasAway");
     $ba->run(
         -fg_seq_file    => $t_seq_file,
-        -bg_seq_file    => $b_pool_seq_file,
+        -bg_seq_file    => $b_adjusted_pooled_seq_file,
         -out_seq_file   => $b_seq_file,
-        -fold           => $b_fold,
-        -length_match   => 1
+        -fold           => 3
+        #-fold           => $b_fold
+        #-length_match   => 1
     );
     $logger->info("Finished running BiasAway");
 
     #
     # This file is large so remove it to free some disk space.
     #
-    unlink $b_pool_seq_file;
+    #unlink $b_adjusted_pooled_seq_file;
 
     #
     # From the GC composition matched sequences return by BiasAway, fetch
@@ -989,33 +1036,36 @@ if ($b_is_rand) {
     # corresponding to the sequences returned from BiasAway with the
     # pre-computed parent search region IDs included.
     #
-    $b_search_regions_file = catfile($results_dir, 'b_search_regions.bed');
-    $ok = $b_srt->filter_regions(
-        -in_regions_file        => $b_srt->final_regions_file(),
-        -filtering_regions_file => $b_temp_seq_regions_file,
-        -filtered_regions_file  => $b_search_regions_file
+    $ok = $b_srt->intersect_regions(
+        -in_regions_file            => $b_adjusted_pooled_regions_file,
+        -intersecting_regions_file  => $b_temp_seq_regions_file,
+        -out_regions_file           => $b_search_regions_file
     );
 
     unless ($ok) {
-        fatal("Error getting regions with pre-computed parent IDs from"
+        fatal("Error retrieving regions with pre-computed parent IDs from"
             . " pooled regions using regions from BiasAway sequences",
             \%job_args);
     }
 
-    $b_search_regions = $b_srt->read_bed(
-        -filename => $b_search_regions_file
-    );
+    #unlink $b_temp_seq_regions_file;
 } else {
     $logger->info("Computing background CAGE peak search regions");
 
-    $b_search_regions = $b_srt->compute_tss_search_regions(
+    $ok = $b_srt->compute_tss_search_regions(
         -tss                    => $b_tss,
         -upstream_bp            => $upstream_bp,
         -downstream_bp          => $downstream_bp,
-        -filtering_regions_file => $b_filter_regions_file
+        -filtering_regions_file => $b_filter_regions_file,
+        -out_file               => $b_search_regions_file
     );
+
+    unless ($ok) {
+        fatal("Error computing background CAGE peak regions", \%job_args);
+    }
 }
 
+my $b_search_regions = $b_srt->read_bed(-filename => $b_search_regions_file);
 unless ($b_search_regions) {
     fatal("Error computing background CAGE peak search regions", \%job_args);
 }
@@ -1061,8 +1111,8 @@ if ($t_tss_type eq 'custom' || $tf_type eq 'custom') {
     # In which case we do not need to create it again.
     #
     unless (-f $t_seq_file) {
-        my $ok = $t_srt->extract_search_region_sequences(
-            -regions_file   => $t_srt->final_regions_file(),
+        $ok = $t_srt->extract_search_region_sequences(
+            -regions_file   => $t_search_regions_file,
             -out_seq_file   => $t_seq_file
         );
 
@@ -1175,8 +1225,8 @@ if ($b_tss_type eq 'custom' || $tf_type eq 'custom') {
     # In which case we do not need to create it again.
     #
     unless (-f $b_seq_file) {
-        my $ok = $b_srt->extract_search_region_sequences(
-            -regions_file   => $b_srt->final_regions_file(),
+        $ok = $b_srt->extract_search_region_sequences(
+            -regions_file   => $b_search_regions_file,
             -out_seq_file   => $b_seq_file
         );
 
@@ -1307,7 +1357,7 @@ $logger->info("Getting filtered/sorted result list");
 my $cresults = $cresult_set->get_list(%result_params);
 
 my $message = "";
-my $ok = 1;
+$ok = 1;
 unless ($cresults) {
     $message = "No TFBSs scored above the selected Z-score/Fisher"
         . " thresholds";
@@ -1886,6 +1936,93 @@ sub get_tfbs_matrix_set
     }
 
     return $tf_set;
+}
+
+#
+# Adjust the background regions so that their lengths fall within the length
+# range of the target regions. This is any background region which is shorter
+# than the minimum target region length is discarded and any background region
+# which is longer than the longest target regions is split into smaller sized
+# regions. This is to compensate for a perceived shortcoming in BiasAway
+# when dealing with longer background sequences.
+#
+sub adjust_background_region_lengths
+{
+    my ($t_regions, $b_regions) = @_;
+
+    my ($min_length, $max_length) = get_min_max_region_lengths($t_regions);
+
+    my $avg_length = floor(($min_length + $max_length) / 2);
+
+    my @new_b_regions;
+    foreach my $reg (@$b_regions) {
+        my $len = $reg->end - $reg->start + 1;
+        my $parent_id = $reg->parent_id;
+        my $chrom = $reg->chrom;
+
+        if ($len >= $min_length) {
+            if ($len <= $max_length) {
+                # Region is between min and max so keep it
+                push @new_b_regions, $reg;
+            } else {
+                # Region is too long so split it.
+                my $max_end   = $reg->end;
+
+                my $new_start = $reg->start;
+                my $new_end   = $reg->start + $avg_length - 1;
+                while ($new_end <= $max_end) {
+                    push @new_b_regions, OPOSSUM::SearchRegion->new(
+                        -chrom      => $chrom,
+                        -start      => $new_start,
+                        -end        => $new_end,
+                        -parent_id  => $parent_id
+                    );
+
+                    $new_start = $new_end + 1;
+                    $new_end = $new_start + $avg_length - 1;
+                }
+
+                #
+                # If the length of final left over piece of region is at
+                # least equal to the min. length, keep it.
+                #
+                if (($max_end - $new_start + 1) >= $min_length) {
+                    push @new_b_regions, OPOSSUM::SearchRegion->new(
+                        -chrom      => $chrom,
+                        -start      => $new_start,
+                        -end        => $max_end,
+                        -parent_id  => $parent_id
+                    );
+                }
+            }
+        }
+    }
+
+    #
+    # Renumber the new regions with unique IDs
+    #
+    my $id = 1;
+    foreach my $reg (@new_b_regions) {
+        $reg->id($id++);
+    }
+
+    return @new_b_regions ? \@new_b_regions : undef;
+}
+
+sub get_min_max_region_lengths
+{
+    my ($regions) = @_;
+
+    my $min_length = 9999999;
+    my $max_length = 0;
+    foreach my $reg (@$regions) {
+        my $length = $reg->end - $reg->start + 1;
+
+        $min_length = $length if $length < $min_length;
+        $max_length = $length if $length > $max_length;
+    }
+
+    return ($min_length, $max_length);
 }
 
 #
