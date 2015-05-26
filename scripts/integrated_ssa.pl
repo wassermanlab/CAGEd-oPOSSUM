@@ -1053,11 +1053,11 @@ if ($b_is_rand) {
     $logger->info("Computing background CAGE peak search regions");
 
     $ok = $b_srt->compute_tss_search_regions(
-        -tss                    => $b_tss,
-        -upstream_bp            => $upstream_bp,
-        -downstream_bp          => $downstream_bp,
-        -filtering_regions_file => $b_filter_regions_file,
-        -out_file               => $b_search_regions_file
+        -tss                        => $b_tss,
+        -upstream_bp                => $upstream_bp,
+        -downstream_bp              => $downstream_bp,
+        -intersecting_regions_file  => $b_filter_regions_file,
+        -out_regions_file           => $b_search_regions_file
     );
 
     unless ($ok) {
@@ -1783,6 +1783,11 @@ sub parse_args
 
 sub parse_results_dir
 {
+    #
+    # XXX
+    # Replace with File::Spec->abs2rel()
+    # XXX
+    #
     my $rel_results_dir = $results_dir;
 
     if ($web) {
