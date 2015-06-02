@@ -990,6 +990,18 @@ sub compute_search_region_length
     return $length;
 }
 
+sub compute_total_sequences_length
+{
+    my ($seqs) = @_;
+
+    my $length = 0;
+    foreach my $seq (@$seqs) {
+        $length += $seq->length();
+    }
+
+    return $length;
+}
+
 #
 # Foreach search region and TF combination, count the number binding sites
 # and store them in an OPOSSUM::Analysis::Counts object.

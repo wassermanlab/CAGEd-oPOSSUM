@@ -351,7 +351,7 @@ use Getopt::Long;
 use Pod::Usage;
 use Carp;
 use Array::Utils qw(:all);   # for debugging only
-use File::Spec::Functions qw/ catfile /;
+use File::Spec::Functions qw/ catdir catfile /;
 use POSIX qw/ floor /;
 
 use Log::Log4perl qw(get_logger :levels);
@@ -371,7 +371,8 @@ use OPOSSUM::Analysis::Fisher;
 use OPOSSUM::Analysis::CombinedResultSet;
 use OPOSSUM::Plot::ScoreVsGC;
 use OPOSSUM::Tools::SearchRegionTool;
-use OPOSSUM::Tools::BiasAway;
+#use OPOSSUM::Tools::BiasAway;
+use OPOSSUM::Tools::Homer;
 #use Statistics::Distributions;
 
 use lib ENSEMBL_LIB_PATH;
@@ -379,6 +380,10 @@ use lib ENSEMBL_LIB_PATH;
 use Bio::EnsEMBL::DBSQL::DBAdaptor;
 
 use constant BG_COLOR_CLASS => 'bgc_f5_exp';
+
+my $path = $ENV{'PATH'};
+$path .= ':' . HOMER_BIN_PATH;
+$ENV{'PATH'} = $path;
 
 my $help;
 my $job_id;
@@ -724,9 +729,8 @@ my $t_search_regions = $t_srt->read_bed(-filename => $t_search_regions_file);
 
 $job_args{-t_search_regions} = $t_search_regions;
 
-$logger->info(
-    sprintf "Number of target search regions: %d", scalar @$t_search_regions
-);
+my $num_t_search_regions = scalar @$t_search_regions;
+$logger->info("Number of target search regions: $num_t_search_regions");
 
 # XXX only applicable to FANTOM5 data
 #my @t_sr_ids = map {$_->id} @$t_search_regions;
@@ -832,7 +836,7 @@ if ($b_tss_regions_file) {
     #
     # Fetch FANTOM5 background CAGE peaks used to generate random background
     #
-    my @t_tss_ids = map($_->id, @$t_tss);
+    #my @t_tss_ids = map($_->id, @$t_tss);
 
     #
     # If the target CAGE peaks are user defined then initially use ALL CAGE
@@ -840,18 +844,18 @@ if ($b_tss_regions_file) {
     # CAGE peaks EXCEPT those in the target set to seed construction of the
     # random background.
     #
-    if ($t_tss_type eq 'custom') {
-        $logger->info("Fetching ALL background CAGE peaks");
-        $b_tss = $tssa->fetch();
-    } else {
-        $logger->info("Fetching all background CAGE peaks which are NOT part of"
-            . " the target set");
+    #if ($t_tss_type eq 'custom') {
+    #    $logger->info("Fetching ALL background CAGE peaks");
+    #    $b_tss = $tssa->fetch();
+    #} else {
+    #    $logger->info("Fetching all background CAGE peaks which are NOT part of"
+    #        . " the target set");
 
-        $b_tss = $tssa->fetch_random(
-            -excluded_tss_ids   => \@t_tss_ids,
-            #-num_tss            => $num_t_tss * RAND_BG_TSS_FOLD
-        );
-    }
+    #    $b_tss = $tssa->fetch_random(
+    #        -excluded_tss_ids   => \@t_tss_ids,
+    #        #-num_tss            => $num_t_tss * RAND_BG_TSS_FOLD
+    #    );
+    #}
 } else {
     $b_experiments = get_experiments(
         $expa, 'background', \@b_exp_ids, $b_exp_ids_file, \%job_args
@@ -889,168 +893,95 @@ unless ($b_srt) {
 }
 
 #
-# We may need these for BiasAway or custom analysis so declare here.
+# We may need these for custom analysis so declare here.
 #
-my $b_search_regions_file = catfile($results_dir, 'b_search_regions.bed');
 my $t_seq_file = catfile($results_dir, 't_search_sequences.fa');
-my $b_seq_file = catfile($results_dir, 'b_search_sequences.fa');
+my $b_seq_file;
+my $b_seq_length;
+my $b_search_regions;
+my $b_search_regions_file;
+my $num_b_search_regions;
 if ($b_is_rand) {
     $logger->info(
-        "Computing background from random selection of FANTOM5 CAGE peaks"
+        "Computing random background with HOMER"
     );
 
-    $logger->info(
-        "Computing initial pool of random background CAGE peak search regions"
+    $logger->info("Initializing HOMER");
+
+    my $homer = OPOSSUM::Tools::Homer->new(
+        -debug  => 1,
+        -logger => $logger
     );
 
-    #
-    # Create pool of random background CAGE peak search regions, filtering
-    # out any regions which overlap the target CAGE peak search regions.
-    #
-    my $b_pooled_regions_file = catfile($results_dir, 'b_pooled_regions.bed');
-    $ok = $b_srt->compute_tss_search_regions(
-        -tss                    => $b_tss,
-        -upstream_bp            => $upstream_bp,
-        -downstream_bp          => $downstream_bp,
-        -excluded_regions_file  => $t_search_regions_file,
-        -out_regions_file       => $b_pooled_regions_file
-    );
-
-    unless ($ok) {
-        fatal("Error computing initial pool of random background CAGE peak"
-            . " search regions", \%job_args);
+    unless ($homer) {
+        fatal("Error initializing HOMER", %job_args);
     }
 
-    my $b_pooled_regions = $b_srt->read_bed(
-        -filename => $b_pooled_regions_file
-    );
-
-    #
-    # Match the background regions for length against the target regions.
-    #
-    $logger->info(
-        "Adjusting lengths of initial pool of random background CAGE peak"
-        . " search regions according to length range or target search regions"
-    );
-
-    my $b_adjusted_pooled_regions = adjust_background_region_lengths(
-        $t_search_regions, $b_pooled_regions
-    );
-
-    unless ($b_adjusted_pooled_regions) {
-        fatal("Error adjusting random background search regions according to"
-            . " length range of target search regions", \%job_args);
+    my $assembly;
+    my $peak_file;
+    if ($species eq 'human') {
+        $assembly   = HUMAN_ASSEMBLY;
+        $peak_file  = HOMER_HUMAN_CAGE_PEAK_FILE;
+    } elsif ($species eq 'mouse') {
+        $assembly   = MOUSE_ASSEMBLY;
+        $peak_file  = HOMER_MOUSE_CAGE_PEAK_FILE;
     }
 
-    my $b_adjusted_pooled_regions_file = catfile(
-        $results_dir, 'b_adjusted_pooled_regions.bed'
-    );
+    my ($min_t_region_len,
+        $max_t_region_len,
+        $mean_t_region_len) = get_region_length_stats($t_search_regions);
 
-    $b_srt->write_bed(
-        -regions  => $b_adjusted_pooled_regions,
-        -filename => $b_adjusted_pooled_regions_file
+    $logger->info("Running HOMER preparse genome");
+    my $homer_preparsed_dir = catdir($results_dir, 'homer_preparsed');
+    $homer->preparse_genome(
+        -assembly               => $assembly,
+        # XXX do we use min, max over mean here?
+        -size                   => $mean_t_region_len,
+        -reference_file         => $peak_file,
+        -preparsed_dir          => $homer_preparsed_dir
     );
+    $logger->info("Finished running HOMER preparse genome");
+
+    $logger->info("Running HOMER find motifs genome");
+    my $homer_output_dir = catdir($results_dir, 'homer_output');
+    $homer->find_motifs_genome(
+        -target_regions_file    => $t_search_regions_file,
+        -assembly               => $assembly,
+        -size                   => 'given',
+        -nlen                   => 2,
+        -N                      => $num_t_search_regions,
+        -preparsed_dir          => $homer_preparsed_dir,
+        -output_dir             => $homer_output_dir
+    );
+    $logger->info("Finished running HOMER find motifs genome");
 
     #
-    # Extract sequences corresponding to the pool of random background regions.
+    # HOMER creates a background.fa file in the output directory
     #
-    $logger->info("Extracting random background search region sequences"
-        . " for BiasAway computation");
+    $b_seq_file = catfile($homer_output_dir, 'background.fa');
 
-    my $b_adjusted_pooled_seq_file = catfile(
-        $results_dir, 'b_adjusted_pooled_sequences.fa'
-    );
-    $ok = $b_srt->extract_search_region_sequences(
-        -regions_file   => $b_adjusted_pooled_regions_file,
-        -out_seq_file   => $b_adjusted_pooled_seq_file
-    );
+    my $b_seqs = read_sequences($b_seq_file);
 
-    unless ($ok) {
-        fatal("Error extracting pool of random background search region"
-            . " sequences for BiasAway", \%job_args);
+    $num_b_search_regions = scalar @$b_seqs;
+
+    $b_seq_length = compute_total_sequences_length($b_seqs);
+
+    unless ($b_seq_length) {
+        fatal("Error computing total background search region length",
+              \%job_args);
     }
 
     #
-    # For BiasAway:
-    # Need to extract sequences for target regions and save to a file.
+    # XXX
+    # Is there a way (as with the BiasAway version) to retrieve regions
+    # corresponding to the background sequences so we can fetch TFBS from
+    # the DB rather than scan the sequences?
+    # XXX
     #
-    $ok = $t_srt->extract_search_region_sequences(
-        -regions_file   => $t_search_regions_file,
-        -out_seq_file   => $t_seq_file
-    );
-
-    unless ($ok) {
-        fatal("Error extracting sequences from target search regions file"
-            . " for BiasAway", \%job_args);
-    }
-
-    $logger->info("Initializing BiasAway");
-    my $ba_working_dir = catfile($results_dir, 'ba_tmp');
-    my $ba = OPOSSUM::Tools::BiasAway->new(-working_dir => $ba_working_dir);
-
-    unless ($ba) {
-        fatal("Error initializing BiasAway", %job_args);
-    }
-
-    $logger->info("Running BiasAway");
-    $ba->run(
-        -fg_seq_file    => $t_seq_file,
-        -bg_seq_file    => $b_adjusted_pooled_seq_file,
-        -out_seq_file   => $b_seq_file,
-        -fold           => 3
-        #-fold           => $b_fold
-        #-length_match   => 1
-    );
-    $logger->info("Finished running BiasAway");
-
-    #
-    # This file is large so remove it to free some disk space.
-    #
-    #unlink $b_adjusted_pooled_seq_file;
-
-    #
-    # From the GC composition matched sequences return by BiasAway, fetch
-    # the corresponding regions. First create regions from the sequences
-    # using the coordinate information stored in the fasta headers. These
-    # initial search regions will not have the parent pre-computed search
-    # regions ID as this will not be encoded anywhere in the fasta sequence
-    # file. The next step below takes care of this.
-    #
-    my $b_temp_seq_regions_file
-            = catfile($results_dir, 'b_temp_seq_regions.bed');
-    my $b_temp_seq_regions = $b_srt->create_regions_from_sequences(
-        -seq_file           => $b_seq_file,
-        -out_regions_file   => $b_temp_seq_regions_file,
-        -coord_shift        => 1
-    );
-
-    unless ($b_temp_seq_regions) {
-        fatal("Error determining corresponding regions for background"
-            . " sequences returned from BiasAway", \%job_args);
-    }
-
-    #
-    # Now use the initial set of regions computed above to filter against
-    # the large pooled regions file which does contain the parent pre-computed
-    # search regions IDs. The resulting set of regions will be the regions
-    # corresponding to the sequences returned from BiasAway with the
-    # pre-computed parent search region IDs included.
-    #
-    $ok = $b_srt->intersect_regions(
-        -in_regions_file            => $b_adjusted_pooled_regions_file,
-        -intersecting_regions_file  => $b_temp_seq_regions_file,
-        -out_regions_file           => $b_search_regions_file
-    );
-
-    unless ($ok) {
-        fatal("Error retrieving regions with pre-computed parent IDs from"
-            . " pooled regions using regions from BiasAway sequences",
-            \%job_args);
-    }
-
-    #unlink $b_temp_seq_regions_file;
 } else {
     $logger->info("Computing background CAGE peak search regions");
+
+    $b_search_regions_file = catfile($results_dir, 'b_search_regions.bed');
 
     $ok = $b_srt->compute_tss_search_regions(
         -tss                        => $b_tss,
@@ -1063,31 +994,36 @@ if ($b_is_rand) {
     unless ($ok) {
         fatal("Error computing background CAGE peak regions", \%job_args);
     }
+
+    $b_search_regions = $b_srt->read_bed(
+        -filename => $b_search_regions_file
+    );
+
+    unless ($b_search_regions) {
+        fatal("Error computing background CAGE peak search regions",
+            \%job_args);
+    }
+
+    #write_search_regions($b_search_regions,
+    #   "$results_dir/b_search_regions.txt");
+
+    $job_args{-b_search_regions} = $b_search_regions;
+
+    $num_b_search_regions = scalar @$b_search_regions;
+
+    # XXX only applicable to FANTOM5 data
+    #my @b_sr_ids = map {$_->id} @$b_search_regions;
+
+    $logger->info("Computing total background search region length");
+    $b_seq_length = compute_search_region_length($b_search_regions);
+
+    unless ($b_seq_length) {
+        fatal("Error computing total background search region length",
+              \%job_args);
+    }
 }
 
-my $b_search_regions = $b_srt->read_bed(-filename => $b_search_regions_file);
-unless ($b_search_regions) {
-    fatal("Error computing background CAGE peak search regions", \%job_args);
-}
-
-#write_search_regions($b_search_regions, "$results_dir/b_search_regions.txt");
-
-$job_args{-b_search_regions} = $b_search_regions;
-
-$logger->info(
-    sprintf "Number of background search regions: %d", scalar @$b_search_regions
-);
-
-# XXX only applicable to FANTOM5 data
-#my @b_sr_ids = map {$_->id} @$b_search_regions;
-
-$logger->info("Computing total background search region length");
-my $b_seq_length = compute_search_region_length($b_search_regions);
-
-unless ($b_seq_length) {
-    fatal("Error computing total background search region length", \%job_args);
-}
-
+$logger->info("Number of background search regions: $num_b_search_regions");
 $logger->info("Total background search region length: $b_seq_length");
 
 my $tf_set = get_tfbs_matrix_set(\%job_args);
@@ -1221,7 +1157,7 @@ if ($b_tss_type eq 'custom' || $tf_type eq 'custom') {
     #);
 
     #
-    # We may have already created the background sequences file for BiasAway.
+    # We may have already created the background sequences file with HOMER.
     # In which case we do not need to create it again.
     #
     unless (-f $b_seq_file) {
@@ -1570,10 +1506,17 @@ sub parse_args
     # Determine the background CAGE peak input type (FANTOM5 or custom)
     # based on input parameters specified.
     #
+    # XXX
+    # For the HOMER background sequence generation version we cannot (yet)
+    # determine the corresponding regions from sequences generated so we
+    # have to scan the sequences rather than fetch TFBS from the DB by
+    # the region coordinates.
+    # XXX
+    #
     my $b_tss_type;
-    if ($b_is_rand || @b_exp_ids || $b_exp_ids_file || $b_tss_names_file) {
+    if (@b_exp_ids || $b_exp_ids_file || $b_tss_names_file) {
         $b_tss_type = 'fantom5';
-    } elsif ($t_tss_regions_file) {
+    } elsif ($b_is_rand || $b_tss_regions_file) {
         $b_tss_type = 'custom';
     }
 
@@ -1955,9 +1898,17 @@ sub adjust_background_region_lengths
 {
     my ($t_regions, $b_regions) = @_;
 
-    my ($min_length, $max_length) = get_min_max_region_lengths($t_regions);
+    #
+    # XXX
+    # This computation of average length was very flawed!!!
+    # But it probably wouldn't make any difference anyway.
+    # XXX
+    #
+    #my ($min_length, $max_length) = get_min_max_region_lengths($t_regions);
+    #my $avg_length = floor(($min_length + $max_length) / 2);
 
-    my $avg_length = floor(($min_length + $max_length) / 2);
+    my ($min_length, $max_length, $avg_length)
+            = get_region_length_stats($t_regions);
 
     my @new_b_regions;
     foreach my $reg (@$b_regions) {
@@ -2028,6 +1979,28 @@ sub get_min_max_region_lengths
     }
 
     return ($min_length, $max_length);
+}
+
+sub get_region_length_stats
+{
+    my ($regions) = @_;
+
+    my $min_length = 9999999;
+    my $max_length = 0;
+    my $total_length = 0;
+    foreach my $reg (@$regions) {
+        my $length = $reg->end - $reg->start + 1;
+
+        $total_length += $length;
+
+        $min_length = $length if $length < $min_length;
+        $max_length = $length if $length > $max_length;
+    }
+
+    my $num_regions = scalar @$regions;
+    my $mean_length = floor($total_length / $num_regions);
+
+    return ($min_length, $max_length, $mean_length);
 }
 
 #
@@ -2148,8 +2121,8 @@ sub write_results_html
         t_tss               => $t_tss,
         num_t_tss           => $t_tss ? scalar @$t_tss : 0,
         num_b_tss           => $b_tss ? scalar @$b_tss : 0,
-        num_t_search_regions    => scalar @$t_search_regions,
-        num_b_search_regions    => scalar @$b_search_regions,
+        num_t_search_regions    => $num_t_search_regions,
+        num_b_search_regions    => $num_b_search_regions,
         #t_seq_ids           => \@t_sr_ids,
         #num_t_seq_ids       => @t_sr_ids ? scalar @t_sr_ids : 0,
         #num_b_seq_ids       => @b_sr_ids ? scalar @b_sr_ids : 0,

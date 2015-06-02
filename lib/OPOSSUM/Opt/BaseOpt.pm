@@ -33,6 +33,22 @@ use constant OPOSSUM_DB_PASS    => '';
 #use constant BA_EXEC        => 'python2.7 /apps/BiasAway/BiasAway.py g';
 #use constant BA_DFLT_FOLD   => 1;
 
+use constant HUMAN_ASSEMBLY     => 'hg19';
+use constant MOUSE_ASSEMBLY     => 'mm9';
+
+#
+# HOMER Settings
+#
+use constant HOMER_BIN_PATH     => '/apps/Homer/bin/';
+#
+# Files containing the permissive CAGE peak data, used by HOMER
+# preparseGeneome.pl in creating background regions.
+#
+use constant HOMER_HUMAN_CAGE_PEAK_FILE =>
+    '/devel/FANTOM5_oPOSSUM/htdocs/data/hg19.cage_peak_coord_permissive.txt';
+use constant HOMER_MOUSE_CAGE_PEAK_FILE =>
+    '/devel/FANTOM5_oPOSSUM/htdocs/data/mm9.cage_peak_coord_permissive.txt';
+
 #
 # NOTE: The actual Ensembl species DB name is stored in the db_info record
 # of the specific FANTOM5-oPOSSUM species DB. The Ensembl lib version has to
