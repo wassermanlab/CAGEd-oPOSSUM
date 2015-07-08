@@ -29,7 +29,7 @@ use constant KS_PLOT_FILENAME           => 'ks_vs_gc.png';
 #
 # oPOSSUM system paths
 #
-use constant OPOSSUM_HOME           => '/devel/FANTOM5_oPOSSUM';
+use constant OPOSSUM_HOME           => '/devel/CAGEd_oPOSSUM';
 use constant OPOSSUM_LIB_PATH       => OPOSSUM_HOME . '/lib';
 use constant OPOSSUM_HTDOCS_PATH    => OPOSSUM_HOME . '/htdocs';
 use constant OPOSSUM_CGI_BIN_PATH   => OPOSSUM_HOME . '/cgi-bin';
@@ -41,25 +41,31 @@ use constant OPOSSUM_SCRIPTS_PATH   => OPOSSUM_HOME . '/scripts';
 #
 use constant WEB_SERVER_URL             => 'http://fantom.cmmt.ubc.ca';
 use constant WEB_SERVER_HOME            => '/var/www';
+use constant ABS_HTDOCS_ROOT            => '/var/www/htdocs';
 use constant ABS_HTDOCS_PATH            => WEB_SERVER_HOME
-                                           . '/htdocs/FANTOM5_oPOSSUM_dev';
+                                           . '/htdocs/CAGEd_oPOSSUM_dev';
 use constant ABS_CGI_BIN_PATH           => WEB_SERVER_HOME
-                                           . '/cgi-bin/FANTOM5_oPOSSUM_dev';
+                                           . '/cgi-bin/CAGEd_oPOSSUM_dev';
 use constant ABS_HTDOCS_TEMPLATE_PATH   => ABS_HTDOCS_PATH . '/templates';
 use constant ABS_HTDOCS_TMP_PATH        => ABS_HTDOCS_PATH . '/tmp';
 use constant ABS_HTDOCS_RESULTS_PATH    => ABS_HTDOCS_PATH . '/results';
 use constant ABS_HTDOCS_DATA_PATH       => ABS_HTDOCS_PATH . '/data';
-use constant REL_HTDOCS_PATH            => '/FANTOM5_oPOSSUM_dev';
-use constant REL_CGI_BIN_PATH           => '/cgi-bin/FANTOM5_oPOSSUM_dev';
+use constant REL_HTDOCS_PATH            => '/CAGEd_oPOSSUM_dev';
+use constant REL_CGI_BIN_PATH           => '/cgi-bin/CAGEd_oPOSSUM_dev';
 use constant REL_HTDOCS_TMP_PATH        => REL_HTDOCS_PATH . '/tmp';
 use constant REL_HTDOCS_RESULTS_PATH    => REL_HTDOCS_PATH . '/results';
 use constant REL_HTDOCS_DATA_PATH       => REL_HTDOCS_PATH . '/data';
+use constant HOMER_PREPARSED_SUBDIR     => 'homer_preparsed';
+use constant HOMER_OUTPUT_SUBDIR        => 'homer_output';
+use constant HOMER_KNOWN_MOTIF_RESULTS_TEXT_FILE    => 'knownResults.txt';
+use constant HOMER_KNOWN_MOTIF_RESULTS_HTML_FILE    => 'knownResults.html';
 
 #
 # External URLs
 #
 use constant JASPAR_URL => 'http://jaspar.genereg.net/cgi-bin/jaspar_db.pl';
 use constant PAZAR_URL  => 'http://www.pazar.info/cgi-bin/display_JASPAR_profile.cgi';
+use constant HOMER_URL => 'http://homer.salk.edu/homer';
 
 #
 # JASPAR DB Access
@@ -123,8 +129,8 @@ use constant DFLT_RAND_BG_FOLD          => 1;
 use constant DFLT_PEAK_DIST_DISTRIBUTION => 'punif';
 
 # temp. file cleanup no. of days
-use constant REMOVE_TEMPFILES_OLDER_THAN    => 21;
-use constant REMOVE_RESULTFILES_OLDER_THAN  => 21;
+use constant REMOVE_TEMPFILES_OLDER_THAN    => 30;
+use constant REMOVE_RESULTFILES_OLDER_THAN  => 90;
 
 use constant DEBUG          => 0;
 

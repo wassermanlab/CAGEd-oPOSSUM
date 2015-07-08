@@ -26,6 +26,7 @@ experiment_ssa.pl
           | [-tff FILE]
           | [-tfids tf_ids]
           | ([-co collections] [-tax tax_groups] [-ic min_ic])
+      [-hma]
       [-th threshold]
       [-up upstream_bp]
       [-dn downstream_bp]
@@ -221,6 +222,11 @@ e.g: -tax vertebrates -tax "insects, nematodes"
             Specify minimum information content (specificity) of JASPAR
             TFBS profile matrices to use.
 
+    -hma
+            If specified, also run HOMER motif analysis. HOMER is used to
+            find overrepresented TFBS using the same JASPAR matrix set as
+            used by the standard oPOSSUM analysis.
+
     -th threshold
             Minimum relative TFBS position weight matrix (PWM) score to
             report in the analysis. The thresold may be spesified as a
@@ -260,9 +266,9 @@ e.g: -tax vertebrates -tax "insects, nematodes"
 
 =head2 Web Server Specific Options
 
-    The following options are passed to the script by web-based FANTOM
-    oPOSSUM. These are not required when running the scripts directly on the
-    command line and can generally be ignored.
+    The following options are passed to the script by web-based
+    CAGEd-oPOSSUM. These are not required when running the scripts
+    directly on the command line and can generally be ignored.
 
     -web
             Web server switch. Indicates that the script caller is the web
@@ -345,13 +351,13 @@ use strict;
 
 use warnings;
 
-use lib '/devel/FANTOM5_oPOSSUM/lib';
+use lib '/devel/CAGEd_oPOSSUM/lib';
 
 use Getopt::Long;
 use Pod::Usage;
 use Carp;
 use Array::Utils qw(:all);   # for debugging only
-use File::Spec::Functions qw/ catdir catfile /;
+use File::Spec::Functions qw/ abs2rel catdir catfile splitpath file_name_is_absolute /;
 use POSIX qw/ floor /;
 
 use Log::Log4perl qw(get_logger :levels);
@@ -421,6 +427,7 @@ my $tf_ids_file;
 my @collections;
 my @tax_groups;
 my $min_ic;
+my $hma;
 my $threshold;
 my $upstream_bp;
 my $downstream_bp;
@@ -475,6 +482,7 @@ GetOptions(
     'co=s'          => \@collections,
     'tax=s'         => \@tax_groups,
     'ic=s'          => \$min_ic,
+    'hma'           => \$hma,
     'th=s'          => \$threshold,
     'up=i'          => \$upstream_bp,
     'dn=i'          => \$downstream_bp,
@@ -513,7 +521,11 @@ my %job_args = (
 #
 parse_args();
 
-my $rel_results_dir = parse_results_dir($results_dir);
+my $rel_results_dir = make_relative_results_path($results_dir);
+
+unless ($web) {
+    make_results_dir($results_dir);
+}
 
 $job_args{-results_dir}     = $results_dir;
 $job_args{-rel_results_dir} = $rel_results_dir;
@@ -523,12 +535,12 @@ my $logger = init_logging();
 $logger->info("Starting analysis");
 
 #
-# Connect to FANTOM5_oPOSSUM DB and get the necessary adaptors
+# Connect to CAGEd-oPOSSUM DB and get the necessary adaptors
 #
 my $db_name = sprintf("%s_%s", OPOSSUM_DB_NAME, $species);
 
 my $opdba = opossum_db_connect($species)
-    || fatal("Could not connect to FANTOM5 oPOSSUM database $db_name",
+    || fatal("Could not connect to CAGEd-oPOSSUM database $db_name",
         \%job_args);
 
 my $dbia = $opdba->get_DBInfoAdaptor
@@ -551,7 +563,7 @@ my $tfbsa = $opdba->get_TFBSAdaptor
 
 my $db_info = $dbia->fetch_db_info();
 unless ($db_info) {
-    fatal("Could not fetch FANTOM5-oPOSSUM DB info", \%job_args);
+    fatal("Could not fetch CAGEd-oPOSSUM DB info", \%job_args);
 }
 
 my $ens_db_name = $db_info->ensembl_db;
@@ -892,10 +904,45 @@ unless ($b_srt) {
     fatal("Error initializing background search region tool", \%job_args);
 }
 
+my $tf_set = get_tfbs_matrix_set(\%job_args);
+
+my $tf_ids   = $tf_set->ids();
+my $tf_names = $tf_set->names();
+
 #
-# We may need these for custom analysis so declare here.
+# We use HOMER both to generate random backgrounds and to perform motif
+# overrepresentation analysis. So initilize it here if either of these
+# options is set.
+#
+my $homer;
+my $assembly;
+if ($b_is_rand || $hma) {
+    $logger->info("Initializing HOMER");
+
+    $homer = OPOSSUM::Tools::Homer->new(
+        -debug  => 1,
+        -logger => $logger
+    );
+
+    unless ($homer) {
+        fatal("Error initializing HOMER", %job_args);
+    }
+
+    if ($species eq 'human') {
+        $assembly = HUMAN_ASSEMBLY;
+    } elsif ($species eq 'mouse') {
+        $assembly = MOUSE_ASSEMBLY;
+    }
+}
+
+#
+# We may need these in the future so declare here.
 #
 my $t_seq_file = catfile($results_dir, 't_search_sequences.fa');
+my $homer_preparsed_dir = catdir($results_dir, HOMER_PREPARSED_SUBDIR);
+my $homer_output_dir = catdir($results_dir, HOMER_OUTPUT_SUBDIR);
+my $homer_results_dir = $homer_output_dir;
+
 my $b_seq_file;
 my $b_seq_length;
 my $b_search_regions;
@@ -906,25 +953,11 @@ if ($b_is_rand) {
         "Computing random background with HOMER"
     );
 
-    $logger->info("Initializing HOMER");
-
-    my $homer = OPOSSUM::Tools::Homer->new(
-        -debug  => 1,
-        -logger => $logger
-    );
-
-    unless ($homer) {
-        fatal("Error initializing HOMER", %job_args);
-    }
-
-    my $assembly;
     my $peak_file;
     if ($species eq 'human') {
-        $assembly   = HUMAN_ASSEMBLY;
-        $peak_file  = HOMER_HUMAN_CAGE_PEAK_FILE;
+        $peak_file = HOMER_HUMAN_CAGE_PEAK_FILE;
     } elsif ($species eq 'mouse') {
-        $assembly   = MOUSE_ASSEMBLY;
-        $peak_file  = HOMER_MOUSE_CAGE_PEAK_FILE;
+        $peak_file = HOMER_MOUSE_CAGE_PEAK_FILE;
     }
 
     my ($min_t_region_len,
@@ -932,7 +965,6 @@ if ($b_is_rand) {
         $mean_t_region_len) = get_region_length_stats($t_search_regions);
 
     $logger->info("Running HOMER preparse genome");
-    my $homer_preparsed_dir = catdir($results_dir, 'homer_preparsed');
     $homer->preparse_genome(
         -assembly               => $assembly,
         # XXX do we use min, max over mean here?
@@ -942,18 +974,67 @@ if ($b_is_rand) {
     );
     $logger->info("Finished running HOMER preparse genome");
 
+    #
+    # We also want to use HOMER to find motifs
+    #
     $logger->info("Running HOMER find motifs genome");
-    my $homer_output_dir = catdir($results_dir, 'homer_output');
-    $homer->find_motifs_genome(
-        -target_regions_file    => $t_search_regions_file,
-        -assembly               => $assembly,
-        -size                   => 'given',
-        -nlen                   => 2,
-        -N                      => $num_t_search_regions,
-        -preparsed_dir          => $homer_preparsed_dir,
-        -output_dir             => $homer_output_dir
-    );
-    $logger->info("Finished running HOMER find motifs genome");
+
+    if ($hma) {
+        my $homer_matrices_file = catfile(
+            $results_dir, 'homer_jaspar_matrices.txt'
+        );
+
+        my $homer_results_text_file = catfile(
+            $homer_results_dir, HOMER_KNOWN_MOTIF_RESULTS_TEXT_FILE
+        );
+
+        my $homer_results_html_file = catfile(
+            $homer_results_dir, HOMER_KNOWN_MOTIF_RESULTS_HTML_FILE
+        );
+
+        $job_args{-homer_results_text_file} = $homer_results_text_file;
+        $job_args{-homer_results_html_file} = $homer_results_html_file;
+
+        $homer->print_matrix_set($homer_matrices_file, $tf_set, $threshold);
+
+        #
+        # Creating background AND doing motif analysis.
+        #
+        $homer->find_motifs_genome(
+            -target_regions_file    => $t_search_regions_file,
+            -assembly               => $assembly,
+            -size                   => 'given',
+            -nlen                   => 2,
+            -N                      => $num_t_search_regions,
+            -cpg                    => 1,
+            -chopify                => 1,
+            -dumpfasta              => 1,
+            -preparsed_dir          => $homer_preparsed_dir,
+            -output_dir             => $homer_output_dir,
+            -motif_file             => $homer_matrices_file
+        );
+
+        $logger->info("Finished running HOMER random background generation"
+            . " and motif finding");
+    } else {
+        #
+        # Just creating background. Not doing motif analysis.
+        #
+        $homer->find_motifs_genome(
+            -target_regions_file    => $t_search_regions_file,
+            -assembly               => $assembly,
+            -size                   => 'given',
+            -nlen                   => 2,
+            -N                      => $num_t_search_regions,
+            -cpg                    => 1,
+            -chopify                => 1,
+            -dumpfasta              => 1,
+            -preparsed_dir          => $homer_preparsed_dir,
+            -output_dir             => $homer_output_dir
+        );
+
+        $logger->info("Finished running HOMER random background generation");
+    }
 
     #
     # HOMER creates a background.fa file in the output directory
@@ -1026,10 +1107,50 @@ if ($b_is_rand) {
 $logger->info("Number of background search regions: $num_b_search_regions");
 $logger->info("Total background search region length: $b_seq_length");
 
-my $tf_set = get_tfbs_matrix_set(\%job_args);
+#
+# If we also want to use HOMER to find motifs and we haven't already done it
+# (if b_is_rand is true, then we already did motif finding in the same step
+# which generated random background sequences).
+#
+if ($hma && !$b_is_rand) {
+    $logger->info("Running HOMER find motifs genome");
 
-my $tf_ids   = $tf_set->ids();
-my $tf_names = $tf_set->names();
+    my $homer_matrices_file = catfile(
+        $results_dir, 'homer_jaspar_matrices.txt'
+    );
+
+    my $homer_results_text_file = catfile(
+        $homer_results_dir, HOMER_KNOWN_MOTIF_RESULTS_TEXT_FILE
+    );
+
+    my $homer_results_html_file = catfile(
+        $homer_results_dir, HOMER_KNOWN_MOTIF_RESULTS_HTML_FILE
+    );
+
+    $job_args{-homer_results_text_file} = $homer_results_text_file;
+    $job_args{-homer_results_html_file} = $homer_results_html_file;
+
+    $homer->print_matrix_set($homer_matrices_file, $tf_set, $threshold);
+
+    #
+    # Just doing motif analysis. Background was created earlier using
+    # explicit background CAGE peak data.
+    #
+    $homer->find_motifs_genome(
+        -target_regions_file        => $t_search_regions_file,
+        -background_regions_file    => $b_search_regions_file,
+        -motif_file                 => $homer_matrices_file,
+        -assembly                   => $assembly,
+        #-chopify                    => 1,
+        -size                       => 'given',
+        #-nlen                       => 2,
+        #-N                          => $num_t_search_regions,
+        #-preparsed_dir              => $homer_preparsed_dir,
+        -output_dir                 => $homer_results_dir
+    );
+
+    $logger->info("Finished running HOMER motif finding");
+}
 
 #
 # Compute target and backround counts
@@ -1316,7 +1437,7 @@ if ($web) {
 }
 
 $logger->info("Writing text results");
-my $out_file = "$results_dir/" . RESULTS_TEXT_FILENAME;
+my $out_file = catfile($results_dir, RESULTS_TEXT_FILENAME);
 write_results_text($out_file, $cresults, $tf_set, \%job_args);
 
 if ($write_details) {
@@ -1717,6 +1838,7 @@ sub parse_args
     $downstream_bp = DFLT_DOWNSTREAM_BP unless $downstream_bp;
     $sort_by       = DFLT_RESULT_SORT_BY unless $sort_by;
 
+    $job_args{-hma} = 1 if $hma;
     $job_args{-tf_db} = $tf_db;
     $job_args{-threshold} = $threshold;
     $job_args{-upstream_bp} = $upstream_bp;
@@ -1724,36 +1846,94 @@ sub parse_args
     $job_args{-sort_by} = $sort_by;
 }
 
-sub parse_results_dir
+#
+# Construct the 'relative' results path from the absolute one. The path
+# returned depends on whether we are in web context or not. If the path passed
+# in is already a relative one or we are not in web context the relative
+# path is the same as the path passed in.
+#
+sub make_relative_results_path
 {
-    #
-    # XXX
-    # Replace with File::Spec->abs2rel()
-    # XXX
-    #
-    my $rel_results_dir = $results_dir;
+    my ($path) = @_;
 
-    if ($web) {
-        # Remove absolute path
-        $rel_results_dir =~ s/.*\///;
-        
-        # Add relative path
-        $rel_results_dir = REL_HTDOCS_RESULTS_PATH . "/$rel_results_dir";
-    } else {
-        unless (-d $results_dir) {
-            mkdir $results_dir
-                || fatal(
-                    "Error creating results directory $results_dir - $!",
-                    \%job_args
-                );
+    my $rel_path;
+    if (file_name_is_absolute($path)) {
+        if ($web) {
+            $rel_path = $path;
+            $rel_path =~ s/.*\///;
+            $rel_path = REL_HTDOCS_RESULTS_PATH . "/$rel_path";
+        } else {
+            $rel_path = $path;
         }
+    } else {
+        $rel_path = $path;
     }
+
+    return $rel_path;
+}
+
+#
+# Make a 'relative' html path from an absolute systems (html) path.
+# Only applies in web context.
+#
+sub make_relative_html_path
+{
+    my ($sys_path, $base_path) = @_;
+
+    my $rel_html_path;
+    if ($web) {
+        $rel_html_path = abs2rel($sys_path, $base_path)
+    } else {
+        $rel_html_path = $sys_path;
+    }
+
+    return $rel_html_path;
+}
+
+#
+# Not currently used.
+#
+sub abs_to_rel_results_path
+{
+    my $path = shift;
+
+    my $rel_path;
+    if ($web) {
+        $rel_path = abs_to_rel_url_results_path($path);
+    } else {
+        $rel_path = abs_to_rel_sys_results_path($path);
+    }
+
+    return $rel_path;
+}
+
+#
+# Not currently used.
+#
+sub abs_to_rel_url_results_path
+{
+    my $full_path = shift;
+
+    my ($volume, $dir, $file) = abs2rel($full_path, $results_dir);
+    
+    my $rel_path = catfile(REL_HTDOCS_RESULTS_PATH, $file);
+
+    return $rel_path;
+}
+
+sub make_results_dir
+{
+    my ($results_dir) = @_;
 
     unless (-d $results_dir) {
-        die "Results directory $results_dir does not exist\n";
+        mkdir $results_dir
+            || fatal(
+                "Error creating results directory $results_dir - $!",
+                \%job_args
+            );
     }
 
-    return $rel_results_dir;
+    return $results_dir;
 }
 
 sub init_logging
@@ -1761,7 +1941,7 @@ sub init_logging
     #
     # Initialize logging
     #
-    my $log_file = get_log_filename("fantom5_opossum", $results_dir);
+    my $log_file = get_log_filename("caged_opossum", $results_dir);
 
     my $logger = get_logger();
     unless ($logger) {
@@ -2089,7 +2269,20 @@ sub write_results_html
     my $tf_type             = $job_args->{-tf_type};
     my $tf_select_criteria  = $job_args->{-tf_select_criteria};
 
-    my $title = "FANTOM5 oPOSSUM $heading";
+    my $homer_rel_results_text_file;
+    my $homer_rel_results_html_file;
+    my $hma = $job_args->{-hma};
+    if ($hma) {
+        $homer_rel_results_text_file = make_relative_html_path(
+            $job_args->{-homer_results_text_file}, $results_dir
+        );
+
+        $homer_rel_results_html_file = make_relative_html_path(
+            $job_args->{-homer_results_html_file}, $results_dir
+        );
+    }
+
+    my $title = "CAGEd-oPOSSUM $heading";
 
     my $vars = {
         abs_htdocs_path     => ABS_HTDOCS_PATH,
@@ -2146,9 +2339,12 @@ sub write_results_html
         fisher_cutoff       => $fisher_cutoff,
         result_sort_by      => $sort_by,
         warn_zero_bg_hits   => $warn_zero_bg_hits,
+        hma                 => $hma,
         results_file        => RESULTS_TEXT_FILENAME,
         zscore_plot_file    => ZSCORE_PLOT_FILENAME,
         fisher_plot_file    => FISHER_PLOT_FILENAME,
+        homer_results_html_file  => $homer_rel_results_html_file,
+        homer_results_text_file  => $homer_rel_results_text_file,
         message             => $message,
         user_t_exp_ids_file => $user_t_exp_ids_file,
         user_b_exp_ids_file => $user_b_exp_ids_file,
@@ -2182,7 +2378,7 @@ sub write_results_html
 
     my $output = process_template('master.html', $vars);
 
-    my $html_filename = "$results_dir/" . RESULTS_HTDOCS_FILENAME;
+    my $html_filename = catfile($results_dir, RESULTS_HTDOCS_FILENAME);
 
     open(OUT, ">$html_filename")
         || fatal("Could not create HTML results file $html_filename",
@@ -2391,7 +2587,7 @@ sub write_tfbs_details_html
 
     $logger->info("Writing '$tf_name' TFBS details to $filename");
 
-    my $title = "FANTOM5-oPOSSUM $heading";
+    my $title = "CAGEd-oPOSSUM $heading";
     my $section = sprintf("%s Conserved Binding Sites", $tf_name);
 
     my $vars = {

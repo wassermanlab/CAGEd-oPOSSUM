@@ -202,7 +202,7 @@ sub select_target_cage_data
         bg_color_class          => BG_COLOR_CLASS,
         version                 => VERSION,
         devel_version           => DEVEL_VERSION,
-        progress_svg            => 'progress_step1.svg',
+        progress_step           => 1,
         section                 => 'STEP 1: Select Target CAGE Peaks',
         t_or_b                  => 'target',
         rm                      => 'select_t_filters',
@@ -245,11 +245,12 @@ sub select_background_cage_data
         bg_color_class          => BG_COLOR_CLASS,
         version                 => VERSION,
         devel_version           => DEVEL_VERSION,
-        progress_svg            => 'progress_step3.svg',
+        progress_step           => 3,
         section                 => 'STEP 3: Select Background CAGE Peaks',
         t_or_b                  => 'background',
         rm                      => 'select_b_filters',
         event                   => 'b_data_selected',
+        homer_url               => HOMER_URL,
         sid                     => $state->sid(),
         title                   => $state->title(),
         heading                 => $state->heading(),
@@ -286,7 +287,7 @@ sub select_target_filters
         bg_color_class          => BG_COLOR_CLASS,
         version                 => VERSION,
         devel_version           => DEVEL_VERSION,
-        progress_svg            => 'progress_step2.svg',
+        progress_step           => 2,
         section                 => 'STEP 2: Select Target CAGE Peak Filters',
         t_or_b                  => 'target',
         rm                      => 'select_b_data',
@@ -327,7 +328,7 @@ sub select_background_filters
         bg_color_class          => BG_COLOR_CLASS,
         version                 => VERSION,
         devel_version           => DEVEL_VERSION,
-        progress_svg            => 'progress_step4.svg',
+        progress_step           => 4,
         section                 => 'STEP 4: Select Background CAGE Peak Filters',
         t_or_b                  => 'background',
         rm                      => 'select_tfbs',
@@ -449,10 +450,12 @@ sub select_tfbs_parameters
         bg_color_class          => BG_COLOR_CLASS,
         title                   => $state->title(),
         heading                 => $state->heading(),
-        progress_svg            => 'progress_step5.svg',
+        species                 => $state->species,
+        progress_step           => 5,
         section                 => 'STEP 5: Select Transcription Factor Binding Site Parameters',
         version                 => VERSION,
         devel_version           => DEVEL_VERSION,
+        homer_url               => HOMER_URL,
         nresults                => NUM_RESULTS,
         dflt_nresults           => DFLT_NUM_RESULTS,
         zcutoffs                => ZSCORE_CUTOFFS,
@@ -618,7 +621,17 @@ sub target_cage_data_selected
         my @ff_ids;
         foreach my $ff_id (@$all_ff_ids) {
             if ($q->param($ff_id)) {
-                push @ff_ids, "FF:$ff_id";
+                #
+                # To save a bit of space in the ontology tree file, I stripped
+                # the (redundant) 'FF:' from the FANTOM5 ontology IDs. However,
+                # I may forget to do this in future so to be on the safe side,
+                # explicitly check for this before adding it back on.
+                #
+                unless ($ff_id =~ /^FF:/) {
+                    $ff_id = "FF:$ff_id";
+                }
+
+                push @ff_ids, $ff_id;
             }
         }
 
@@ -806,7 +819,17 @@ sub background_cage_data_selected
         my @ff_ids;
         foreach my $ff_id (@$all_ff_ids) {
             if ($q->param($ff_id)) {
-                push @ff_ids, "FF:$ff_id";
+                #
+                # To save a bit of space in the ontology tree file, I stripped
+                # the (redundant) 'FF:' from the FANTOM5 ontology IDs. However,
+                # I may forget to do this in future so to be on the safe side,
+                # explicitly check for this before adding it back on.
+                #
+                unless ($ff_id =~ /^FF:/) {
+                    $ff_id = "FF:$ff_id";
+                }
+
+                push @ff_ids, $ff_id;
             }
         }
 
@@ -1172,6 +1195,7 @@ sub tfbs_parameters_selected
     $state->result_sort_by(undef);
     $state->tfbs_details(undef);
     $state->tf_select_criteria(undef);
+    $state->run_homer_motif_analysis(undef);
 
     if (my $text = $self->parse_textbox('matrix_paste_text')) {
         my $filename = "$results_dir/matrices.txt";
@@ -1317,6 +1341,7 @@ sub tfbs_parameters_selected
 
     $state->result_sort_by($q->param('result_sort_by'));
     $state->tfbs_details($q->param('tfbs_details'));
+    $state->run_homer_motif_analysis($q->param('run_homer_motif_analysis'));
 
     my $email = $q->param('email');
     unless (defined $email) {
@@ -1566,6 +1591,10 @@ sub results
 
     if ($state->tfbs_details()) {
         $command .= " -details";
+    }
+
+    if ($state->run_homer_motif_analysis()) {
+        $command .= " -hma";
     }
 
     my $submitted_time = scalar localtime(time);

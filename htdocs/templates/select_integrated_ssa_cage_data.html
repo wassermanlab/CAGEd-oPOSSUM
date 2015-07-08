@@ -171,9 +171,11 @@ function verify(f)
     <br>
 
     [%IF t_or_b == 'background'%]
-      <h4>Use a random set of FANTOM5 CAGE peaks</h4>
+      <h4>Use a matched random background</h4>
       <br>
-      Use a random set of CAGE peaks GC composition matched to the target set <input type=checkbox name="is_rand" checked>
+      Use a random set of background regions %GC composition and length matched to the target CAGE regions<input type=checkbox name="is_rand" checked>
+      <br>
+      (generated using the <a href="[%homer_url%]" target="_blank">HOMER software</a>)
       <br>
       <br>
     [%END%]
@@ -199,53 +201,53 @@ function verify(f)
     </div>
     <br>
 
-    <input type="radio" name="expression_input_method" value="tag_count_and_tpm" checked>
-    with raw tag count >= <input type="text" name="tag_count" value="[%tag_count%]" size="3" maxlength="4" align="right"
+    <input type="radio" name="expression_input_method" value="relative_expression" checked>
+    with relative expression >= <input type="text" name="relative_expression" value="[%relative_expression%]" size="3" maxlength="4" align="right"
+      onFocus="{
+        if (
+            !isblank(input.relative_expression.value)
+            && input.relative_expression.value != 0
+        )
+          {input.expression_input_method[0].checked=true}
+      }"
+      onChange="{
+        if (
+            !isblank(input.relative_expression.value)
+            && input.relative_expression.value != 0
+        )
+          {input.expression_input_method[0].checked=true}
+        if (isblank(input.relative_expression.value))
+          {input.relative_expression.value = 0}
+      }">
+    <br>
+    <input type="radio" name="expression_input_method" value="tag_count_and_tpm">
+    <b>OR</b> with raw tag count >= <input type="text" name="tag_count" value="[%tag_count%]" size="3" maxlength="4" align="right"
       onFocus="{
         if (!isblank(input.tag_count.value) && input.tag_count.value != 0)
-          {input.expression_input_method[0].checked=true}
+          {input.expression_input_method[1].checked=true}
       }"
       onChange="{
         if (
               (!isblank(input.tag_count.value) && input.tag_count.value != 0)
            || (!isblank(input.tpm.value) && input.tpm.value != 0)
         )
-          {input.expression_input_method[0].checked=true}
+          {input.expression_input_method[1].checked=true}
         if (isblank(input.tag_count.value))
           {input.tag_count.value = 0}
       }">
     and tags per million (TPM) >= <input type="text" name="tpm" value="[%tpm%]" size="3" maxlength="4" align="right"
       onFocus="{
         if (!isblank(input.tpm.value) && input.tpm.value != 0)
-          {input.expression_input_method[0].checked=true}
+          {input.expression_input_method[1].checked=true}
       }"
       onChange="{
         if (
               (!isblank(input.tag_count.value) && input.tag_count.value != 0)
            || (!isblank(input.tpm.value) && input.tpm.value != 0)
         )
-          {input.expression_input_method[0].checked=true}
+          {input.expression_input_method[1].checked=true}
         if (isblank(input.tpm.value))
           {input.tpm.value = 0}
-      }">
-    <br>
-    <input type="radio" name="expression_input_method" value="relative_expression">
-    <b>OR</b> relative expression >= <input type="text" name="relative_expression" value="[%relative_expression%]" size="3" maxlength="4" align="right"
-      onFocus="{
-        if (
-            !isblank(input.relative_expression.value)
-            && input.relative_expression.value != 0
-        )
-          {input.expression_input_method[1].checked=true}
-      }"
-      onChange="{
-        if (
-            !isblank(input.relative_expression.value)
-            && input.relative_expression.value != 0
-        )
-          {input.expression_input_method[1].checked=true}
-        if (isblank(input.relative_expression.value))
-          {input.relative_expression.value = 0}
       }">
     <br>
     <br>

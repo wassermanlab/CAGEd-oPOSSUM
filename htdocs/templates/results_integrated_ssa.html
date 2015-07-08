@@ -333,6 +333,12 @@
   <a href="[%rel_results_dir%]/[%results_file%]" target="_blank">Download as a tab delimited text file</a> (results will be kept on the server for [%result_retain_days%] days after analysis)
   </p>
 
+  [%IF homer_results_html_file%]
+    <p class="text" align="center">
+    <a href="[%rel_results_dir%]/[%homer_results_html_file%]" target="_blank">HOMER results</a>
+    </p>
+  [%END%]
+
   <p class="text" align="center">
   View plot of <a href="[%rel_results_dir%]/[%zscore_plot_file%]" target="_blank">Z-score vs. %GC content</a>
   <br>

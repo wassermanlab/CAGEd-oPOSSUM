@@ -49,17 +49,53 @@
 
     <div id="content">
       <h1>[%heading%]</h1>
-      [%IF progress_svg%]
-        <center>
-        <!--
-        <img width="80%" src="[%rel_htdocs_path%]/images/[%progress_svg%]">
-        <svg width=1285px height=63px>[%rel_htdocs_path%]/images/[%progress_svg%]</svg>
-        <img src="[%rel_htdocs_path%]/images/[%progress_svg%]" style="width: 80%;"/>
-        -->
-        <object data="[%rel_htdocs_path%]/images/[%progress_svg%]" type="image/svg+xml" width="100%"></object>
 
+      <!--
+      <center>
+      <object data="[%rel_htdocs_path%]/images/progress_step[%progress_step%].svg" type="image/svg+xml" width="100%"></object>
+      </center>
+      -->
+
+      <!--
+      Step 1 of the progress bar is now an xlink back to step 1
+      (human / mouse home) for all steps after step 1. So for these steps,
+      the progress bar is broken up into a step 1 graphic and a
+      "rest of the steps" graphic.
+      -->
+      [%IF progress_step == 1%]
+        <center>
+        <object data="[%rel_htdocs_path%]/images/progress_step1.svg" type="image/svg+xml" width="100%"></object>
         </center>
+      [%ELSIF progress_step == 2%]
+        [%IF species == 'human'%]
+          <object data="[%rel_htdocs_path%]/images/progress_step1_xlink_human.svg" type="image/svg+xml" width="20%">
+        [%ELSE%]
+          <object data="[%rel_htdocs_path%]/images/progress_step1_xlink_mouse.svg" type="image/svg+xml" width="20%">
+        [%END%]
+        </object><object data="[%rel_htdocs_path%]/images/progress_step2_therest.svg" type="image/svg+xml" width="80%"></object>
+      [%ELSIF progress_step == 3%]
+        [%IF species == 'human'%]
+          <object data="[%rel_htdocs_path%]/images/progress_step1_xlink_human.svg" type="image/svg+xml" width="20%">
+        [%ELSE%]
+          <object data="[%rel_htdocs_path%]/images/progress_step1_xlink_mouse.svg" type="image/svg+xml" width="20%">
+        [%END%]
+        </object><object data="[%rel_htdocs_path%]/images/progress_step3_therest.svg" type="image/svg+xml" width="80%"></object>
+      [%ELSIF progress_step == 4%]
+        [%IF species == 'human'%]
+          <object data="[%rel_htdocs_path%]/images/progress_step1_xlink_human.svg" type="image/svg+xml" width="20%">
+        [%ELSE%]
+          <object data="[%rel_htdocs_path%]/images/progress_step1_xlink_mouse.svg" type="image/svg+xml" width="20%">
+        [%END%]
+        </object><object data="[%rel_htdocs_path%]/images/progress_step4_therest.svg" type="image/svg+xml" width="80%"></object>
+      [%ELSIF progress_step == 5%]
+        [%IF species == 'human'%]
+          <object data="[%rel_htdocs_path%]/images/progress_step1_xlink_human.svg" type="image/svg+xml" width="20%">
+        [%ELSE%]
+          <object data="[%rel_htdocs_path%]/images/progress_step1_xlink_mouse.svg" type="image/svg+xml" width="20%">
+        [%END%]
+        </object><object data="[%rel_htdocs_path%]/images/progress_step5_therest.svg" type="image/svg+xml" width="80%"></object>
       [%END%]
+
       [%INCLUDE $var_template%]
     </div>
   </div>

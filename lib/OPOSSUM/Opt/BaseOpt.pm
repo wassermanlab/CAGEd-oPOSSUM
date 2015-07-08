@@ -5,7 +5,7 @@
 # oPOSSUM DB name, e.g. oPOSSUM3_human
 #
 use constant OPOSSUM_DB_HOST    => 'fantom.cmmt.ubc.ca';
-use constant OPOSSUM_DB_NAME    => 'FANTOM5_oPOSSUM';
+use constant OPOSSUM_DB_NAME    => 'CAGEd_oPOSSUM';
 use constant OPOSSUM_DB_USER    => 'opossum_r';
 use constant OPOSSUM_DB_PASS    => '';
 
@@ -45,13 +45,13 @@ use constant HOMER_BIN_PATH     => '/apps/Homer/bin/';
 # preparseGeneome.pl in creating background regions.
 #
 use constant HOMER_HUMAN_CAGE_PEAK_FILE =>
-    '/devel/FANTOM5_oPOSSUM/htdocs/data/hg19.cage_peak_coord_permissive.txt';
+    '/devel/CAGEd_oPOSSUM/htdocs/data/hg19.cage_peak_coord_permissive.txt';
 use constant HOMER_MOUSE_CAGE_PEAK_FILE =>
-    '/devel/FANTOM5_oPOSSUM/htdocs/data/mm9.cage_peak_coord_permissive.txt';
+    '/devel/CAGEd_oPOSSUM/htdocs/data/mm9.cage_peak_coord_permissive.txt';
 
 #
 # NOTE: The actual Ensembl species DB name is stored in the db_info record
-# of the specific FANTOM5-oPOSSUM species DB. The Ensembl lib version has to
+# of the specific CAGEd-oPOSSUM species DB. The Ensembl lib version has to
 # be in sync with this Ensembl DB.
 #
 use constant ENSEMBL_LIB_PATH   => '/usr/local/src/ensembl-64/ensembl/modules';

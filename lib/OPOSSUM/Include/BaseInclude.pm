@@ -158,7 +158,7 @@ sub read_tss_names_from_file
         my $tss_name;
         if ($line =~ /^\s*chr(\w+):(\d+)\.\.(\d+)\,([+-])/) {
             #
-            # Simple file containing just FANTOM5 tag cluster IDs (or at
+            # Simple file containing just FANTOM5 CAGE tag cluster IDs (or at
             # least each line begins with tag cluster ID).
             #
             # A properly formatted FANTOM5 tag cluster ID is of the format,
@@ -180,7 +180,7 @@ sub read_tss_names_from_file
             unless ($tss_name =~ /^chr(\w+):(\d+)\.\.(\d+)\,([+-])$/) {
                 warning(
                       "BED file contains inproperly formatted FANTOM5 cluster"
-                    . " names in name field\n", $job_args
+                    . " IDs in name field\n", $job_args
                 );
 
                 #
@@ -297,7 +297,7 @@ sub read_tss_regions_from_file
 
         unless ($name) {
             #
-            # Construct TSS name in standard FANTOM5 format,
+            # Construct CAGE tag cluster ID in standard FANTOM5 format,
             # e.g. chr10:100000569..100000577,+
             #
             $name = "chr$chrom:$start..$end,$strand";
@@ -677,7 +677,7 @@ sub send_email
     my $cmd = "/usr/sbin/sendmail -i -t";
 
     my $msg .= "\n";
-    $msg = "Your FANTOM5 oPOSSUM $heading results are now available at\n\n";
+    $msg = "Your CAGEd-oPOSSUM $heading results are now available at\n\n";
     if ($web) {
         my $results_url = sprintf "%s%s/%s",
             WEB_SERVER_URL,
@@ -754,7 +754,7 @@ sub send_email
     $msg .= "\nYour analysis results will be kept on our server for "
             . REMOVE_RESULTFILES_OLDER_THAN . " days.\n";
     $msg .= "\nThank-you,\n";
-    $msg .= "The FANTOM5 oPOSSUM development team\n";
+    $msg .= "The CAGEd-oPOSSUM development team\n";
     $msg .= ADMIN_EMAIL . "\n";
 
     if (!open(SM, "|" . $cmd)) {
@@ -764,7 +764,7 @@ sub send_email
 
     printf SM "To: %s\n", $email;
     printf SM "From: %s\n", ADMIN_EMAIL;
-    print SM "Subject: FANTOM5 oPOSSUM $heading results\n\n";
+    print SM "Subject: CAGEd-oPOSSUM $heading results\n\n";
     print SM "$msg" ;
 
     close(SM);
@@ -794,13 +794,13 @@ sub fatal
         #
         my $cmd = "/usr/sbin/sendmail -i -t";
 
-        my $msg = "FANTOM5 oPOSSUM $heading analysis failed\n";
+        my $msg = "CAGEd-oPOSSUM $heading analysis failed\n";
         $msg .= "\nJob ID: $job_id\n";
         $msg .= "\nError: $error\n";
 
         if (open(SM, "|" . $cmd)) {
             printf SM "To: %s\n", ADMIN_EMAIL;
-            print SM "Subject: FANTOM5 oPOSSUM $heading fatal error\n\n";
+            print SM "Subject: CAGEd-oPOSSUM $heading fatal error\n\n";
             print SM "$msg" ;
             print SM "\nUser e-mail: $email\n" if $email;
 
@@ -813,7 +813,7 @@ sub fatal
             if (open(SM, "|" . $cmd)) {
                 printf SM "To: %s\n", $email;
                 printf SM "From: %s\n", ADMIN_EMAIL;
-                print SM "Subject: FANTOM5 oPOSSUM $heading fatal error\n\n";
+                print SM "Subject: CAGEd-oPOSSUM $heading fatal error\n\n";
                 print SM "$msg" ;
 
                 close(SM);
@@ -1477,7 +1477,7 @@ sub write_tfbs_details_html_from_data
 
     $logger->info("Writing '$tf_id - $tf_name' TFBS details to $html_file");
 
-    my $title = "FANTOM5-oPOSSUM $heading";
+    my $title = "CAGEd-oPOSSUM $heading";
     my $section = sprintf("%s Binding Sites", $tf_name);
 
     my $fname = $tf_id;
