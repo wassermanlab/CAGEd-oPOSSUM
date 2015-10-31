@@ -1,3 +1,7 @@
+.swp
+*~
+*.bak
+*.old
 htdocs/results/*
 htdocs/download
 htdocs/index_files
