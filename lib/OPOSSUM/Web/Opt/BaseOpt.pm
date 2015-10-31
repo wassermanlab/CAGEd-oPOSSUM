@@ -18,7 +18,7 @@
 # General constants
 #
 use constant VERSION                    => '1.0';
-use constant DEVEL_VERSION              => 1;
+use constant DEVEL_VERSION              => 0;
 use constant ADMIN_EMAIL                => 'opossum@cmmt.ubc.ca';
 use constant RESULTS_TEXT_FILENAME      => 'results.txt';
 use constant RESULTS_HTDOCS_FILENAME    => 'results.html';
@@ -29,7 +29,7 @@ use constant KS_PLOT_FILENAME           => 'ks_vs_gc.png';
 #
 # oPOSSUM system paths
 #
-use constant OPOSSUM_HOME           => '/devel/CAGEd_oPOSSUM';
+use constant OPOSSUM_HOME           => '/apps/CAGEd_oPOSSUM';
 use constant OPOSSUM_LIB_PATH       => OPOSSUM_HOME . '/lib';
 use constant OPOSSUM_HTDOCS_PATH    => OPOSSUM_HOME . '/htdocs';
 use constant OPOSSUM_CGI_BIN_PATH   => OPOSSUM_HOME . '/cgi-bin';
@@ -43,15 +43,15 @@ use constant WEB_SERVER_URL             => 'http://fantom.cmmt.ubc.ca';
 use constant WEB_SERVER_HOME            => '/var/www';
 use constant ABS_HTDOCS_ROOT            => '/var/www/htdocs';
 use constant ABS_HTDOCS_PATH            => WEB_SERVER_HOME
-                                           . '/htdocs/CAGEd_oPOSSUM_dev';
+                                           . '/htdocs/CAGEd_oPOSSUM';
 use constant ABS_CGI_BIN_PATH           => WEB_SERVER_HOME
-                                           . '/cgi-bin/CAGEd_oPOSSUM_dev';
+                                           . '/cgi-bin/CAGEd_oPOSSUM';
 use constant ABS_HTDOCS_TEMPLATE_PATH   => ABS_HTDOCS_PATH . '/templates';
 use constant ABS_HTDOCS_TMP_PATH        => ABS_HTDOCS_PATH . '/tmp';
 use constant ABS_HTDOCS_RESULTS_PATH    => ABS_HTDOCS_PATH . '/results';
 use constant ABS_HTDOCS_DATA_PATH       => ABS_HTDOCS_PATH . '/data';
-use constant REL_HTDOCS_PATH            => '/CAGEd_oPOSSUM_dev';
-use constant REL_CGI_BIN_PATH           => '/cgi-bin/CAGEd_oPOSSUM_dev';
+use constant REL_HTDOCS_PATH            => '/CAGEd_oPOSSUM';
+use constant REL_CGI_BIN_PATH           => '/cgi-bin/CAGEd_oPOSSUM';
 use constant REL_HTDOCS_TMP_PATH        => REL_HTDOCS_PATH . '/tmp';
 use constant REL_HTDOCS_RESULTS_PATH    => REL_HTDOCS_PATH . '/results';
 use constant REL_HTDOCS_DATA_PATH       => REL_HTDOCS_PATH . '/data';

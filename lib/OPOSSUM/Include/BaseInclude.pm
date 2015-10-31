@@ -158,7 +158,7 @@ sub read_tss_names_from_file
         my $tss_name;
         if ($line =~ /^\s*chr(\w+):(\d+)\.\.(\d+)\,([+-])/) {
             #
-            # Simple file containing just FANTOM5 CAGE tag cluster IDs (or at
+            # Simple file containing just FANTOM5 tag cluster IDs (or at
             # least each line begins with tag cluster ID).
             #
             # A properly formatted FANTOM5 tag cluster ID is of the format,

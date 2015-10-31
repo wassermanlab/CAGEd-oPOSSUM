@@ -1,0 +1,118 @@
+<html>
+
+<head>
+  <link rel="stylesheet" href="[%rel_htdocs_path%]/styles.css" type="text/css">
+  <title>[%title%]</title>
+</head> <a name="top"></a>
+
+<body>
+<form name="tfbs_genes" enctype="multipart/form-data" method="post" onSubmit="window.close()">
+
+  <h2>[%tf.name%]</h2>
+
+  <table border="0" cellpadding="2" cellspacing="0">
+    <tr class="table_text">
+      <td align="left" class="table_title">JASPAR ID:</td>
+      <td align="left" class="table_text"><a href="javascript:newWindow=window.open('[%jaspar_url%]?rm=present&collection=[%collection%]&ID=[%tf.ID%]', '[%tf.ID%]', 'width=850,height=700,toolbar=0,location=0,directories=0,status=0,menuBar=0,scrollBars=1'); newWindow.focus()">[%tf.ID%]</a></td>
+    </tr>
+    <tr class="table_text">
+      <td align="left" class="table_title">Class:</td>
+      <td align="left" class="table_text">[%tf.class%]</td>
+    </tr>
+    <tr class="table_text">
+      <td align="left" class="table_title">Family:</td>
+      <td align="left" class="table_text">[%tf.tag('family')%]</td>
+    </tr>
+    <tr class="table_text">
+      <td align="left" class="table_title">Tax group:</td>
+      <td align="left" class="table_text">[%tf.tag('tax_group')%]</td>
+    </tr>
+    <tr class="table_text">
+      <td align="left" class="table_title">Information content:</td>
+      <td align="left" class="table_text">
+      [%total_ic = formatf(3, tf.to_ICM.total_ic)%]
+      [%IF total_ic > high_matrix_ic or total_ic < low_matrix_ic%]
+        <b class="warn_table_text">[%total_ic%]</b>
+      [%ELSE%]
+        [%total_ic%]
+      [%END%]
+      </td>
+    </tr>
+    <tr class="table_text">
+      <td align="left" class="table_title">GC content:</td>
+      <td align="left" class="table_text">
+      [%gc = tf.tag('gc_content')%]
+      [%IF gc > high_matrix_gc or gc < low_matrix_gc%]
+        <b class="warn_table_text">[%gc%]</b>
+      [%ELSE%]
+        [%gc%]
+      [%END%]
+      </td>
+    </tr>
+  </table>
+
+  <br>
+  <h3>Conserved [%tf.name%] Binding Sites</h3>
+
+  [%tf_id = tf.ID()%]
+
+  <table width="100%"  border="0" cellpadding="2" cellspacing="1">
+    <tr align="left" class="table_title">
+      <th align="center">Chr</th>
+      <th align="right">Seq. Start</th>
+      <th align="right">Seq. End</th>
+      <th align="right">TFBS Start</th>
+      <th align="right">TFBS End</th>
+      <th align="center">TFBS Strand</th>
+      <th align="right">Abs. Score</th>
+      <th align="right">Rel. Score</th>
+      <th align="left">TFBS Sequence</th>
+    </tr>
+
+    [%FOREACH seq_id = seq_ids%]
+      [%seq = seq_set.get_search_region($seq_id)%]
+
+      [%chr         = seq.chrom()%]
+      [%seq_start   = seq.start()%]
+      [%seq_end     = seq.end()%]
+
+      <tr align="left" class="table_text">
+        <td align="center">[%chr%]</td>
+        <td align="right">[%seq_start%]</td>
+        <td align="right">[%seq_end%]</td>
+
+        [%sites = seq_tfbss.$seq_id%]
+
+        [%first = 1%]
+        [%FOREACH site = sites%]
+          [%UNLESS first == 1%]
+            <tr align="left" class="table_text">
+            <td></td>
+            <td></td>
+            <td></td>
+          [%END%]
+
+          <td align="right">[%site.start()%]</td>
+          <td align="right">[%site.end()%]</td>
+          <td align="right">[%site.strand()%]</td>
+          <td align="right">[%site.score()%]</td>
+          <td align="right">[%site.rel_score() * 100%]%</td>
+          <td align="left" class="seqtext">[%site.seq()%]</td>
+          </tr>
+
+          [%first = 0%]
+        [%END%] <!--foreach site -->
+    [%END%] <!-- foreach gene -->
+  </table>
+<hr solid=1>
+<p class="text" align="center">
+<a href="[%rel_results_dir%]/[%tfbs_details_file%]" target="_blank">Download as a tab delimited text file</a> (results will be kept on the server for [%result_retain_days%] days after analysis)
+</p>
+
+<p align="center"><a href="#top"><img src="[%rel_htdocs_path%]/images/arrow-up.gif" border="0" alt="Back to top"></a></p>
+
+<p align="center"><input type="submit" name="Submit" value="Close Window"></p>
+</form>
+</body>
+
+</html>

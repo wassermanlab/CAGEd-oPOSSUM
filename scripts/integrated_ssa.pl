@@ -224,8 +224,7 @@ e.g: -tax vertebrates -tax "insects, nematodes"
 
     -hma
             If specified, also run HOMER motif analysis. HOMER is used to
-            find overrepresented TFBS using the same JASPAR matrix set as
-            used by the standard oPOSSUM analysis.
+            find overrepresented TFBS using the default HOMER motif set.
 
     -th threshold
             Minimum relative TFBS position weight matrix (PWM) score to
@@ -351,7 +350,7 @@ use strict;
 
 use warnings;
 
-use lib '/devel/CAGEd_oPOSSUM/lib';
+use lib '/apps/CAGEd_oPOSSUM/lib';
 
 use Getopt::Long;
 use Pod::Usage;
@@ -980,9 +979,12 @@ if ($b_is_rand) {
     $logger->info("Running HOMER find motifs genome");
 
     if ($hma) {
-        my $homer_matrices_file = catfile(
-            $results_dir, 'homer_jaspar_matrices.txt'
-        );
+        #
+        # If doing HOMER motif analysis with the chosen set of JASPAR motifs.
+        #
+        #my $homer_matrices_file = catfile(
+        #    $results_dir, 'homer_jaspar_matrices.txt'
+        #);
 
         my $homer_results_text_file = catfile(
             $homer_results_dir, HOMER_KNOWN_MOTIF_RESULTS_TEXT_FILE
@@ -995,7 +997,10 @@ if ($b_is_rand) {
         $job_args{-homer_results_text_file} = $homer_results_text_file;
         $job_args{-homer_results_html_file} = $homer_results_html_file;
 
-        $homer->print_matrix_set($homer_matrices_file, $tf_set, $threshold);
+        #
+        # If doing HOMER motif analysis with the chosen set of JASPAR motifs.
+        #
+        #$homer->print_matrix_set($homer_matrices_file, $tf_set, $threshold);
 
         #
         # Creating background AND doing motif analysis.
@@ -1009,10 +1014,18 @@ if ($b_is_rand) {
             -cpg                    => 1,
             -chopify                => 1,
             -dumpfasta              => 1,
+            -nomotif                => 1,
             -preparsed_dir          => $homer_preparsed_dir,
             -output_dir             => $homer_output_dir,
-            -motif_file             => $homer_matrices_file
+            #
+            # If doing HOMER motif analysis with the chosen set of JASPAR
+            # motifs.
+            #
+            #-motif_file             => $homer_matrices_file
+            -motif_file             => HOMER_VERTEBRATES_KNOWN_MOTIFS_FILE
         );
+
+        post_process_homer_results_html($homer_results_html_file);
 
         $logger->info("Finished running HOMER random background generation"
             . " and motif finding");
@@ -1029,6 +1042,7 @@ if ($b_is_rand) {
             -cpg                    => 1,
             -chopify                => 1,
             -dumpfasta              => 1,
+            -nomotif                => 1,
             -preparsed_dir          => $homer_preparsed_dir,
             -output_dir             => $homer_output_dir
         );
@@ -1115,9 +1129,12 @@ $logger->info("Total background search region length: $b_seq_length");
 if ($hma && !$b_is_rand) {
     $logger->info("Running HOMER find motifs genome");
 
-    my $homer_matrices_file = catfile(
-        $results_dir, 'homer_jaspar_matrices.txt'
-    );
+    #
+    # If doing HOMER motif analysis with the chosen set of JASPAR motifs.
+    #
+    #my $homer_matrices_file = catfile(
+    #    $results_dir, 'homer_jaspar_matrices.txt'
+    #);
 
     my $homer_results_text_file = catfile(
         $homer_results_dir, HOMER_KNOWN_MOTIF_RESULTS_TEXT_FILE
@@ -1130,7 +1147,7 @@ if ($hma && !$b_is_rand) {
     $job_args{-homer_results_text_file} = $homer_results_text_file;
     $job_args{-homer_results_html_file} = $homer_results_html_file;
 
-    $homer->print_matrix_set($homer_matrices_file, $tf_set, $threshold);
+    #$homer->print_matrix_set($homer_matrices_file, $tf_set, $threshold);
 
     #
     # Just doing motif analysis. Background was created earlier using
@@ -1139,15 +1156,19 @@ if ($hma && !$b_is_rand) {
     $homer->find_motifs_genome(
         -target_regions_file        => $t_search_regions_file,
         -background_regions_file    => $b_search_regions_file,
-        -motif_file                 => $homer_matrices_file,
+        #-motif_file                 => $homer_matrices_file,
+        -motif_file                 => HOMER_VERTEBRATES_KNOWN_MOTIFS_FILE,
         -assembly                   => $assembly,
         #-chopify                    => 1,
         -size                       => 'given',
         #-nlen                       => 2,
         #-N                          => $num_t_search_regions,
         #-preparsed_dir              => $homer_preparsed_dir,
+        -nomotif                    => 1,
         -output_dir                 => $homer_results_dir
     );
+
+    post_process_homer_results_html($homer_results_html_file);
 
     $logger->info("Finished running HOMER motif finding");
 }
@@ -2391,6 +2412,49 @@ sub write_results_html
     $logger->info("Wrote HTML formatted results to $html_filename");
 
     return $html_filename;
+}
+
+#
+# The HOMER motif results file automatically generates links for de novo motif
+# finding results and gene ontology enrichment results regarldess of whether
+# these were actually run, resulting in dead links. Here we post process the
+# file to remove these lines from it.
+#
+sub post_process_homer_results_html
+{
+    my ($homer_results_html_file) = @_;
+
+    unless (open(FH, $homer_results_html_file)) {
+        warning(
+            "Could not open HOMER HTML results file $homer_results_html_file"
+            . " for post-process reading", \%job_args
+        );
+        return;
+    }
+
+    my @lines;
+    while (my $line = <FH>) {
+        chomp $line;
+
+        unless ($line =~ /homerResults\.html/ || $line =~ /geneOntology\.html/)
+        {
+            push @lines, $line;
+        }
+    }
+    close(FH);
+
+    unless (open(FH, ">$homer_results_html_file")) {
+        warning(
+            "Could not open HOMER HTML results file $homer_results_html_file"
+            . " for post-process writing", \%job_args
+        );
+        return;
+    }
+
+    foreach my $line (@lines) {
+        print FH "$line\n";
+    }
+    close(FH);
 }
 
 ######################## old / deprecated routines #############################

@@ -1,0 +1,5 @@
+htdocs/results/*
+htdocs/download
+htdocs/index_files
+logs/*
+tmp/*

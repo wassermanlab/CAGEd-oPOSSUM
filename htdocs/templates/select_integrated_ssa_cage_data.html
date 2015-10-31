@@ -1,7 +1,7 @@
 <script type="text/javascript">
 
-\$(document).ready(function() {
-  \$("#experiment_tree")
+jQuery(document).ready(function() {
+  jQuery("#experiment_tree")
     .jstree({
       "core" : {
         "initially_closed" : [ "0000001" ]
@@ -15,9 +15,37 @@
       "themes" : {
         "icons" : false
       },
-      "plugins" : ["themes","html_data","checkbox","ui"]
+      "search" : {  
+         "case_insensitive" : true
+      },
+      "plugins" : ["themes","html_data","checkbox","ui","search"]
     })
     .bind("loaded.jstree", function (e, data) {})
+});
+
+jQuery(document).ready(function() {
+  jQuery('#experiment_tree').before(
+      jQuery('<form id="search"><span></span><input type="text" value=""><input type="submit" value="Search Ontology"><input type="reset" value="Clear"></form>')
+      .bind({
+        reset: function(evt){
+          jQuery.jstree._focused().clear_search();
+          jQuery("#experiment_tree").jstree('close_all');
+          jQuery('#search span').html('');
+        },
+        submit: function(evt){
+            var searchvalue = jQuery('#search input[type="text"]').val();
+            if(searchvalue!='') {
+                    jQuery('#experiment_tree').jstree('search', searchvalue);
+                    jQuery('#search span').html('');
+            } else {
+                    //jQuery.jstree._focused().clear_search();
+                    jQuery('#experiment_tree').jstree('clear_search');
+                    jQuery('#search span').html('Please enter searchvalue');
+            }
+            return false;
+        }
+      })
+)
 });
 
 function isblank(s)
@@ -37,65 +65,68 @@ function verify(f)
     var errors = "";
     var v;
 
-    var is_experiments = false;
-    var is_tss_names_text = false;
-    var is_tss_names_file = false;
-    var is_custom_tss_text = false;
-    var is_custom_tss_file = false;
-    var is_rand = false;
+    var is_experiments = 0;
+    var is_tss_names_text = 0;
+    var is_tss_names_file = 0;
+    var is_custom_tss_text = 0;
+    var is_custom_tss_file = 0;
+    var is_rand = 0;
 
-    // XXX This doen't work!
-    var tree_selected_items_ary = \$('#experiment_tree').jstree('get_checked').attr('id');
-    if (typeof tree_selected_items_ary !== 'undefined'
-        && tree_selected_items_ary != null
-        && tree_selected_items_ary.length > 0)
+    // XXX These doen't work!
+    //var checked_ids = \$('#experiment_tree').jstree('true').get_selected();
+    //var checked_ids = $('#experiment_tree').jstree('get_selected');
+    var checked_ids = \$('#experiment_tree').jstree('get_checked').attr('id');
+
+    if (typeof checked_ids !== 'undefined'
+        && checked_ids != null
+        && checked_ids.length > 0)
     {
-        is_experiments = true;
-        // errors += "is_experiments == true\n";
+        is_experiments = 1;
+        //errors += "is_experiments == true\n";
     }
+
 
     var tss_names_text = f.tss_names_text.value.trim();
     if (tss_names_text != '') {
-        is_tss_names_text = true;
-        // errors += "is_tss_names_text == true\n";
+        is_tss_names_text = 1;
+        //errors += "is_tss_names_text == true\n";
     }
 
     var tss_names_file = f.tss_names_file.value.trim();
     if (tss_names_file != '') {
-        is_tss_names_file = true;
-        // errors += "is_tss_names_file == true\n";
+        is_tss_names_file = 1;
+        //errors += "is_tss_names_file == true\n";
     }
 
     var custom_tss_text = f.custom_tss_text.value.trim();
     if (custom_tss_text != '') {
-        is_custom_tss_text = true;
-        // errors += "is_custom_tss_text == true\n";
+        is_custom_tss_text = 1;
+        //errors += "is_custom_tss_text == true\n";
     }
 
     var custom_tss_file = f.custom_tss_file.value.trim();
     if (custom_tss_file != '') {
-        is_custom_tss_file = true;
-        // errors += "is_custom_tss_file == true\n";
+        is_custom_tss_file = 1;
+        //errors += "is_custom_tss_file == true\n";
     }
 
     // Random selection is only valid for background so first check if the
     // field is even defined and then whether it is set or not.
     if (typeof(f.is_rand) != 'undefined') {
         if (f.is_rand.checked()) {
-          is_rand = true;
+            is_rand = 1;
+            //errors += "is_rand == true\n";
         }
     }
 
-    if (!(is_experiments || is_tss_names_text || is_tss_names_file
-        || is_custom_tss_text || is_custom_tss_file || is_rand)
-    ) {
+    var nselected = is_experiments + is_tss_names_text + is_tss_names_file
+        + is_custom_tss_text + is_custom_tss_file + is_rand;
+
+    if (nselected == 0) {
         errors += "You have not entered any CAGE peak selection criteria.\n"; 
     }
 
-    if ( ((is_experiments ? 1 : 0) + (is_tss_names_text ? 1 : 0)
-        + (is_tss_names_file ? 1 : 0) + (is_custom_tss_text ? 1 : 0)
-        + (is_custom_tss_file ? 1 : 0) + (is_rand ? 1 : 0)) > 1)
-    {
+    if (nselected > 1) {
         errors += "You appear to have selected more than one method of specifying CAGE peaks. Please use only ONE method of CAGE peak data entry.\n"; 
     }
 
@@ -335,7 +366,7 @@ function verify(f)
       <input type="submit" name="Submit" value="Select background CAGE peak filters">
     [%END%]
     <!--
-    <input type="reset" name="Reset" value="Reset" onClick="{\$('#experiment_tree').jstree(true).uncheck_all()}">
+    <input type="reset" name="Reset" value="Reset" onClick="{\$('#experiment_tree').jstree(true).deselect_all()}">
     -->
     <input type="reset" name="Reset" value="Reset">
     <input type="hidden" name="rm" value="[%rm%]">

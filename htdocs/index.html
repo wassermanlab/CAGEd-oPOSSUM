@@ -82,16 +82,18 @@
 
   h1 {
     font-family:Verdana, Arial, Helvetica, sans-serif; 
-    color:#9999FF; 
-    font-size:20px; 
-    font-weight:bold;
+    color: #9999FF; 
+    width: 100%
+    font-size: 20px; 
+    font-weight: bold;
+    text-align: center;
   }
 
   .t1 {
     font-family:Verdana, Arial, Helvetica, sans-serif; 
-    color:#000000; 
-    font-size:16px; 
-    font-weight:bold;
+    color: #000000; 
+    font-size: 16px; 
+    font-weight: bold;
   }
 
   td {
@@ -102,7 +104,7 @@
 
   #outer {
     position: relative;
-    width: 900px;
+    min-width: 900px;
     padding-top: 20px;
     padding-left: 10%;
     padding-right: 10%;
@@ -116,9 +118,19 @@
     position: relative;
     min-width: 900px;
     width: 100%;
-    height: 100px;
+    height: 75px;
     padding: 0px 0px;
     text-align:center;
+  }
+
+  #subheader {
+    background: #ffffff;
+    position: relative;
+    min-width: 900px;
+    width: 100%;
+    height: 100px;
+    padding: 0px 0px;
+    text-align:left;
   }
 
   #sechead {
@@ -161,7 +173,7 @@
     top: 0px;
     left: 0px;
     padding-top: 40px;
-    width: 40%;
+    width: 30%;
   }
 
 </style>
@@ -175,13 +187,13 @@
 <center>
 <div id="outer">
   <div id="header">
-    <!--<div align="left"><img src="images/logo.gif" alt="oPOSSUM"></div>-->
     <div id="logo">
       <!--
       <object data="images/CAGEd.svg" type="image/svg+xml" width=20%></object>
-      -->
       <img src="images/FANTOM_Ssize2.png" alt="FANTOM5">
-      <img src="images/logo.gif" border="0" alt="CAGEd-oPOSSUM"></a>
+      <img src="images/logo.gif" border="0" alt="CAGEd-oPOSSUM">
+      -->
+      <img src="images/oPossum_logo_2.png" alt="CAGEd-oPOSSUM">
     </div>
     <div id="version">
       Version 1.0
@@ -195,13 +207,9 @@
     </div>
   </div>
 
-  <div id="header">
-    <h1>Welcome to CAGEd-oPOSSUM</h1>
-    <p>
-      <b>CAGEd-oPOSSUM is a web-based system for the detection of over-represented transcription factor binding sites around CAGE peaks.</b>
-    </p>
-  </div>	
   <br>
+    <h1>Welcome to CAGEd-oPOSSUM</h1>
+    <p><b>CAGEd-oPOSSUM is a web-based system for the detection of over-represented transcription factor binding sites around CAGE peaks.</b></p>
 
   <div id="sechead" class="bgc_f5_exp">
     <span class="t1">Choose Species</span><br>
@@ -210,15 +218,15 @@
 
   <div id="specrow">
     <div id="specbox">
-      <a href="http://fantom.cmmt.ubc.ca/cgi-bin/CAGEd_oPOSSUM_dev/integrated_human_ssa"><img src="images/human2.jpg" align="center" width="75" height="70"></a>
+      <a href="http://fantom.cmmt.ubc.ca/cgi-bin/CAGEd_oPOSSUM/integrated_human_ssa"><img src="images/human2.jpg" align="center" width="75" height="70"></a>
       <br>
-      <span class="PortalLink"><a class="blackPortalLink" href="http://fantom.cmmt.ubc.ca/cgi-bin/CAGEd_oPOSSUM_dev/integrated_human_ssa">Human (GRCh37)</a><br></span>
+      <span class="PortalLink"><a class="blackPortalLink" href="http://fantom.cmmt.ubc.ca/cgi-bin/CAGEd_oPOSSUM/integrated_human_ssa">Human (GRCh37)</a><br></span>
     </div>
 
     <div id="specbox">
-      <a href="http://fantom.cmmt.ubc.ca/cgi-bin/CAGEd_oPOSSUM_dev/integrated_mouse_ssa"><img src="images/mouse2.jpg" align="center" width="75" height="70"></a>
+      <a href="http://fantom.cmmt.ubc.ca/cgi-bin/CAGEd_oPOSSUM/integrated_mouse_ssa"><img src="images/mouse2.jpg" align="center" width="75" height="70"></a>
       <br>
-      <span class="PortalLink"><a class="blackPortalLink" href="http://fantom.cmmt.ubc.ca/cgi-bin/CAGEd_oPOSSUM_dev/integrated_mouse_ssa">Mouse (NCBI37)</a></span>
+      <span class="PortalLink"><a class="blackPortalLink" href="http://fantom.cmmt.ubc.ca/cgi-bin/CAGEd_oPOSSUM/integrated_mouse_ssa">Mouse (NCBI37)</a></span>
     </div>
   </div>
 
@@ -229,7 +237,7 @@
    </p>
   </div>
 </div>
-<center>
+</center>
 
 </body>
 </html>

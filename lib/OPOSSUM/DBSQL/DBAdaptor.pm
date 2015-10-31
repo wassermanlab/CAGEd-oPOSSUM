@@ -211,23 +211,6 @@ sub get_TFBSCountAdaptor
     return $self->_get_adaptor("OPOSSUM::DBSQL::TFBSCountAdaptor");
 }
 
-=head2 get_TFBSClusterCountAdaptor
-
- Title    : get_TFBSClusterCountAdaptor
- Usage    : $tca = $db_adaptor->get_TFBSClusterCountAdaptor();
- Function : Construct a new OPOSSUM::DBSQL::TFBSClusterCountAdaptor object.
- Returns  : A new OPOSSUM::DBSQL::TFBSClusterCountAdaptor object
- Args	  : None.
-
-=cut
-
-sub get_TFBSClusterCountAdaptor
-{
-    my ($self) = @_;
-    
-    return $self->_get_adaptor("OPOSSUM::DBSQL::TFBSClusterCountAdaptor");
-}
-
 =head2 get_AnalysisCountsAdaptor
 
  Title    : get_AnalysisCountsAdaptor

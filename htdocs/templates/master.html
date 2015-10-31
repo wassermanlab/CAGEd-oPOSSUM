@@ -3,15 +3,28 @@
 
 <head>
   <title>[%title%]</title>
-  <link type="text/css" rel="stylesheet" href="[%rel_htdocs_path%]/opossum.css" />
-  <link rel="stylesheet" href="[%rel_htdocs_path%]/styles.css" type="text/css">
+  <link type="text/css" rel="stylesheet" href="[%rel_htdocs_path%]/opossum.css"/>
+  <link rel="stylesheet" href="[%rel_htdocs_path%]/styles.css" type="text/css"/>
 <!--
   <script type="text/javascript" src="[%rel_htdocs_path%]/templates/sortable.js"></script>
 -->
 
   <script type="text/javascript" src="[%rel_htdocs_path%]/templates/sorttable.js"></script>
+
+  <!-- The original jQuery (packages with jsTree)
   <script type="text/javascript" src="[%rel_htdocs_path%]/templates/jstree/_lib/jquery.js"></script>
+  -->
+
+  <!-- Newer jQuery -->
+  <script type="text/javascript" src="[%rel_htdocs_path%]/jquery-1.11.3.min.js"></script>
+
+  <!-- The original jsTree -->
   <script type="text/javascript" src="[%rel_htdocs_path%]/templates/jstree/jquery.jstree.js"></script>
+
+  <!-- Newer jsTree
+  <link rel="stylesheet" href="[%rel_htdocs_path%]/jstree/3.1.1/dist/themes/default/style.min.css"/>
+  <script type="text/javascript" src="[%rel_htdocs_path%]/jstree/3.1.1/dist/jstree.min.js"></script>
+  -->
 </head>
 
 <body>
@@ -19,8 +32,11 @@
 
   <div id="pageContainer">
     <div id="logo">
+      <!--
       <a href="[%rel_htdocs_path%]"><img src="[%rel_htdocs_path%]/images/FANTOM_Ssize2.png" border="0" alt="FANTOM5"></a>
       <a href="[%rel_htdocs_path%]"><img src="[%rel_htdocs_path%]/images/logo.gif" border="0" alt="oPOSSUM"></a>
+      -->
+      <a href="[%rel_htdocs_path%]"><img src="[%rel_htdocs_path%]/images/oPossum_logo_2.png" border="0" alt="CAGEd-oPOSSUM"></a>
       <br>
     </div>
     <div id="version">
