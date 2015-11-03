@@ -1,0 +1,38 @@
+Notes on building a CAGEd_oPOSSUM database from input experiment, tag cluster,
+tpm, tag count files.
+
+General order of running scripts:
+parse_experiments_file.pl
+parse_tag_cluster_files.pl
+parse_expression_files.pl
+compute_tfbss.pl
+update_is_tss_flag.pl
+
+
+*********************
+Build Update Oct 2014
+*********************
+Data files under CAGEd_oPOSSUM/dbbuild/data/
+
+Experiment files
+----------------
+human = tc_quantify.oe ???
+mouse = experiments.txt ???
+
+Tag cluster files
+-----------------
+Description:
+hg19.tc.decompose_smoothing_merged.ctssMaxCounts3.clustername_update__description.txt
+
+Maximum tag count:
+hg19.tc.decompose_smoothing_merged.ctssMaxCounts3.clustername_update__description_expression_max_count.bed
+
+Maximum TPM:
+hg19.tc.decompose_smoothing_merged.ctssMaxCounts3.clustername_update__description_expression_max_tpm.bed
+
+Expression files
+----------------
+Tag counts:
+hg19.tc.decompose_smoothing_merged.ctssMaxCounts3.clustername_update__description_expression.matrix
+TPM:
+hg19.tc.decompose_smoothing_merged.ctssMaxCounts3.clustername_update__description_expression_tpm_rle.matrix

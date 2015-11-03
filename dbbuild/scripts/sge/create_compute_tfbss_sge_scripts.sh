@@ -1,0 +1,1 @@
+./create_compute_tfbss_sge_scripts.pl -s mouse -h fantom.cmmt.ubc.ca -d FANTOM5_oPOSSUM_mouse -n 200 -c /apps/FANTOM5_oPOSSUM/scripts/dbbuild/compute_tfbss.pl -o '-c CORE -t vertebrates -ic 8' -j f5optfbs -x CORE
