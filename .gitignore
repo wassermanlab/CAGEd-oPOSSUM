@@ -1,7 +1,10 @@
-.swp
+*.swp
 *~
 *.bak
 *.old
+*.log
+dbbuild/data
+dbbuild/log
 htdocs/results/*
 htdocs/download
 htdocs/index_files
