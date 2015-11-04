@@ -44,7 +44,7 @@ Arguments switches may be abbreviated where unique.
 
 =head1 DESCRIPTION
 
-Generate multiple SGE scripts to queue/run the FANTOM5 oPOSSUM compute TFBSs
+Generate multiple SGE scripts to queue/run the CAGEd-oPOSSUM compute TFBSs
 script on the cluster nodes. If an input search regions file is given, each
 SGE script runs the oPOSSUM script on a sub-file of search regions otherwise
 the SGE scripts are generated to run on a subset of search region IDs from the
@@ -61,7 +61,7 @@ database depending on the user entered -n argument.
 
 =cut
 
-use lib '/apps/FANTOM5_oPOSSUM/lib';
+use lib '/apps/CAGEd_oPOSSUM/lib';
 
 use Getopt::Long;
 use Pod::Usage;
@@ -73,7 +73,7 @@ use OPOSSUM::DBSQL::DBAdaptor;
 use constant OPOSSUM_DB_HOST    => "fantom.cmmt.ubc.ca";
 use constant OPOSSUM_DB_USER    => "opossum_r";
 
-use constant BUILD_BASE_DIR     => '/lsata/FANTOM5_oPOSSUM/build';
+use constant BUILD_BASE_DIR     => '/lsata/CAGEd_oPOSSUM/build';
 
 my $sr_file;
 my $opossum_db_host;
@@ -194,12 +194,12 @@ if ($sr_file) {
         print(OFH "#\$ -r n\n");
         print(OFH "### Export all environment variables to batch job\n");
         print(OFH "#\$ -V\n");
-        #print(OFH "#$ -l walltime=99:00:00,nodes=1\n");
         print(OFH "#\$ -o $qsub_out_name\n");
         print(OFH "#\$ -e $qsub_err_name\n");
         print(OFH "### E-mail notification on job abort\n");
         print(OFH "#\$ -m a\n");
-        print(OFH "#\$ -M dave\@cmmt.ubc.ca\n\n");
+        print(OFH "#\$ -M dave\@cmmt.ubc.ca\n");
+        print(OFH "#\$ -l mem_free=500M,h_vmem=2G,h_rt=24:0:0\n\n");
 
         # Keep track of which node job is run on for debugging purposes
         print(OFH "echo \$HOSTNAME\n\n");
@@ -222,7 +222,7 @@ if ($sr_file) {
     );
 
     unless ($opdba) {
-        $logger->logdie("Error connecting to FANTOM5 oPOSSUM DB - "
+        $logger->logdie("Error connecting to CAGEd-oPOSSUM DB - "
             . $opdba->dbc->errstr);
     }
 
@@ -287,20 +287,19 @@ if ($sr_file) {
         print(OFH "#\$ -r n\n");
         print(OFH "### Export all environment variables to batch job\n");
         print(OFH "#\$ -V\n");
-        #print(OFH "#$ -l walltime=99:00:00,nodes=1\n");
         print(OFH "#\$ -o $qsub_out_name\n");
         print(OFH "#\$ -e $qsub_err_name\n");
         print(OFH "### E-mail notification on job abort\n");
         print(OFH "#\$ -m a\n");
-        print(OFH "#\$ -M dave\@cmmt.ubc.ca\n\n");
+        print(OFH "#\$ -M dave\@cmmt.ubc.ca\n");
+        print(OFH "#\$ -l mem_free=500M,h_vmem=2G,h_rt=24:0:0\n\n");
 
         # Keep track of which node job is run on for debugging purposes
         print(OFH "echo \$HOSTNAME\n\n");
 
         print(OFH "$cmd $opt -h $opossum_db_host -d $opossum_db_name"
                 . " -s $start_id -e $end_id -o $enum_out_file"
-                . " -l $enum_log_file\n\n");
-        print(OFH "exit 0\n");
+                . " -l $enum_log_file\n");
 
         close(OFH);
 

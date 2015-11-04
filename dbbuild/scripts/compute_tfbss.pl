@@ -18,8 +18,8 @@ Arguments switches may be abbreviated where unique.
    -i regions_file      = Name of input search regions file.
    -s start             = Starting search region ID.
    -e end               = Ending search region ID.
-   -d opossum_db_name   = Name of FANTOM5 oPOSSUM db we are working on.
-   -h opossum_db_host   = Host name of the FANTOM5 oPOSSUM db.
+   -d opossum_db_name   = Name of CAGEd-oPOSSUM db we are working on.
+   -h opossum_db_host   = Host name of the CAGEd-oPOSSUM db.
    -c collection        = Use the TFBS profiles from this JASPAR collection.
                           Default = CORE.
    -t tax_groups        = Limit profiles to ones of these taxonomic
@@ -28,19 +28,19 @@ Arguments switches may be abbreviated where unique.
    -id tf_id            = Use only the profile with this specific ID
    -n tf_name           = Use only the profile with this specific name
    -o out_tfbs_file     = Ouput TFBSs file (for import into
-                          FANTOM5 oPOSSUM table using mysqlimport).
+                          CAGEd-oPOSSUM table using mysqlimport).
    -l log_file          = Name of log file to which processing and error
                           messages are written.
                           (Default = compute_tfbss.log)
 
 =head1 DESCRIPTION
 
-This is the FANTOM5 oPOSSUM script for computing TFBSs.
+This is the CAGEd-oPOSSUM script for computing TFBSs.
 
 =head1 ALGORITHM
 
 If regions file is provided, read search regions from it, otherwise fetch
-search regions from the FANTOM5 oPOSSUM DB optionally limited to a start and
+search regions from the CAGEd-oPOSSUM DB optionally limited to a start and
 end search region ID. Foreach search region, extract the corresponding sequence
 from Ensembl. Search the sequence for each TF and output TFBSs.
 
@@ -62,7 +62,7 @@ use warnings;
 # Use most current (development) libs
 # comment out to use installed libs
 #
-use lib '/apps/FANTOM5_oPOSSUM/lib';
+use lib '/apps/CAGEd_oPOSSUM/lib';
 use lib '/raid2/local/src/ensembl-64/ensembl/modules/';
 use lib '/home/dave/devel/TFBS';
 
@@ -92,7 +92,7 @@ use constant LATEST_ENSEMBL_DB          => 0;
 use constant LOG_FILE 		            => 'compute_tfbss.log';
 
 use constant JASPAR_DB_HOST             => 'vm5.cmmt.ubc.ca';
-use constant JASPAR_DB_NAME             => 'JASPAR_2010';
+use constant JASPAR_DB_NAME             => 'JASPAR_2016_beta';
 use constant JASPAR_DB_USER             => 'jaspar_r';
 use constant JASPAR_DB_PASS             => '';
 
@@ -100,9 +100,9 @@ use constant ENSEMBL_DB_HOST            => 'vm2.cmmt.ubc.ca';
 use constant ENSEMBL_DB_USER            => 'ensembl_r';
 use constant ENSEMBL_DB_PASS            => '';
 
-use constant FANTOM5_OPOSSUM_DB_HOST    => 'fantom.cmmt.ubc.ca';
-use constant FANTOM5_OPOSSUM_DB_USER    => 'opossum_r';
-use constant FANTOM5_OPOSSUM_DB_PASS    => '';
+use constant CAGED_OPOSSUM_DB_HOST    => 'fantom.cmmt.ubc.ca';
+use constant CAGED_OPOSSUM_DB_USER    => 'opossum_r';
+use constant CAGED_OPOSSUM_DB_PASS    => '';
 
 # Default profiles to use are CORE vertebrates with min. IC of 8
 use constant CORE_TAX_GROUPS            => ('vertebrates');
@@ -110,8 +110,6 @@ use constant CORE_MIN_IC                => 8;
 
 use constant MIN_TFBS_CR_OVERLAP        => 1;
 use constant FILTER_OVERLAPPING_TFBSS   => 1;
-
-use constant TFBS_THRESHOLD             => '75%';
 
 my $log_file = LOG_FILE;
 my $sr_file;
@@ -142,7 +140,7 @@ GetOptions(
 
 if (!$fantom_opossum_db_name) {
     pod2usage(
-        -msg        => "No FANTOM5 oPOSSUM DB name specified",
+        -msg        => "No CAGEd-oPOSSUM DB name specified",
         -verbose    => 1
     );
 }
@@ -155,7 +153,7 @@ if (!$out_tfbs_file) {
 }
 
 if (!$fantom_opossum_db_host) {
-    $fantom_opossum_db_host = FANTOM5_OPOSSUM_DB_HOST;
+    $fantom_opossum_db_host = CAGED_OPOSSUM_DB_HOST;
 }
 
 if (@tax_groups) {
@@ -189,13 +187,13 @@ my $matrix_set = fetch_matrix_set();
 my $opdba = OPOSSUM::DBSQL::DBAdaptor->new(
     -host       => $fantom_opossum_db_host,
     -dbname     => $fantom_opossum_db_name,
-    -user       => FANTOM5_OPOSSUM_DB_USER,
+    -user       => CAGED_OPOSSUM_DB_USER,
     -password   => undef
 );
 
 if (!$opdba) {
     $logger->logdie(
-        "Error connecting to FANTOM5 oPOSSUM database - $DBI::errstr"
+        "Error connecting to CAGEd-oPOSSUM database - $DBI::errstr"
     );
 }
 
@@ -224,6 +222,13 @@ my $min_threshold = $db_info->min_threshold()
 $min_threshold = $min_threshold * 100 . '%';
 
 $logger->info("Min. TFBS threshold: $min_threshold");
+
+unless (defined $min_ic) {
+    my $db_min_ic = $db_info->min_ic();
+    $min_ic = $db_min_ic || CORE_MIN_IC;
+}
+
+$logger->info("Min. TFBS IC: $min_ic");
 
 my $ensdba;
 
@@ -425,7 +430,7 @@ sub fetch_matrix_set
             @tax_groups = CORE_TAX_GROUPS unless @tax_groups;
 
             $matrix_args{-tax_group}    = \@tax_groups;
-            $matrix_args{-min_ic}       = $min_ic || CORE_MIN_IC;
+            $matrix_args{-min_ic}       = $min_ic;
         } else {
             $matrix_args{-min_ic}     = $min_ic if defined $min_ic;
         }
