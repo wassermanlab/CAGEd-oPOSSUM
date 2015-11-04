@@ -78,7 +78,7 @@ use constant RAND_BG_TSS_FOLD    => 10;
 use constant DFLT_JASPAR_COLLECTION => 'CORE';
 use constant DFLT_MIN_IC            => '8';
 use constant DFLT_TFBS_THRESHOLD    => '85';
-use constant DFLT_UPSTREAM_BP       => '1500';
+use constant DFLT_UPSTREAM_BP       => '500';
 use constant DFLT_DOWNSTREAM_BP     => '500';
 use constant DFLT_RESULT_SORT_BY    => 'zscore';
 
