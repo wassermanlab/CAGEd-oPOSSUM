@@ -349,7 +349,8 @@ use Getopt::Long;
 use Pod::Usage;
 use Carp;
 use Array::Utils qw(:all);   # for debugging only
-use File::Spec::Functions qw/ abs2rel catdir catfile splitpath file_name_is_absolute /;
+use File::Spec::Functions qw(abs2rel catdir catfile splitpath file_name_is_absolute);
+use File::Path qw(remove_tree);
 use POSIX qw/ floor /;
 
 use Log::Log4perl qw(get_logger :levels);
@@ -1512,6 +1513,10 @@ if ($email) {
     $logger->info("Sending notification email to $email");
     send_email(\%job_args);
 }
+
+$logger->info("Performing temporary working file/directory cleanup");
+
+cleanup();
 
 $logger->info("Finished analysis");
 
@@ -2691,6 +2696,13 @@ sub write_tfbs_details_html
     print FH $output;
 
     close(FH);
+}
+
+sub cleanup
+{
+    if ($b_is_rand) {
+        remove_tree($homer_preparsed_dir, {safe => 1});
+    }
 }
 
 #
