@@ -71,7 +71,7 @@ use constant HOMER_URL => 'http://homer.salk.edu/homer';
 # JASPAR DB Access
 #
 use constant JASPAR_DB_HOST     => 'vm5.cmmt.ubc.ca';
-use constant JASPAR_DB_NAME     => 'JASPAR_2014';
+use constant JASPAR_DB_NAME     => 'JASPAR_2016_beta';
 use constant JASPAR_DB_USER     => 'jaspar_r';
 use constant JASPAR_DB_PASS     => '';
 
