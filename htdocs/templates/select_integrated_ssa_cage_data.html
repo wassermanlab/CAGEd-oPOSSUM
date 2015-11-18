@@ -173,16 +173,10 @@ function verify(f)
 function submitToggle()
 {
     //alert("submitToggle called");
-    if (document.getElementById["is_rand"].checked) {
-        //f.Submit.value = "Select TFBS search parameters";
-        //f.elements["Submit"].value = "Select TFBS search parameters";
-        //f.elements["Submit"].innerHTML = "Select TFBS search parameters";
-        document.getElementById["Submit"].value = "Select TFBS search parameters";
+    if (document.getElementById("is_rand").checked) {
+        document.getElementById("submit").value = "Select TFBS search parameters";
     } else {
-        //f.Submit.value = "Select target CAGE peak filters";
-        //f.elements["Submit"].value = "Select target CAGE peak filters";
-        //f.elements["Submit"].innerHTML = "Select target CAGE peak filters";
-        document.getElementById["Submit"].value = "Select target CAGE peak filters";
+        document.getElementById("submit").value = "Select background CAGE peak filters";
     }
 }
 
@@ -220,7 +214,7 @@ function submitToggle()
     [%IF t_or_b == 'background'%]
       <h4>Use a matched random background</h4>
       <br>
-      Use a random set of background regions %GC composition and length matched to the target CAGE regions<input type=checkbox name="is_rand" checked onChange="submitToggle()">
+      Use a random set of background regions %GC composition and length matched to the target CAGE regions<input type=checkbox id="is_rand" name="is_rand" onClick="submitToggle()" checked>
       <br>
       (generated using the <a href="[%homer_url%]" target="_blank">HOMER software</a>)
       <br>
@@ -376,10 +370,10 @@ function submitToggle()
     <br>
     [%IF t_or_b == 'target'%]
       Press the <b>Select target CAGE peak filters</b> button to accept these analysis parameters or <b>Reset</b> to reset the analysis parameters to their previous values.<br>
-      <input type="submit" name="Submit" value="Select target CAGE peak filters">
+      <input type="submit" id="submit" name="submit" value="Select target CAGE peak filters">
     [%ELSIF t_or_b == 'background'%]
       Press the <b>Select background CAGE peak filters</b> button to accept these analysis parameters or <b>Reset</b> to reset the analysis parameters to their previous values.<br>
-      <input type="submit" name="Submit" value="Select TFBS search parameters">
+      <input type="submit" id="submit" name="submit" value="Select TFBS search parameters">
     [%END%]
     <!--
     <input type="reset" name="Reset" value="Reset" onClick="{\$('#experiment_tree').jstree(true).deselect_all()}">
