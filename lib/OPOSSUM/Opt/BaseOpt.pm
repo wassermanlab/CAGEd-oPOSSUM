@@ -11,27 +11,33 @@ use constant OPOSSUM_DB_PASS    => '';
 
 #
 # XXX
-# Below commented out did not get included properly! No idea why. Defined
-# these explicityl in the modules which use them.
+# The definitions commented out below were not getting included properly!
+# No idea why. So defined these explicityl in the modules which use them,
+# e.g. lib/OPOSSUM/Tools/SearchRegionTool.pm. Please update these paths in
+# those modules to your local paths where these are installed.
+# This is not really ideal...
+# XXX
 #
 # Used by OPOSSUM::Tools::SearchRegionTool to run BedTools
 #
 # BedTools executables
 #
-#use constant BT_MERGE_EXEC      => 'mergeBed';
-#use constant BT_INTERSECT_EXEC  => 'intersectBed';
+#use constant BT_MERGE_EXEC      => '/usr/local/bin/mergeBed';
+#use constant BT_INTERSECT_EXEC  => '/usr/local/bin/intersectBed';
+#use constant BT_GETFASTA_EXEC   => '/usr/local/bin/bedtools getfasta';
 #
 # Reference whole genome fasta files used to extract sequences based on
 # regions defined in BED files.
 #
-#use constant HUMAN_REF_FASTA    => '/space/data/resources/fasta/hg19/hg19.fa';
-#use constant MOUSE_REF_FASTA    => '/space/data/resources/fasta/mm9/mm9.fa';
-
+#use constant HUMAN_REF_FASTA    => '/space/data/CAGEd_oPOSSUM/resources/fasta/hg19/hg19.fa';
+#use constant MOUSE_REF_FASTA    => '/space/data/CAGEd_oPOSSUM/resources/fasta/mm9/mm9.fa';
+#
 #
 # Used by OPOSSUM::Tools::BiasAway
 #
 #use constant BA_EXEC        => 'python2.7 /apps/BiasAway/BiasAway.py g';
 #use constant BA_DFLT_FOLD   => 1;
+#
 
 use constant HUMAN_ASSEMBLY     => 'hg19';
 use constant MOUSE_ASSEMBLY     => 'mm9';
@@ -80,7 +86,7 @@ use constant DFLT_MIN_IC            => '8';
 use constant DFLT_TFBS_THRESHOLD    => '85';
 use constant DFLT_UPSTREAM_BP       => '500';
 use constant DFLT_DOWNSTREAM_BP     => '500';
-use constant DFLT_RESULT_SORT_BY    => 'zscore';
+use constant DFLT_RESULT_SORT_BY    => 'fisher_p_value';
 
 #
 # Gene ID types used in the tss_genes table. These should probably be defined

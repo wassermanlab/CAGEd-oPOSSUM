@@ -54,8 +54,8 @@ Readonly::Scalar my $SPECIES_ASSEMBLY   => {
 };
 
 Readonly::Scalar my $ASSEMBLY_FASTA  => {
-    'hg19'  => '/space1/data/resources/fasta/hg19/hg19.fa',
-    'mm9'   => '/space1/data/resources/fasta/mm9/mm9.fa'
+    'hg19'  => '/space/data/CAGEd_oPOSSUM/resources/fasta/hg19/hg19.fa',
+    'mm9'   => '/space/data/CAGEd_oPOSSUM/resources/fasta/mm9/mm9.fa'
 };
 
 Readonly::Scalar my $ASSEMBLY_CHROM_LENGTH  => {
