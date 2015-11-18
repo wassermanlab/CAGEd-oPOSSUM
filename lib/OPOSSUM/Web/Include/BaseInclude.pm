@@ -115,18 +115,19 @@ sub process_template
     my ($self, $template_name, $vars) = @_;
 
     my $config = {
+        ENCODING     => 'utf8',
         ABSOLUTE     => 1,
         INCLUDE_PATH => ABS_HTDOCS_TEMPLATE_PATH . "/", # or list ref
-        INTERPOLATE  => 1,                       # expand "$var" in plain text
-        POST_CHOMP   => 1,                       # cleanup whitespace
-        #PRE_PROCESS  => 'header',                # prefix each template
-        EVAL_PERL    => 1    # evaluate Perl code blocks
+        INTERPOLATE  => 1,  # expand "$var" in plain text
+        POST_CHOMP   => 1,  # cleanup whitespace
+        #PRE_PROCESS  => 'header',  # prefix each template
+        EVAL_PERL    => 1  # evaluate Perl code blocks
     };
 
     my $string   = '';
     my $template = Template->new($config);
     my $input    = ABS_HTDOCS_TEMPLATE_PATH . "/$template_name";
-    $template->process($input, $vars, \$string) || die $template->error();
+    $template->process($input, $vars, \$string, {binmode => ':utf8'}) || die $template->error();
 
     return $string;
 }
