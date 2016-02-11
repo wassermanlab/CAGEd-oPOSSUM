@@ -34,7 +34,8 @@ use File::Temp qw/ tempfile /;
 use Template;
 use CGI;
 
-use TFBS::DB::JASPAR5;
+#use TFBS::DB::JASPAR5;
+use TFBS::DB::JASPAR;
 
 use OPOSSUM::DBSQL::DBAdaptor;
 use OPOSSUM::TFSet;
@@ -81,7 +82,7 @@ sub jaspar_db_connect
 {
     my ($tf_db) = @_;
     
-    my $jdb = TFBS::DB::JASPAR5->connect(
+    my $jdb = TFBS::DB::JASPAR7->connect(
         "dbi:mysql:" . $tf_db . ":" . JASPAR_DB_HOST,
         JASPAR_DB_USER,
         JASPAR_DB_PASS
@@ -359,6 +360,85 @@ sub revcom
 	$rc_seq =~ tr/[acgtACGT]/[tgcaTGCA]/;
 
 	return $rc_seq;
+}
+
+
+#
+# With JASPAR 2016, profiles may have multiple values for such things
+# as class and family (and maybe others). Determine if given TF attribute is
+# a scalar or array ref and stringify if the latter.
+#
+# If the TF is some sort of dimer (trimer etc.) indicated by '::' in the name,
+# then for class and family use '::' as the concatenated string delimeter,
+# otherwise use ', '.
+# NOTE that there is actually no guarantee that the class and family attribute
+# values were entered into the JASPAR DB in the same order as the dimer name
+# appears so it's possible that the resulting stringified name may be a bit
+# misleading...
+#
+sub stringify_tf_attribute
+{
+    my ($tf, $attr) = @_;
+
+    my $val;
+    if ($attr eq 'class') {
+        # class has it's own method
+        $val = $tf->class();
+    } else {
+        # generic tag/values (includes 'family' attribute)
+        $val = $tf->tag($attr);
+    }
+
+    my $is_dimer = 0;
+    if ($tf->name =~ /::/) {
+        $is_dimer = 1;
+    }
+
+    my $str_val;
+    if (ref $val eq 'ARRAY') {
+        #
+        # If the TF is some sort of dimer and we are concatenating values for
+        # class and family then user the conventional dimer delimeter '::',
+        # otherwise use a comma delimeter.
+        #
+        if ($is_dimer && $attr eq 'class' || $attr eq 'family') {
+            $str_val = join('::', @$val);
+        } else {
+            $str_val = join(', ', @$val);
+        }
+    } else {
+        $str_val = $val;
+    }
+
+    if ($attr eq 'class') {
+        # class has it's own method
+        $tf->class($str_val);
+    } else {
+        # generic tag/values (includes 'family' attribute)
+        $tf->tag($attr, $str_val);
+    }
+
+    return $tf;
+}
+
+#
+# With JASPAR 2016, profiles may have multiple values for such things
+# as class and family (and maybe others). For the given TFSet process each
+# TF and stringify any of the given attributes which may be stored as array
+# refs.
+#
+sub stringify_tf_set_attributes
+{
+    my ($tf_set, @attrs) = @_;
+
+    my $tf_ids = $tf_set->ids();
+
+    foreach my $tf_id (@$tf_ids) {
+        my $tf = $tf_set->get_tf($tf_id);
+        foreach my $attr (@attrs) {
+            stringify_tf_attribute($tf, $attr);
+        }
+    }
 }
 
 
@@ -794,7 +874,7 @@ sub fatal
         #
         my $cmd = "/usr/sbin/sendmail -i -t";
 
-        my $msg = "CAGEd-oPOSSUM $heading analysis failed\n";
+        my $msg = "CAGEd-oPOSSUM $heading failed\n";
         $msg .= "\nJob ID: $job_id\n";
         $msg .= "\nError: $error\n";
 
@@ -1477,7 +1557,7 @@ sub write_tfbs_details_html_from_data
 
     $logger->info("Writing '$tf_id - $tf_name' TFBS details to $html_file");
 
-    my $title = "CAGEd-oPOSSUM $heading";
+    my $title = "CAGEd-oPOSSUM $heading Results";
     my $section = sprintf("%s Binding Sites", $tf_name);
 
     my $fname = $tf_id;
