@@ -4,7 +4,7 @@
 # The species name is dynamically appended to OPOSSUM_DB_NAME for full
 # oPOSSUM DB name, e.g. oPOSSUM3_human
 #
-use constant OPOSSUM_DB_HOST    => 'fantom.cmmt.ubc.ca';
+use constant OPOSSUM_DB_HOST    => 'cagedop.cmmt.ubc.ca';
 use constant OPOSSUM_DB_NAME    => 'CAGEd_oPOSSUM';
 use constant OPOSSUM_DB_USER    => 'opossum_r';
 use constant OPOSSUM_DB_PASS    => '';

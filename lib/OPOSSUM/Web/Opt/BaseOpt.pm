@@ -39,7 +39,7 @@ use constant OPOSSUM_SCRIPTS_PATH   => OPOSSUM_HOME . '/scripts';
 #
 # oPOSSUM web server paths and URLs
 #
-use constant WEB_SERVER_URL             => 'http://fantom.cmmt.ubc.ca';
+use constant WEB_SERVER_URL             => 'http://cagedop.cmmt.ubc.ca';
 use constant WEB_SERVER_HOME            => '/var/www';
 use constant ABS_HTDOCS_ROOT            => '/var/www/htdocs';
 use constant ABS_HTDOCS_PATH            => WEB_SERVER_HOME
