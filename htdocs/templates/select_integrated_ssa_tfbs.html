@@ -195,7 +195,9 @@ function verify(f)
         <option value=[%cutoff%] [%IF cutoff == dflt_fcutoff%]selected[%END%] onClick="{input.result_type[1].checked=true}">[%cutoff%]</option>
       [%END%]
     </select>
+    <!--
     (Default values have been chosen based on empirical studies)
+    -->
     <br>
     <br>
     Sort results by:&nbsp;&nbsp;[<a href="[%rel_htdocs_path%]/help/option_details.html#sort_by" target="help">?</a>]
@@ -204,7 +206,7 @@ function verify(f)
     <input type="radio" name="result_sort_by" value="fisher_p_value" checked>Fisher score
     <br>
     <br>
-    <input type="checkbox" name="tfbs_details"> Output binding site details for each TF (checking this option will result in slightly longer processing time)&nbsp;&nbsp;[<a href="[%rel_htdocs_path%]/help/option_details.html#output_details" target="help">?</a>]
+    <input type="checkbox" name="tfbs_details" checked> Output binding site details for each TF (checking this option may result in slightly longer processing time)&nbsp;&nbsp;[<a href="[%rel_htdocs_path%]/help/option_details.html#output_details" target="help">?</a>]
 
     <br>
     <br>
