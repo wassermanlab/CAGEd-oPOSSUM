@@ -369,7 +369,7 @@ sub select_tfbs_parameters
     # Connect to FANTOM5-oPOSSUM DB and retrieve DB info defaults
     #
     unless ($self->opossum_db_connect($species)) {
-        return $self->error("Could not connect to FANTOM5 oPOSSUM DB");
+        return $self->error("Could not connect to CAGEd-oPOSSUM DB");
     }
     my $db_info = $self->fetch_db_info();
 
@@ -593,7 +593,7 @@ sub target_cage_data_selected
         $state->t_user_custom_tss_file($upload_filename);
     } else {
         unless ($self->opossum_db_connect($species)) {
-            $self->_error("Could not connect to FANTOM5 oPOSSUM DB");
+            $self->_error("Could not connect to CAGEd-oPOSSUM DB");
             return 0;
         }
         my $opdba = $self->opdba();
@@ -787,13 +787,13 @@ sub background_cage_data_selected
         $state->b_tss_input_method('upload');
         $state->b_custom_tss_file($filename);
         $state->b_user_custom_tss_file($upload_filename);
-    } elsif ($q->param('is_rand')
+    } elsif ($q->param('use_rand_bg')
     ) {
         $state->b_tss_type('fantom5');
         $state->b_tss_input_method('random');
     } else {
         unless ($self->opossum_db_connect($species)) {
-            $self->_error("Could not connect to FANTOM5 oPOSSUM DB");
+            $self->_error("Could not connect to CAGEd-oPOSSUM DB");
             return 0;
         }
         my $opdba = $self->opdba();
@@ -1467,6 +1467,14 @@ sub results
     my $b_tss_type = $state->b_tss_type();
     my $b_tss_input_method = $state->b_tss_input_method();
     my $b_expression_input_method = $state->b_expression_input_method();
+
+    printf STDERR "b_tss_type: $b_tss_type\n";
+    printf STDERR "b_tss_input_method: $b_tss_input_method\n";
+    printf STDERR "b_expression_input_method: $b_expression_input_method\n";
+    printf STDERR "b_tag_count: %s\n", $state->b_tag_count;
+    printf STDERR "b_tpm: %s\n", $state->b_tpm;
+    printf STDERR "b_relative_expression: %s\n", $state->b_relative_expression;
+
     my $b_ff_ids;
     my @b_experiments;
     if ($b_tss_type eq 'fantom5') {
@@ -1482,7 +1490,7 @@ sub results
                 push @b_experiments, $expa->fetch_by_ff_id($ff_id);
             }
 
-            if ($b_expression_input_method = 'tag_count_and_tpm') {
+            if ($b_expression_input_method eq 'tag_count_and_tpm') {
                 if (defined $state->b_tag_count()) {
                     $command .= " -btc ".  $state->b_tag_count();
                 }
@@ -1490,7 +1498,7 @@ sub results
                 if (defined $state->b_tpm()) {
                     $command .= " -btpm ". $state->b_tpm();
                 }
-            } elsif ($b_expression_input_method = 'relative_expression') {
+            } elsif ($b_expression_input_method eq 'relative_expression') {
                 if (defined $state->b_relative_expression()) {
                     $command .= " -brex ". $state->b_relative_expression();
                 }
@@ -1789,7 +1797,7 @@ sub create_new_state
     $state->heading($heading);
 
     $state->debug(DEBUG);
-    $state->title("FANTOM5 oPOSSUM $heading");
+    $state->title("CAGEd-oPOSSUM $heading");
     $state->bg_color_class(BG_COLOR_CLASS);
 
     $state->errors(undef);
