@@ -15,24 +15,24 @@ a:hover {
 
 /*** LAYOUT ***/
 #pageContainer {
-    min-width:925px;  
-    margin:0px 0px 0px 0px;
+    min-width:900px;  
+    margin:20px 0px 0px 0px;
     padding:0px 0px 0px 0px;
 }
 
 #logo {
     float:left;
     height:75px;
-    margin:0px 5px 0px 5px;
-    padding:0px 0px 0px 0px;
+    margin:0px 5px 0px 0px;
+    padding:0px 0px 0px 20px;
     position:relative;
 }
 
 #version {
     float:left;
-    height:75px;
-    margin:60px 0px 0px 0px;
-    padding:0px 0px 0px 0px;
+    height:35px;
+    margin:0px 5px 0px 5px;
+    padding:42px 0px 0px 0px;
     position:relative;
     text-align:left;
 }

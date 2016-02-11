@@ -40,6 +40,40 @@ h5 {
 	display: inline;
 }
 
+/* 
+ * Used in the help documentation actually falls between h1 and h2 in
+ * terms of size etc and is bold.
+ */
+h6 {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 26px;
+        font-weight: bold;
+        color: #3300cc;
+        text-align: left;
+}
+
+#header {
+  background: #ffffff;
+  position: relative;
+  min-width: 900px;
+  width: 100%;
+  height: 80px;
+  padding: 0px 0px;
+  text-align:center;
+}
+
+#noscript {
+  background: #ff0000;
+  position: relative;
+  min-width: 900px;
+  width: 100%;
+  height: 20px;
+  padding: 0px 0px;
+  text-align: center;
+  font-size: 14px;
+  color: #ffffff;
+}
+
 .text, div {
 	font-family: Verdana, Arial, Helvetica, sans-serif; 
 	font-size: 12px;
@@ -122,4 +156,10 @@ table.sortable tr.sortbottom td {
 	border-width: 1px 1px 1px 1px;
 	background-color: #ccc;
 	font-weight: bold;
+}
+
+code {
+	background-color: #eee;
+	color: black;
+	padding: 5px 20px 5px 20px;
 }
