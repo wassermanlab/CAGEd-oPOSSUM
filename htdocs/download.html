@@ -1,34 +1,44 @@
 <html>
 <head>
-  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=iso-8859-15">
+  <meta charset="UTF-8">
   <link rel="stylesheet" href="styles.css" type="text/css">
-  <title>FANTOM5-oPOSSUM Download</title>
+  <title>CAGEd-oPOSSUM Download</title>
 </head>
 
-<body class="text">
-  <h1>FANTOM5-oPOSSUM</h1>
-  <h3><center>March 2015</center></h3>
-  <h2>Download</h2>
-  <p class="text">
-    Download just the FANTOM5-oPOSSUM API and stand-alone analysis scripts <a href="download/FANTOM5_oPOSSUM_API.tar.gz">here</a> or via <a href="ftp://www.cisreg.ca/pub/FANTOM5_oPOSSUM/FANTOM5_oPOSSUM_API.tar.gz">FTP</a>
+<body>
+  <h1>CAGEd-oPOSSUM Download</h1>
+
+  <h2>API</h2>
+  <p>
+    Download just the CAGEd-oPOSSUM API and stand-alone analysis script <a href="download/CAGEd_oPOSSUM_API.tar.gz">here</a> or via <a href="ftp://www.cisreg.ca/pub/CAGEd_oPOSSUM/CAGEd_oPOSSUM_API.tar.gz">FTP</a>
   </p>
-  <p class="text">
-    Download the full FANTOM5-oPOSSUM code tree including the API, stand-alone analysis scripts and web code <a href="download/FANTOM5_oPOSSUM_full.tar.gz">here</a> or via <a href="ftp://www.cisreg.ca/pub/FANTOM5_oPOSSUM/FANTOM5_oPOSSUM_full.tar.gz">FTP</a>
+  <p>
+    Download the full CAGEd-oPOSSUM code tree including the API, stand-alone analysis scripts and web code <a href="download/CAGEd_oPOSSUM_full.tar.gz">here</a> or via <a href="ftp://www.cisreg.ca/pub/CAGEd_oPOSSUM/CAGEd_oPOSSUM_full.tar.gz">FTP</a>
   </p>
-  <p class="text">
-    The FANTOM5-oPOSSUM source code is also available as a public repository on GitHub under <a href="https://github.com/wassermanlab/FANTOM5-oPOSSUM">wassermanlab/FANTOM5-oPOSSUM</a>.
+
+  <h2>Source code</h2>
+  <p>
+    The CAGEd-oPOSSUM source code is also available as a public repository on GitHub under <a href="https://github.com/wassermanlab/CAGEd-oPOSSUM" target=_blank>wassermanlab/CAGEd-oPOSSUM</a>.
   </p>
-  <p class="text">
-    The FANTOM5-oPOSSUM databases may be downloaded directly from our database servers using the mysldump facility.
+
+  <h2>Databases</h2>
+  <p>
+    The CAGEd-oPOSSUM databases may be downloaded directly from our database servers using the mysldump facility.
   </p>
-  <p class="text">
-    There are currently two species databases:<br><br>
-        FANTOM5_oPOSSUM_human<br>
-        FANTOM5_oPOSSUM_mouse
+  <p>
+    There are two CAGEd-oPOSSUM databases, one for each species:<br><br>
+        <b>CAGEd_oPOSSUM_human</b><br>
+        <b>CAGEd_oPOSSUM_mouse</b>
   </p>
-  <p class="text">
-    The databases are hosted on fantom.cmmt.ubc.ca and may be accessed using MySQL username 'fantom_r'. It may be necessary to use the --skip-lock-tables option to mysqldump, e.g.:<br>
-    $ mysqldump -h fantom.cmmt.ubc.ca -u fantom_r --skip-lock-tables FANTOM5_oPOSSUM_human > FANTOM5_oPOSSUM_human.sql
+  <p>
+    The databases are hosted on cagedop.cmmt.ubc.ca and may be accessed using MySQL username 'cagedop_r'.
+    <br>
+    It may be necessary to use the --skip-lock-tables option to mysqldump, e.g.:
+    <br>
+    <br>
+    <code>
+      $ mysqldump -h cagedop.cmmt.ubc.ca -u cagedop_r --skip-lock-tables CAGEd_oPOSSUM_human > CAGEd_oPOSSUM_human.sql
+    </code>
   </p>
 </body>
 </html>
