@@ -31,28 +31,32 @@
   <a name="top"></a>
 
   <div id="pageContainer">
-    <div id="logo">
-      <!--
-      <a href="[%rel_htdocs_path%]"><img src="[%rel_htdocs_path%]/images/FANTOM_Ssize2.png" border="0" alt="FANTOM5"></a>
-      <a href="[%rel_htdocs_path%]"><img src="[%rel_htdocs_path%]/images/logo.gif" border="0" alt="oPOSSUM"></a>
-      -->
-      <a href="[%rel_htdocs_path%]"><img src="[%rel_htdocs_path%]/images/oPossum_logo_2.png" border="0" alt="CAGEd-oPOSSUM"></a>
+    <div id="header">
+      <div id="logo">
+        <!--
+        <a href="[%rel_htdocs_path%]"><img src="[%rel_htdocs_path%]/images/FANTOM_Ssize2.png" border="0" alt="FANTOM5"></a>
+        <a href="[%rel_htdocs_path%]"><img src="[%rel_htdocs_path%]/images/logo.gif" border="0" alt="oPOSSUM"></a>
+        -->
+        <a href="[%rel_htdocs_path%]"><img src="[%rel_htdocs_path%]/images/oPossum_logo_2_cropped.png" border="0" alt="CAGEd-oPOSSUM"></a>
+        <br>
+      </div>
       <br>
+      <div id="version">
+        Version [%version%]
+      </div>
+      <!--
+      <div id="heading">
+        [%heading%]
+      </div>
+      <div id="version">
+        [%IF devel_version%]
+          &nbsp;<b>(development version)</b>
+        [%END%]
+      </div>
+      -->
     </div>
-    <div id="version">
-      Version [%version%]
-    </div>
-    <!--
-    <div id="heading">
-      [%heading%]
-    </div>
-    <div id="version">
-      [%IF devel_version%]
-        &nbsp;<b>(development version)</b>
-      [%END%]
-    </div>
-    -->
 
+    <br>
     <div id="menuSecondary" class=[%bg_color_class%]>
       <a href="[%rel_htdocs_path%]">Home</a> |
       <a href="[%rel_htdocs_path%]/about.html" target="about">About</a> | 
@@ -64,6 +68,7 @@
     </div>
 
     <div id="content">
+
       <h1>[%heading%]</h1>
 
       <!--
@@ -111,6 +116,13 @@
         [%END%]
         </object><object data="[%rel_htdocs_path%]/images/progress_step5_therest.svg" type="image/svg+xml" width="80%"></object>
       [%END%]
+
+      <noscript>
+        <br>
+        <div id="noscript">
+          It looks like JavaScript is disabled. CAGEd-oPOSSUM won't work properly without JavaScript enabled.
+        </div>
+      </noscript>
 
       [%INCLUDE $var_template%]
     </div>
