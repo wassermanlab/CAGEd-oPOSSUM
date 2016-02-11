@@ -25,7 +25,7 @@ jQuery(document).ready(function() {
 
 jQuery(document).ready(function() {
   jQuery('#experiment_tree').before(
-      jQuery('<form id="search"><span></span><input type="text" value=""><input type="submit" value="Search Ontology"><input type="reset" value="Clear"></form>')
+      jQuery('<form id="search"><span></span><input type="text" value=""><input type="submit" value="Search ontology"><input type="reset" value="Clear"></form>')
       .bind({
         reset: function(evt){
           jQuery.jstree._focused().clear_search();
@@ -40,7 +40,8 @@ jQuery(document).ready(function() {
             } else {
                     //jQuery.jstree._focused().clear_search();
                     jQuery('#experiment_tree').jstree('clear_search');
-                    jQuery('#search span').html('Please enter searchvalue');
+                    //jQuery('#search span').html('Please enter search value');
+                    jQuery('#search').html('Please enter search value');
             }
             return false;
         }
@@ -62,7 +63,7 @@ function isblank(s)
 function verify(f)
 {
     var msg;
-    var errors = "";
+    var errorstr = "";
     var v;
 
     var is_experiments = 0;
@@ -71,113 +72,140 @@ function verify(f)
     var is_custom_tss_text = 0;
     var is_custom_tss_file = 0;
     var is_rand = 0;
+    var is_error = false;
 
-    // XXX These doen't work!
-    //var checked_ids = \$('#experiment_tree').jstree('true').get_selected();
-    //var checked_ids = $('#experiment_tree').jstree('get_selected');
-    var checked_ids = \$('#experiment_tree').jstree('get_checked').attr('id');
+    var checked_ids = new Array();
+    checked_ids = \$('#experiment_tree').jstree('get_checked');
 
     if (typeof checked_ids !== 'undefined'
         && checked_ids != null
         && checked_ids.length > 0)
     {
+        //alert("FANTOM5 experiments selected");
         is_experiments = 1;
-        //errors += "is_experiments == true\n";
     }
-
 
     var tss_names_text = f.tss_names_text.value.trim();
     if (tss_names_text != '') {
+        //alert("FANTOM5 CAGE peak IDs pasted");
         is_tss_names_text = 1;
-        //errors += "is_tss_names_text == true\n";
     }
 
     var tss_names_file = f.tss_names_file.value.trim();
     if (tss_names_file != '') {
+        //alert("FANTOM5 CAGE peak IDs file uploaded");
         is_tss_names_file = 1;
-        //errors += "is_tss_names_file == true\n";
     }
 
     var custom_tss_text = f.custom_tss_text.value.trim();
     if (custom_tss_text != '') {
+        //alert("Custom CAGE peaks pasted");
         is_custom_tss_text = 1;
-        //errors += "is_custom_tss_text == true\n";
     }
 
     var custom_tss_file = f.custom_tss_file.value.trim();
     if (custom_tss_file != '') {
+        //alert("Custom CAGE peaks file uploaded");
         is_custom_tss_file = 1;
-        //errors += "is_custom_tss_file == true\n";
     }
 
     // Random selection is only valid for background so first check if the
-    // field is even defined and then whether it is set or not.
-    if (typeof(f.is_rand) != 'undefined') {
-        if (f.is_rand.checked()) {
+    // element is even defined and only then whether it is set or not.
+    if (document.getElementById('use_rand_bg')) {
+        if (f.use_rand_bg.checked) {
+            //alert("Random background FANTOM5 CAGE peaks selected");
             is_rand = 1;
-            //errors += "is_rand == true\n";
         }
     }
 
     var nselected = is_experiments + is_tss_names_text + is_tss_names_file
         + is_custom_tss_text + is_custom_tss_file + is_rand;
 
+    //alert("nselected = " + nselected);
+
     if (nselected == 0) {
-        errors += "You have not entered any CAGE peak selection criteria.\n"; 
+        is_error = true;
+        errorstr += "You have not entered any CAGE peak selection criteria.\n"; 
     }
 
     if (nselected > 1) {
-        errors += "You appear to have selected more than one method of specifying CAGE peaks. Please use only ONE method of CAGE peak data entry.\n"; 
+        //alert("Number of things selected is greater than one");
+
+        is_error = true;
+        errorstr += "You appear to have selected more than one method of specifying CAGE peaks. Please use only ONE method of CAGE peak data entry.\n"; 
     }
 
     //
     // Maybe we shouldn't require any expression level threshold
     // (defaults to 0). The code below does not seem to work anyway???
     //
-    if (is_experiments) {
-        var tag_count = f.tag_count.value.trim();
-        var tpm = f.tpm.value.trim();
-        var rel_expr = f.relative_expression.value.trim();
+    if (is_experiments == 1) {
+        if (f.expression_input_method[0].checked) {
+            var rel_expr = f.relative_expression.value.trim();
 
-        var is_expr_level_vals = false;
-        if (tag_count != '' && tag_count != 0) {
-            is_expr_level_vals = true;
-        }
+            if (rel_expr == '' || rel_expr == '0') {
+                is_error = true;
+                errorstr += "No relative expression level threshold set for FANTOM5 experiments.\n";
+            }
+        } else if (f.expression_input_method[1].checked) {
+            var tag_count = f.tag_count.value.trim();
+            var tpm = f.tpm.value.trim();
 
-        if (tpm != '' && tpm != 0) {
-            is_expr_level_vals = true;
-        }
-
-        if (relative_expression != '' && relative_expression != 0) {
-            is_expr_level_vals = true;
-        }
-
-        if (!is_expr_level_vals) {
-            errors += "No expression level thresholds have been selected for FANTOM5 experiments.\n";
+            if (   (tag_count == '' || tag_count == '0')
+                && (tpm == '' || tpm == '0'))
+            {
+                is_error = true;
+                errorstr += "No raw tag count or tags per million thresholds set for FANTOM5 experiments.\n";
+            }
         }
     }
 
-    if (!errors) return true;
+    //alert("is_error = " + is_error);
 
-    msg = "_________________________________________________________\n\n";
-    msg += "The analysis was not submitted due to the following problem(s).\n";
-    msg += "Please correct these problem(s) and re-submit.\n";
-    msg += "________________________________________________________\n\n";
-    msg += errors;
+    if (is_error) {
+        msg  = "_________________________________________________________\n\n";
+        msg += "The analysis was not submitted due to the following problem(s).\n";
+        msg += "Please correct these problem(s) and re-submit.\n";
+        msg += "________________________________________________________\n\n";
+        msg += errorstr;
 
-    alert(msg);
+        alert(msg);
 
-    return false;
+        return false;
+    }
+
+    return true;
 }
 
 function submitToggle()
 {
     //alert("submitToggle called");
-    if (document.getElementById("is_rand").checked) {
+    if (document.getElementById("use_rand_bg").checked) {
         document.getElementById("submit").value = "Select TFBS search parameters";
     } else {
         document.getElementById("submit").value = "Select background CAGE peak filters";
     }
+}
+
+function clearForm(f)
+{
+    // clear the FANTOM5 ontology jstree.
+    //alert("clearing experiment tree");
+    jQuery('#experiment_tree').jstree('uncheck_all'); // works!
+    jQuery('#experiment_tree').jstree('close_all');   // works!
+
+    // This clears the search (the nodes highlighted) although the above seems
+    // to that that anyway. This does not clear the actual search box though!
+    jQuery('#experiment_tree').jstree('clear_search');
+
+    // This just clears the "Please enter search value" string that is
+    // displayed if you hit the "Search Ontology" button without entering
+    // anything into the search box. It does NOT clear the search box itself.
+    jQuery('#search span').html('');
+
+    // perform built-in reset action
+    //alert("performing built-in reset");
+    f.reset();
 }
 
 </script>
@@ -213,23 +241,25 @@ function submitToggle()
 
     [%IF t_or_b == 'background'%]
       <h4>Use a matched random background</h4>
+      &nbsp;[<a href="[%rel_htdocs_path%]/help/option_details.html#select_b_cage_mrbg" target="help">HELP</a>]
+    <br><br>
+
+      Use a randomly generated set of background regions %GC composition and length matched to the target CAGE regions<input type=checkbox id="use_rand_bg" name="use_rand_bg" onClick="submitToggle()" checked>
       <br>
-      Use a random set of background regions %GC composition and length matched to the target CAGE regions<input type=checkbox id="is_rand" name="is_rand" onClick="submitToggle()" checked>
+      (This is generated using the <a href="[%homer_url%]" target="_blank">HOMER software</a>)
       <br>
-      (generated using the <a href="[%homer_url%]" target="_blank">HOMER software</a>)
       <br>
       <br>
     [%END%]
 
-    <h4>Select by FANTOM5 experiment</h4>
+    <h4>Select by FANTOM5 sample expression levels</h4>
     &nbsp;[[%IF t_or_b == 'target'%]<a href="[%rel_htdocs_path%]/help/option_details.html#select_t_cage_exp" target="help">HELP</a>[%ELSIF t_or_b == 'background'%]<a href="[%rel_htdocs_path%]/help/option_details.html#select_b_cage_exp" target="help">HELP</a>[%END%]]
     <br><br>
 
-    Specify CAGE peaks by their level of expression in specific FANTOM5 experiment(s)
+    Specify CAGE peaks by their level of expression in specific FANTOM5 sample(s)
     <br><br>
 
-    Select FANTOM5 [%species%] experiment(s):<br>
-    (right click on name and "Open Link" to open relevant FANTOM5 samples page)
+    Select FANTOM5 [%species%] sample(s):
     <br>
     <br>
 
@@ -240,6 +270,8 @@ function submitToggle()
         [%INCLUDE sample_ontology_mouse.html%]
       [%END%]
     </div>
+    <br>
+    (right click on name and "Open Link" to open relevant FANTOM5 samples page)
     <br>
 
     <input type="radio" name="expression_input_method" value="relative_expression" checked>
@@ -276,7 +308,7 @@ function submitToggle()
         if (isblank(input.tag_count.value))
           {input.tag_count.value = 0}
       }">
-    and tags per million (TPM) >= <input type="text" name="tpm" value="[%tpm%]" size="3" maxlength="4" align="right"
+    AND tags per million (TPM) >= <input type="text" name="tpm" value="[%tpm%]" size="3" maxlength="4" align="right"
       onFocus="{
         if (!isblank(input.tpm.value) && input.tpm.value != 0)
           {input.expression_input_method[1].checked=true}
@@ -376,9 +408,11 @@ function submitToggle()
       <input type="submit" id="submit" name="submit" value="Select TFBS search parameters">
     [%END%]
     <!--
+    <input type="reset" name="Reset" value="Reset">
+
     <input type="reset" name="Reset" value="Reset" onClick="{\$('#experiment_tree').jstree(true).deselect_all()}">
     -->
-    <input type="reset" name="Reset" value="Reset">
+    <input type="button" name="Reset" value="Reset" onClick="clearForm(this.form);">
     <input type="hidden" name="rm" value="[%rm%]">
     <input type="hidden" name="event" value="[%event%]">
     <input type="hidden" name="sid" value="[%sid%]">
