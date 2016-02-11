@@ -28,12 +28,12 @@ content using R. Must have R installed to run.
 =cut
 
 package OPOSSUM::Plot::ScoreVsGC;
+use parent 'Statistics::R';
 
 use strict;
 
 use Carp;
 use POSIX;
-use Statistics::R;
 
 my $inf    = 9**9**9;
 my $neginf = -9**9**9;
@@ -51,22 +51,17 @@ my $nan    = -sin(9**9**9);
 
 sub new
 {
-    my ($class, @args) = @_;
+    my ($class, %args) = @_;
 
-    #
-    # Start R
-    #
-    my $R = Statistics::R->new();
+    my $self = Statistics::R->new();
 
-    unless ($R) {
-        carp "Error starting R statistics package\n";
-        return;
+    my $logger = $args{-logger};
+    if ($logger) {
+        $self->{-logger} = $logger;
+        $logger->info("Initialized ScoreVsGC content plotter");
     }
 
-
-    my $self = bless {
-        _R => $R
-    }, ref $class || $class;
+    bless $self, $class;
 
     return $self;
 }
@@ -80,7 +75,7 @@ sub new
                 $plot_type,
                 $sd_fold,
                 $filename,
-                $error
+                $errors
             );
  Function : Plot the appropriate score from the oPOSSUM result set.
  Returns  : 
@@ -93,72 +88,87 @@ sub new
                           fold used to determine the threshold.
             filename    - The name of the output plot file. Output file is
                           in PNG format.
-            error       - A reference to a scalar error messages are
-                          passed back to caller
+            errors      - A reference to a list of error messages to be
+                          passed back to caller.
 
 =cut
 
 sub plot
 {
     my ($self, $results, $tf_set, $plot_type, $sd_fold, $filename,
-        $error) = @_;
+        $errors) = @_;
 
-    $$error = "";
+    my $logger = $self->{-logger};
+
+    if ($logger) {
+        $logger->info("Plotting ${plot_type}-score vs. %GC composition to file $filename");
+    }
+
+    my $error;
 
     unless ($results) {
-        $$error = "No result set provided";
-        carp $$error;
-        return;
+        $error = "No result set provided";
+        push @$errors, $error;
+        carp $error;
+        return 0;
     }
 
     unless (ref $results eq 'ARRAY' && $results->[0]) {
-        $$error = "No result set provided";
-        carp $$error;
-        return;
+        $error = "No result set provided";
+        push @$errors, $error;
+        carp $error;
+        return 0;
     }
 
     unless ($tf_set) {
-        $$error = "No TF set provided";
-        carp $$error;
-        return;
+        $error = "No TF set provided";
+        push @$errors, $error;
+        carp $error;
+        return 0;
     }
 
     unless ($plot_type) {
-        $$error = "No plot type provided";
-        carp $$error;
-        return;
+        $error = "No plot type provided";
+        push @$errors, $error;
+        carp $error;
+        return 0;
     }
 
     unless ($sd_fold) {
-        $$error = "No SD fold provided";
-        carp $$error;
-        return;
+        $error = "No SD fold provided";
+        push @$errors, $error;
+        carp $error;
+        return 0;
     }
 
     unless ($filename) {
-        $$error = "No output plot file name provided";
-        carp $$error;
-        return;
+        $error = "No output plot file name provided";
+        push @$errors, $error;
+        carp $error;
+        return 0;
     }
 
     unless ($results->[0]->isa("OPOSSUM::Analysis::CombinedResult")) {
-        $$error = "Results is not an arrayref of"
+        $error = "Results is not an arrayref of"
                 . " OPOSSUM::Analysis::CombinedResult objects";
-        carp $$error;
-        return;
+        push @$errors, $error;
+        carp $error;
+        return 0;
     }
 
     unless (ref $tf_set && $tf_set->isa("OPOSSUM::TFSet")) {
-        $$error = "TF set is not an OPOSSUM::TFSet object";
-        carp $$error;
-        return;
+        $error = "TF set is not an OPOSSUM::TFSet object";
+        push @$errors, $error;
+        carp $error;
+        return 0;
     }
 
     unless ($plot_type eq 'Z' || $plot_type eq 'Fisher' || $plot_type eq 'KS')
     {
-        $$error = "Provided plot type is not one of 'Z', 'F' or 'KS'";
-        carp $$error;
-        return;
+        $error = "Provided plot type is not one of 'Z', 'F' or 'KS'";
+        push @$errors, $error;
+        carp $error;
+        return 0;
     }
 
     my $title;
@@ -294,18 +304,16 @@ sub plot
         }
     }
 
-    my $R = $self->R;
-
     my @legend;
     push @legend, "mean + $sd_fold * sd";
 
-    $R->set('scores', \@scores);
-    $R->set('gc', \@gc);
-    $R->set('gc_above', \@gc_above);
-    $R->set('scores_above', \@scores_above);
-    $R->set('names_above', \@names_above);
-    $R->set('gc', \@gc);
-    $R->set('leg', \@legend);
+    $self->set('scores', \@scores);
+    $self->set('gc', \@gc);
+    $self->set('gc_above', \@gc_above);
+    $self->set('scores_above', \@scores_above);
+    $self->set('names_above', \@names_above);
+    $self->set('gc', \@gc);
+    $self->set('leg', \@legend);
 
     my @R_cmds;
 
@@ -327,42 +335,43 @@ sub plot
 
     push @R_cmds, qq{abline(h=$threshold, col="red", lty=2)};
     push @R_cmds, q{legend("topright", legend=leg, cex=0.8, col="red", lty=2, bty="n")};
+
     #
     # Note: this returns message "null device 1"
     #
-    push @R_cmds, q{dev.off()};
+    #push @R_cmds, q{dev.off()};
 
-    my $out;
-    eval {
-        $out = $R->run(@R_cmds);
-    };
+    #
+    # Try running commands one at a time to catch errors in a more fine grained
+    # way. DJA 2016/1/22
+    #
+    foreach my $cmd (@R_cmds) {
+        $logger->info("Running R command: $cmd") if $logger;
 
-    if ($out) {
-        unless ($out =~ /^null device/) {
-            $$error = $out;
+        my $out;
+        eval {
+            $out = $self->run($cmd);
+        };
+
+        if ($@) {
+            $logger->error("R command eval error: $@") if $logger;
+        }
+
+        if ($out) {
+            unless ($out =~ /^null device/) {
+                carp $out;
+                push @$errors, $out;
+            }
+
+            $logger->info("R command returned: $out") if $logger;
         }
     }
 
-    if ($$error) {
-        carp $$error;
-        return;
+    if (@$errors) {
+        return 0;
     }
 
     return 1;
-}
-
-sub R
-{
-    my $self = shift;
-
-    return $self->{_R};
-}
-
-sub DESTROY
-{
-    my $self = shift;
-
-    $self->R->stop();
 }
 
 sub _compute_mean
