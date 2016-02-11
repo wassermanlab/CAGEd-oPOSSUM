@@ -2,7 +2,7 @@
 <head>
   <meta http-equiv="CONTENT-TYPE" content="text/html; charset=iso-8859-15">
   <link rel="stylesheet" href="../styles.css" type="text/css">
-  <title>FANTOM5-oPOSSUM Help</title>
+  <title>CAGEd-oPOSSUM Help</title>
 </head>
 <style type="text/css">
 	body {
@@ -23,7 +23,7 @@
 
 <a name="top"></a>
 
-  <h1><a name="ssa_help"></a>FANTOM5-oPOSSUM Single Site Analysis (SSA)</h1>
+  <h1><a name="ssa_help"></a>CAGEd-oPOSSUM Single Site Analysis (SSA)</h1>
   <p>
   <b><center>Identification of over-represented transcription factor binding sites in sets of CAGE peak regions</center></b>
   </p>
@@ -136,11 +136,11 @@
 	<a name="select_profiles"></a>
   <h3>Select TFBS Profiles</h3>
   <p>
-  You may select TFBS profiles by choosing ones from the <a href="jaspar.genereg.net" target=_blank>JASPAR</a> collection or inputting your own custom matrices. If you choose JASPAR profiles the binding sites have been pre-computed and stored in the FANTOM5-oPOSSUM database. If you use your own custom profile matrices then the binding sites are computed on-the-fly. Generally, analyses performed with custom profiles will take longer than analyses performed with the pre-computed JASPAR profile binding sites.
+  You may select TFBS profiles by choosing ones from the <a href="jaspar.genereg.net" target=_blank>JASPAR</a> collection or inputting your own custom matrices. If you choose JASPAR profiles the binding sites have been pre-computed and stored in the CAGEd-oPOSSUM database. If you use your own custom profile matrices then the binding sites are computed on-the-fly. Generally, analyses performed with custom profiles will take longer than analyses performed with the pre-computed JASPAR profile binding sites.
     
 	<a name="jaspar_core"></a>
   <h4>JASPAR CORE Profiles</h4>
-	<p>The matrices used to pre-compute binding sites in FANTOM5-oPOSSUM were obtained from the 2014 release of <a href="http://jaspar.genereg.net/" target="_blank">JASPAR</a> database. You may select profiles from the vertebrates subset of the JASPAR CORE database. You may specify whether to use the entire set (with a minimum infomation content cutoff of 8 bits) or a selected subset of the profiles.
+	<p>The matrices used to pre-compute binding sites in CAGEd-oPOSSUM were obtained from the 2014 release of <a href="http://jaspar.genereg.net/" target="_blank">JASPAR</a> database. You may select profiles from the vertebrates subset of the JASPAR CORE database. You may specify whether to use the entire set (with a minimum infomation content cutoff of 8 bits) or a selected subset of the profiles.
 	</p>
     <p>
 	  The default setting is to choose "all profiles" from the JASPAR CORE vertebrates collection with a minimum specificity of 8 bits. The specificity is the information content (IC) of the TFBS matrices in bits. The IC, loosely speaking, combines the length and the complexity of the motif into a value that describes what we know collectively about the sequences a TF recognizes. The minimum specificity of 8 bits was chosen because TF matrices with IC of less than 8 bits are relatively uninformative for scoring DNA sequence. If you choose to threshold matrices with a higher specificity, you are limiting your analyses to matrices with stronger, more selective patterns. In general, it is not necessary to use a threshold higher than 8 bits unless you have specific requirements, as you may later filter your final results by specificity (the IC column of the results file).
@@ -180,7 +180,7 @@
   <a name="threshold"></a>
 	<h4>TFBS profile matrix score threshold</h4>
 	  <p>
-		Putative TF binding sites are predicted by sliding the TFBS profile's postion weight matrix (PWM) along the sequence giving a score at each position. Positions where the score is above some threshold are stored in the FANTOM5-oPOSSUM database. Thus the threshold is the minimum relative (percent) score used to report the position as a putative TFBS. The minimum score threshold used to pre-compute the FANTOM5-oPOSSUM binding sites was 80%. The default to report in the analysis results is 85%.
+		Putative TF binding sites are predicted by sliding the TFBS profile's postion weight matrix (PWM) along the sequence giving a score at each position. Positions where the score is above some threshold are stored in the CAGEd-oPOSSUM database. Thus the threshold is the minimum relative (percent) score used to report the position as a putative TFBS. The minimum score threshold used to pre-compute the CAGEd-oPOSSUM binding sites was 80%. The default to report in the analysis results is 85%.
 	  </p>
     <p>
       The relative (percent) score of a putative binding site is computed from the raw matrix score as:<br>relative_score = (site_raw_score - min_matrix_raw_score) / (max_matrix_raw_score - min_matrix_raw_score)
