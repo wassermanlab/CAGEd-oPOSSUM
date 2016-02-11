@@ -33,21 +33,23 @@
       <td align="left" class="table_title">GC content:</td>
       <td align="left" class="table_text">
       [%gc = tf.tag('gc_content')%]
+      [%formatted_gc = formatf(3, gc)%]
       [%IF gc > high_matrix_gc or gc < low_matrix_gc%]
-        <b class="warn_table_text">[%gc%]</b>
+        <b class="warn_table_text">[%formatted_gc%]</b>
       [%ELSE%]
-        [%gc%]
+        [%formatted_gc%]
       [%END%]
       </td>
     </tr>
     <tr class="table_text">
       <td align="left" class="table_title">Information content:</td>
       <td align="left" class="table_text">
-      [%total_ic = formatf(3, tf.to_ICM.total_ic)%]
-      [%IF total_ic > high_matrix_ic or total_ic < low_matrix_ic%]
-        <b class="warn_table_text">[%total_ic%]</b>
+      [%ic = tf.to_ICM.total_ic%]
+      [%formatted_ic = formatf(3, ic)%]
+      [%IF ic > high_matrix_ic or ic < low_matrix_ic%]
+        <b class="warn_table_text">[%formatted_ic%]</b>
       [%ELSE%]
-        [%total_ic%]
+        [%formatted_ic%]
       [%END%]
       </td>
     </tr>
