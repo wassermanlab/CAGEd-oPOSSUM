@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/env perl5.14
 
 =head1 NAME
 
@@ -184,7 +184,7 @@ e.g: -tax vertebrates -tax "insects, nematodes"
             of target CAGE peak sequences multiplied by fold.
 
     -tfdb db_name
-            Specifies which TF database to use; default = JASPAR_2014.
+            Specifies which TF database to use; default = JASPAR_2016.
 
     -tfmf FILE
             File containing one or more JASPAR TFBS profile matrices.
@@ -319,7 +319,7 @@ e.g: -tax vertebrates -tax "insects, nematodes"
 Take one or more target experiment IDs, optional background experiment IDs
 and optional subset of transcription factors (TFs) either specified in an
 input file, or limited by external (JASPAR) database name and information
-content or taxonomic supergroup or all TFs in the FANTOM5 oPOSSUM database.
+content or taxonomic supergroup or all TFs in the CAGEd-oPOSSUM database.
 Also optionally specify PWM score threshold.
 
 Count the number of TFBSs for each TF which was found at the given
@@ -374,9 +374,14 @@ use OPOSSUM::Tools::SearchRegionTool;
 use OPOSSUM::Tools::Homer;
 #use Statistics::Distributions;
 
-use lib ENSEMBL_LIB_PATH;
-
-use Bio::EnsEMBL::DBSQL::DBAdaptor;
+#
+# Not used any more. We are fetching sequences using BEDTools now.
+# DJA 2015/04/24
+#
+#use lib ENSEMBL_LIB_PATH;
+#
+#use Bio::EnsEMBL::DBSQL::DBAdaptor;
+#
 
 use constant BG_COLOR_CLASS => 'bgc_f5_exp';
 
@@ -559,13 +564,13 @@ unless ($db_info) {
     fatal("Could not fetch CAGEd-oPOSSUM DB info", \%job_args);
 }
 
-my $ens_db_name = $db_info->ensembl_db;
-
-
 #
-# Connect to ENSEMBL database.
 # Not used any more. We are fetching sequences using BEDTools now.
 # DJA 2015/04/24
+#
+#my $ens_db_name = $db_info->ensembl_db;
+#
+# Connect to ENSEMBL database.
 #
 #my $ensdba = Bio::EnsEMBL::DBSQL::DBAdaptor->new(
 #    -host    => ENSEMBL_DB_HOST,
@@ -1446,6 +1451,12 @@ unless ($cresults) {
 
 $job_args{-num_results} = scalar @$cresults;
 
+#
+# Stringify any TF attributes which may be stored as array refs (e.g. class,
+# family).
+#
+stringify_tf_set_attributes($tf_set, 'class', 'family');
+
 if ($web) {
     $logger->info("Writing HTML results");
     write_results_html(\%job_args); 
@@ -1466,20 +1477,28 @@ if ($plot) {
     my $z_plot_file      = "$results_dir/" . ZSCORE_PLOT_FILENAME;
     my $fisher_plot_file = "$results_dir/" . FISHER_PLOT_FILENAME;
 
-    my $plotter = OPOSSUM::Plot::ScoreVsGC->new();
+    my $plotter = OPOSSUM::Plot::ScoreVsGC->new(-logger => $logger);
 
     if ($plotter) {
-        my $plot_err;
+        my @z_plot_errs;
         unless (
             $plotter->plot(
                 $cresults, $tf_set, 'Z', ZSCORE_PLOT_SD_FOLD, $z_plot_file,
-                \$plot_err
+                \@z_plot_errs
             )
         ) {
+            my $plot_err_str = '';
+            if (@z_plot_errs) {
+                $plot_err_str = join '\n', @z_plot_errs;
+            }
             $logger->error(
-                "Could not plot Z-scores vs. GC content - $plot_err"
+                "Could not plot Z-scores vs. GC content - $plot_err_str"
             );
         }
+
+        $logger->info(
+            "Finished plotting Z-scores vs. GC content"
+        );
     } else {
         $logger->error("Could not initialize Z-score vs. GC content plotting");
     }
@@ -1490,20 +1509,28 @@ if ($plot) {
     # error. Still don't know why this seemed to work before and still works
     # in oPOSSUM3 but now doesn't work here.
     #
-    $plotter = OPOSSUM::Plot::ScoreVsGC->new();
+    #$plotter = OPOSSUM::Plot::ScoreVsGC->new(-logger => $logger);
 
     if ($plotter) {
-        my $plot_err;
+        my @f_plot_errs;
         unless(
             $plotter->plot(
                 $cresults, $tf_set, 'Fisher', FISHER_PLOT_SD_FOLD,
-                $fisher_plot_file, \$plot_err
+                $fisher_plot_file, \@f_plot_errs
             )
         ) {
+            my $plot_err_str = '';
+            if (@f_plot_errs) {
+                $plot_err_str = join '\n', @f_plot_errs;
+            }
             $logger->error(
-                "Could not plot Fisher scores vs. GC content - $plot_err"
+                "Could not plot Fisher scores vs. GC content - $plot_err_str"
             );
         }
+
+        $logger->info(
+            "Finished plotting Fisher scores vs. GC content"
+        );
     } else {
         $logger->error("Could not initialize Fisher vs. GC content plotting");
     }
@@ -1545,7 +1572,7 @@ sub parse_args
     $job_args{-species} = $species;
 
     my $heading = sprintf(
-        "%s Analysis Results", ucfirst $species
+        "%s Analysis", ucfirst $species
     );
     $job_args{-heading} = $heading;
 
