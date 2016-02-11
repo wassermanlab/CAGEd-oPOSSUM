@@ -83,10 +83,8 @@
   h1 {
     font-family:Verdana, Arial, Helvetica, sans-serif; 
     color: #9999FF; 
-    width: 100%
     font-size: 20px; 
     font-weight: bold;
-    text-align: center;
   }
 
   .t1 {
@@ -106,8 +104,8 @@
     position: relative;
     min-width: 900px;
     padding-top: 20px;
-    padding-left: 10%;
-    padding-right: 10%;
+    padding-left: 20px;
+    padding-right: 20px;
     font: Verdana, Arial, Helvetica, sans-serif; 
     font-size: 12px;
     color: #222222;
@@ -118,7 +116,7 @@
     position: relative;
     min-width: 900px;
     width: 100%;
-    height: 75px;
+    height: 80px;
     padding: 0px 0px;
     text-align:center;
   }
@@ -137,7 +135,7 @@
     position: relative;
     width: 100%;
     height: 40px;
-    padding: 0px 10px;
+    padding: 0px 0px 0px 0px;
     font: Verdana, Arial, Helvetica, sans-serif; 
     color: #000000;
     font-size:12px;
@@ -173,7 +171,7 @@
     top: 0px;
     left: 0px;
     padding-top: 40px;
-    width: 30%;
+    width: 300px;
   }
 
 </style>
@@ -193,8 +191,9 @@
       <img src="images/FANTOM_Ssize2.png" alt="FANTOM5">
       <img src="images/logo.gif" border="0" alt="CAGEd-oPOSSUM">
       -->
-      <img src="images/oPossum_logo_2.png" alt="CAGEd-oPOSSUM">
+      <img src="images/oPossum_logo_2_cropped.png" alt="CAGEd-oPOSSUM">
     </div>
+    <br>
     <div id="version">
       Version 1.0
     </div>
@@ -207,9 +206,17 @@
     </div>
   </div>
 
-  <br>
+  <div id="header">
     <h1>Welcome to CAGEd-oPOSSUM</h1>
     <p><b>CAGEd-oPOSSUM is a web-based system for the detection of over-represented transcription factor binding sites around CAGE peaks.</b></p>
+
+    <noscript>
+      <div id="noscript">
+        It looks like JavaScript is disabled. CAGEd-oPOSSUM won't work properly without JavaScript enabled.
+      </div>
+      <br>
+    </noscript>
+  </div>
 
   <div id="sechead" class="bgc_f5_exp">
     <span class="t1">Choose Species</span><br>
@@ -218,15 +225,15 @@
 
   <div id="specrow">
     <div id="specbox">
-      <a href="http://fantom.cmmt.ubc.ca/cgi-bin/CAGEd_oPOSSUM/integrated_human_ssa"><img src="images/human2.jpg" align="center" width="75" height="70"></a>
+      <a href="http://cagedop.cmmt.ubc.ca/cgi-bin/CAGEd_oPOSSUM/integrated_human_ssa"><img src="images/human2.jpg" align="center" width="75" height="70"></a>
       <br>
-      <span class="PortalLink"><a class="blackPortalLink" href="http://fantom.cmmt.ubc.ca/cgi-bin/CAGEd_oPOSSUM/integrated_human_ssa">Human (GRCh37)</a><br></span>
+      <span class="PortalLink"><a class="blackPortalLink" href="http://cagedop.cmmt.ubc.ca/cgi-bin/CAGEd_oPOSSUM/integrated_human_ssa">Human (GRCh37)</a><br></span>
     </div>
 
     <div id="specbox">
-      <a href="http://fantom.cmmt.ubc.ca/cgi-bin/CAGEd_oPOSSUM/integrated_mouse_ssa"><img src="images/mouse2.jpg" align="center" width="75" height="70"></a>
+      <a href="http://cagedop.cmmt.ubc.ca/cgi-bin/CAGEd_oPOSSUM/integrated_mouse_ssa"><img src="images/mouse2.jpg" align="center" width="75" height="70"></a>
       <br>
-      <span class="PortalLink"><a class="blackPortalLink" href="http://fantom.cmmt.ubc.ca/cgi-bin/CAGEd_oPOSSUM/integrated_mouse_ssa">Mouse (NCBI37)</a></span>
+      <span class="PortalLink"><a class="blackPortalLink" href="http://cagedop.cmmt.ubc.ca/cgi-bin/CAGEd_oPOSSUM/integrated_mouse_ssa">Mouse (NCBI37)</a></span>
     </div>
   </div>
 
