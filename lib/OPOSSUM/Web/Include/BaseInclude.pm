@@ -257,7 +257,7 @@ sub parse_textbox_as_list
 
     my $text = $self->parse_textbox($param);
 
-    return unless $text;
+    return unless defined $text;
 
     my @list = split "\n", $text;
 
@@ -270,7 +270,7 @@ sub parse_textbox
 
     my $text = $self->query->param($param);
 
-    return unless $text;
+    return unless defined $text;
 
     #
     # Strip leading trailing space
@@ -289,7 +289,7 @@ sub parse_textbox
     # Convert older Mac style <CR> to linux <LF>
     $text =~ s/\r/\n/g;
 
-    return unless $text;
+    return unless defined $text;
 
     return $text;
 }
@@ -300,7 +300,7 @@ sub parse_upload_filename
 
     my $filename = $self->query->param($param);
 
-    return unless $filename;
+    return unless defined $filename;
 
     #
     # Strip leading trailing space
@@ -308,14 +308,14 @@ sub parse_upload_filename
     $filename =~ s/^\s+//;
     $filename =~ s/\s+$//;
 
-    return unless $filename;
+    return unless defined $filename;
 
     #
     # Strip path
     #
     $filename =~ s/.*\///;
 
-    return unless $filename;
+    return unless defined $filename;
 
     return $filename;
 }
