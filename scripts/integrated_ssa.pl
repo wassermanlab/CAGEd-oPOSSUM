@@ -1880,8 +1880,8 @@ sub parse_args
     #
     $tf_db         = JASPAR_DB_NAME unless $tf_db;
     $threshold     = DFLT_TFBS_THRESHOLD unless defined $threshold;
-    $upstream_bp   = DFLT_UPSTREAM_BP unless $upstream_bp;
-    $downstream_bp = DFLT_DOWNSTREAM_BP unless $downstream_bp;
+    $upstream_bp   = DFLT_UPSTREAM_BP unless defined $upstream_bp;
+    $downstream_bp = DFLT_DOWNSTREAM_BP unless defined $downstream_bp;
     $sort_by       = DFLT_RESULT_SORT_BY unless $sort_by;
 
     $job_args{-hma} = 1 if $hma;
