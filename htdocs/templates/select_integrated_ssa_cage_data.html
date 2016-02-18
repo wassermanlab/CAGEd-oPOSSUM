@@ -28,20 +28,35 @@ jQuery(document).ready(function() {
       jQuery('<form id="search"><span></span><input type="text" value=""><input type="submit" value="Search ontology"><input type="reset" value="Clear"></form>')
       .bind({
         reset: function(evt){
-          jQuery.jstree._focused().clear_search();
-          jQuery("#experiment_tree").jstree('close_all');
+          // Clears any highlighted items that were previously searched
+          // Also clears the search box? Seems to do it here but doesn't
+          // work when used in clearForm() function below that is called
+          // when the main page Reset button is pushed???
+          //jQuery.jstree._focused().clear_search();
+          jQuery('#experiment_tree').jstree('clear_search');
+
+          // Clear the "Please enter search value" message if displayed
           jQuery('#search span').html('');
+
+          // Collapse the tree
+          //jQuery("#experiment_tree").jstree('close_all');
         },
         submit: function(evt){
             var searchvalue = jQuery('#search input[type="text"]').val();
-            if(searchvalue!='') {
-                    jQuery('#experiment_tree').jstree('search', searchvalue);
-                    jQuery('#search span').html('');
+            if(searchvalue != '') {
+                // Performs the search, highlighting nodes which match
+                jQuery('#experiment_tree').jstree('search', searchvalue);
+
+                // Clear the "Please enter search value" message if such
+                // message is left over from a previous blank search.
+                jQuery('#search span').html('');
             } else {
-                    //jQuery.jstree._focused().clear_search();
-                    jQuery('#experiment_tree').jstree('clear_search');
-                    //jQuery('#search span').html('Please enter search value');
-                    jQuery('#search').html('Please enter search value');
+                // No search value entered
+                //jQuery.jstree._focused().clear_search();
+                jQuery('#experiment_tree').jstree('clear_search');
+
+                // Adds this message in front of the search box
+                jQuery('#search span').html('Please enter search value');
             }
             return false;
         }
@@ -195,7 +210,7 @@ function clearForm(f)
     jQuery('#experiment_tree').jstree('close_all');   // works!
 
     // This clears the search (the nodes highlighted) although the above seems
-    // to that that anyway. This does not clear the actual search box though!
+    // to do that that anyway. This does not clear the actual search box though!
     jQuery('#experiment_tree').jstree('clear_search');
 
     // This just clears the "Please enter search value" string that is
@@ -270,8 +285,8 @@ function clearForm(f)
         [%INCLUDE sample_ontology_mouse.html%]
       [%END%]
     </div>
+    (right click on sample name and "Open Link in ..." to open relevant FANTOM5 samples page)
     <br>
-    (right click on name and "Open Link" to open relevant FANTOM5 samples page)
     <br>
 
     <input type="radio" name="expression_input_method" value="relative_expression" checked>
