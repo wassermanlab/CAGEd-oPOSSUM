@@ -9,7 +9,6 @@
 		margin:20px;
 	}
 	.contents_level1 {
-    font-size: 20px;
 		margin:5px;
 	}
 	.contents_level2 {
@@ -20,7 +19,7 @@
 	}
 </style>
 
-<body class="text">
+<body class="doctext">
 <a name="top"></a>
   <h1><a name="possum_help"></a>CAGEd-oPOSSUM Help</h1>
   <!--
@@ -30,26 +29,17 @@
   -->
   <h2>Contents</h2>
   <a class="contents_level1" href="#overview">Overview</a><br>
-  <br>
   <a class="contents_level1" href="#species">Species and Assemblies</a><br>
-  <br>
   <a class="contents_level1" href="#description">General Description</a><br>
-  <br>
   <a class="contents_level1" href="#algorithm">Basic Algorithm</a><br>
   <a class="contents_level2" href="#pre_vs_on_the_fly">Pre-computed vs. on-the-fly analysis</a><br>
-  <br>
   <a class="contents_level1" href="#statistical_analysis">Statistical Analysis</a><br>
   <a class="contents_level2" href="#zscore">Z-score</a><br>
   <a class="contents_level2" href="#fisher">Fisher score</a><br>
-  <br>
   <a class="contents_level1" href="#results">Understanding the Results</a><br>
-  <br>
   <a class="contents_level1" href="#detailed_description">Detailed Description of Input Options and Results</a><br>
-  <br>
-  <a class="contents_level1" href="#download">Download API</a><br>
-  <br>
+  <a class="contents_level1" href="#download">Download Software</a><br>
   <a class="contents_level1" href="#faq">FAQ</a><br>
-  <br>
   <a class="contents_level1" href="#citing">Citing CAGEd-oPOSSUM</a><br>
    
   <p><hr noshade><br><a href="#top"><img src="images/arrow-up.gif" align="right" /></a></p>
@@ -61,25 +51,25 @@
   </p>
 
   <a name="species"></a>
-  <h2>Species / Assemblies</h2>
+  <h2>Species and Assemblies</h2>
   <p>
-  FANTOM5 provides expression data for <b>human</b> and <b>mouse</b>. The CAGE peak co-ordinates are based on the human <b>GRCh37/hg19</b> and mouse <b>NCBI37/mm9</b> assemblies. 
+  FANTOM5 provides expression data for <font color=blue>human</font> and <font color=blue>mouse</font>. All coordinates used in CAGEd-oPOSSUM are based on the human <font color=blue>GRCh37</font> (hg19) or mouse <font color=blue>NCBI37</font> (mm9) assemblies. 
   </p>
 
   <a name="description"></a>
   <h2>General Description</h2>
   <p>
-  The target and background CAGE peaks may either be selected from the FANTOM5 CAGE peak data or supplied as your own "custom" CAGE peaks from some other source. If FANTOM5 CAGE peak data is used, it may be specified by either selecting one or more samples from the FANTOM5 sample ontology tree along with a minimum level of expression of those CAGE peaks within the selected samples or by providing a list of specific FANTOM5 CAGE peak IDs. If custom CAGE peaks are provided, the CAGE peak coordinates are specified in BED format. The background may also be generated as a random set of genomic sequences which are %GC composition and length matched to the target set using the <a href="http://homer.salk.edu/homer" target=_blank>HOMER software</a>.
+  The target and background CAGE peaks may either be selected from the FANTOM5 CAGE peak data or supplied as your own "custom" CAGE peaks from some other source. If FANTOM5 CAGE peak data is used, it may be specified by either selecting one or more samples from the FANTOM5 sample ontology tree along with a minimum level of expression of those CAGE peaks within the selected samples or by providing a list of specific FANTOM5 CAGE peak IDs. If custom CAGE peaks are provided, the CAGE peak coordinates are specified in BED format. The background may also be generated as a random set of genomic sequences which are %GC composition and length matched to the target set using the HOMER software (<a href="http://homer.salk.edu/homer" target=_blank>http://homer.salk.edu/homer</a>).
   </p>
-  Varous optonal filters may be provided. For FANTOM5 CAGE peaks, these filters include (1) limiting CAGE peaks to only those classified as TSSs by the FANTOM5 <a href="http://fantom.gsc.riken.jp/5/datafiles/phase1.3/extra/TSS_classifier/TSSpredictionREADME.pdf" target=_blank>TSS classifier</a>, (2) limiting CAGE peaks to only those associated to genes in a provided list of gene identifiers, or (3) limiting the CAGE peak TFBS search regions to only those portions which overlap a provided set of filtering regions. If you use your own CAGE peaks, then only the filtering by a set of regions option is available. If more than one filter is provided then only CAGE peaks and/or portions of the CAGE peak regions which pass ALL the filters or retained.
+  Varous optonal filters may be provided. For FANTOM5 CAGE peaks, these filters include (1) limiting CAGE peaks to only those classified as TSSs by the FANTOM5 TSS classifier (<a href="http://fantom.gsc.riken.jp/5/datafiles/phase1.3/extra/TSS_classifier/TSSpredictionREADME.pdf" target=_blank>http://fantom.gsc.riken.jp/5/datafiles/phase1.3/extra/TSS_classifier/TSSpredictionREADME.pdf</a>), (2) limiting CAGE peaks to only those associated to genes in a provided list of gene identifiers, or (3) limiting the CAGE peak TFBS search regions to only those portions which overlap a provided set of filtering regions. If you use your own CAGE peaks, then only the filtering by a set of regions option is available. If more than one filter is provided then only CAGE peaks and/or portions of the CAGE peak regions which pass ALL the filters or retained.
   <p>
   <p>
-  The TFBS search parameter options include which transcription factor binding site profiles to use, what scoring threshold to apply to these binding sites, how much flanking region to apply around the CAGE peaks in which to search for TFBS and how the results will be displayed. TFBS profiles may be specified by selecting from the set of <a href="jaspar.genereg.net" target=_jaspar>JASPAR</a> CORE vertbrate profiles or by providing your own TFBS profile position frequency matrices (PFMs).
+  The TFBS search parameter options include which transcription factor binding site profiles to use, what scoring threshold to apply to these binding sites, how much flanking region to apply around the CAGE peaks in which to search for TFBS and how the results will be displayed. TFBS profiles may be specified by selecting from the set of <a href="jaspar.genereg.net" target="jaspar">JASPAR</a> CORE vertbrate profiles or by providing your own TFBS profile position frequency matrices (PFMs).
   </p>
-  For each transcription factor (TF), the system uses two different statistical measures of significance of TFBS over-representation. The <a href="#zscore">Z-score</a> compares the number of binding site 'hits' in the target set against the number of hits in the background set, whereas the <a href="#fisher">Fisher score</a> compares the proportion of target sequences (CAGE peak regions) containing at least one TFBS with the proportion of background sequences containing at least one TFBS. The relative rankings of these two scoring methods can thus be used to determine which TFs are considered over-represented in the target set.
+  For each transcription factor (TF), the system uses two different statistical measures of significance of TFBS over-representation. The <a href="#zscore">Z-score</a> compares the number of binding site "hits" in the target set against the number of hits in the background set, whereas the <a href="#fisher">Fisher score</a> compares the proportion of target sequences (CAGE peak regions) containing at least one TFBS with the proportion of background sequences containing at least one TFBS. The relative rankings of these two scoring methods can thus be used to determine which TFs are considered over-represented in the target set.
   </p>
   <p>
-  For a detailed explanation of the various input options and output results formats, please see the <a href="help/option_details.html" target="help_detail">Detailed Description of Input Options and Results</a> page.
+  For a detailed explanation of the various input options and output results formats, please see the <a href="help/option_details.html" target="_self">Detailed Description of Input Options and Results</a> page.
   </p>
 
   <a name="algorithm"></a>
@@ -89,7 +79,7 @@
   </p>
   Any applicable filters you chose are applied. Filters may have been provided for either or both the target and background CAGE peaks. The one exception is, that in the case of a randomly generated %GC composition and length matched background, no filters are applicable. If you chose to filter the CAGE peaks by TSS status, then any CAGE peaks not classified as TSSs by the FANTOM5 TSS classifier are removed from the set. If you chose to limit CAGE peaks to those associated with specific genes, then any CAGE peaks which are not associated with any of the genes provided are filtered out. NOTE: these two filters only apply if you chose FANTOM5 CAGE peaks in the first step. Filtering by genomic regions applies to both FANTOM5 CAGE peaks and your own "custom" CAGE peaks. This filter is applied later in the process as described in the next paragraph.
   <p>
-  CAGEd-oPOSSUM then applies the upstream / downstream flanking regions (chosen in the TFBS search parameters step) to each of the CAGE peaks to create initial CAGE peak regions. CAGE peak regions which overlap are merged together into larger regions. If you chose to filter the CAGE peaks by a set of genomic regions (this option is available for both FANTOM5 CAGE peaks and your own 'custom' CAGE peaks), then these filtering regions are applied and only the portions of the CAGE peak regions which overlap the filtering regions are used in the anlysis, i.e. the intersection of the merged CAGE peak regions and the filtering regions is used as the final set of regions to search for TFBS.
+  CAGEd-oPOSSUM then applies the upstream / downstream flanking regions (chosen in the TFBS search parameters step) to each of the CAGE peaks to create initial CAGE peak regions. CAGE peak regions which overlap are merged together into larger regions. If you chose to filter the CAGE peaks by a set of genomic regions (this option is available for both FANTOM5 CAGE peaks and your own "custom" CAGE peaks), then these filtering regions are applied and only the portions of the CAGE peak regions which overlap the filtering regions are used in the anlysis, i.e. the intersection of the merged CAGE peak regions and the filtering regions is used as the final set of regions to search for TFBS.
   </p>
   <p>
   CAGEd-oPOSSUM then uses the selected TFBS profile matrices to scan these regions for putative binding sites which score above the selected score threshold. By comparing the frequency of TFBS in the target set of CAGE peak regions to the frequency of TFBS in the background set, a measure of the degree of over-representation of each TF's binding sites is obtained. The results display the rankings of the TFs degree of over-representation. Two different statistical tests of over-representation are applied to obtain these rankings, the <a href="#zscore">Z-score</a> and <a href="#fisher">the one-tailed Fisher exact probability</a>. This are described in more detail in the <a href="#statistical_analysis">Statistical Analysis</a> section below.
@@ -101,7 +91,7 @@
   A pre-computation was performed in which flanking regions of 2000 bp (the maximum allowed in the analysis) were applied both up- and downstream of each FANTOM5 CAGE peak. Any overlapping regions which resulted were merged to form a set of maximally spanning non-overlapping regions. The sequences corresponding to these regions were retrieved and scanned with all JASPAR CORE vertebrate TFBS profiles which have an information content (specificity) of at least 8 bits (the minimum allowed in the analysis). The predicted binding sites which had a relative motif score of at least 80% (the minimum allowed in the analysis) were retained and all maximally spanning regions and predicted binding sites were stored in the CAGEd-oPOSSUM database.
   </p>
   <p>
-  For analyses in which you select FANTOM5 CAGE peaks <b>and</b> also choose JASPAR TFBS profiles, the pre-computed TFBS are retrieved directly from the database. For analyses in which you use your own custom CAGE peaks or custom TFBS profiles <b>or</b> in which you use a randomly generated compositionally matched background, CAGEd-oPOSSUM does the computation described above "on-the-fly". Note that the target and background TFBS are computed independently, so it is quite possible that the target set is retrieved from the pre-computed database and the background is computed on-the-fly (or vice versa). Analyses that are able to retrieve pre-computed TFBS stored in the database will generally complete more quickly.
+  For analyses in which you select FANTOM5 CAGE peaks <em>and</em> also choose JASPAR TFBS profiles, the pre-computed TFBS are retrieved directly from the database. For analyses in which you use your own custom CAGE peaks or custom TFBS profiles <em>or</em> in which you use a randomly generated compositionally matched background, CAGEd-oPOSSUM performs the computation described above <em>on-the-fly</em>. Note that the target and background TFBS are computed independently, so it is quite possible that the target set is retrieved from the pre-computed database and the background is computed on-the-fly (or vice versa). Analyses that are able to retrieve pre-computed TFBS stored in the database will generally complete more quickly.
   </p>
 
   <a name="statistical_analysis"></a>
@@ -110,37 +100,36 @@
   <a name="zscore"></a>
   <h3>Z-score</h3>
     <p>
-    The Z-score compares the frequency with which binding sites occur in the target set with the frequencey with which they occur in the background. As a way to allow comparison between transcription factors with differing binding profile widths, the calculation is "normalized" by comparing the frequency of <b>nucleotides which comprise the binding sites</b> rather than just comparing the frequencies of the <b>binding sites</b> themselves.
+    The Z-score compares the frequency with which binding sites occur in the target set with the frequencey with which they occur in the background. As a way to allow comparison between transcription factors with differing binding profile widths, the calculation is "normalized" by comparing the frequency of the nucleotides which comprise the binding sites rather than just comparing the frequencies of the binding sites themselves.
     </p>
     <p>
     Mathematically, the Z-score uses the normal approximation to the binomial distribution to compare the rate of occurrence of TFBS nucleotides in the target set of CAGE peak regions to the expected rate estimated from the background.
     </p>
-    <p class="text">
-    For a given TFBS, let the random variable <b><em>X</em></b> denote the number of 
-    <font color="blue">predicted</font> binding site nucleotides in the target set of CAGE peak regions.  Let <b><em>B</em></b> be the number of predicted binding site nucleotides comprising the <font color="blue">background</font> set of CAGE peak regions.
+    <p>
+    For a given TFBS, let the random variable <var>X</var> denote the number of predicted binding site nucleotides in the target set of CAGE peak regions.  Let <var>B</var> be the number of predicted binding site nucleotides comprising the background set of CAGE peak regions.
     </p>
-    <p>Using a binomial model with <b><em>n</em></b> events, where <b><em>n</em></b> is the total number of nucleotides examined (i.e. the total number of nucleotides in the target CAGE peak regions), and <b><em>N</em></b> is the total number of nucleotides examined from the background CAGE peak regions, then the expected value of <b><em>X</em></b> is <b><em>&mu;</em></b> = <b><em>B</em></b> x <b><em>C</em></b>, where 
-    <b><em>C</em></b> = <b><em>n</em></b> / <b><em>N</em></b> (i.e. <b><em>C</em></b> is the ratio of sample sizes). 
-    Then taking <b><em>P</em></b> = <b><em>B</em></b> / <b><em>N</em></b> as the probability of success, the standard deviation 
+    <p>Using a binomial model with <var>n</var> events, where <var>n</var> is the total number of nucleotides examined (i.e. the total number of nucleotides in the target CAGE peak regions), and <var>N</var> is the total number of nucleotides examined from the background CAGE peak regions, then the expected value of <var>X</var> is <var>&mu;</var> = <var>B</var> x <var>C</var>, where 
+    <var>C</var> = <var>n</var> / <var>N</var> (i.e. <var>C</var> is the ratio of sample sizes). 
+    Then taking <var>P</var> = <var>B</var> / <var>N</var> as the probability of success, the standard deviation 
     is given by:
     <br>
     <br>
-    <b><em>&sigma;</em></b> = sqrt(<b><em>n</em></b> x <b><em>P</em></b> x (1 - <b><em>P</em></b>)).
+    <var>&sigma;</var> = sqrt(<var>n</var> x <var>P</var> x (1 - <var>P</var>))
     <br>
     </p>
-    <p>Now, let <b><em>x</em></b> be the <font color="blue">observed</font> number of binding site nucleotides in the target CAGE peak regions. By applying the Central Limit 
+    <p>Now, let <var>x</var> be the observed number of binding site nucleotides in the target CAGE peak regions. By applying the Central Limit 
     Theorem and using the normal approximation to the binomial distribution with a continuity 
     correction, the z-score is calculated as:
     <br>
     <br>
-    <b><em>z</em></b>&nbsp;=&nbsp;(<b><em>x</em></b>&nbsp;-&nbsp;<b><em>&mu;</em></b>&nbsp;-&nbsp;0.5)&nbsp;/&nbsp;<b><em>&sigma;</em></b>.
+    <var>z</var>&nbsp;=&nbsp;(<var>x</var>&nbsp;-&nbsp;<var>&mu;</var>&nbsp;-&nbsp;0.5)&nbsp;/&nbsp;<var>&sigma;</var>
     </p>
     <br>
 
   <a name="fisher"></a>
   <h3>Fisher score</h3>
     <p>
-    The Fisher score is based on one-tailed Fisher exact probability. In contrast to the z-score, for a given TF, the one-tailed Fisher exact probability compares the proportion of CAGE peak regions containing at least one predicted binding site to the proportion of the background set that contains at least one predicted binding site to determine the probability of a non-random association between the CAGE peak regions and the TF of interest.  It is calculated using the hypergeometric probability distribution that describes sampling without replacement from a finite population consisting of two types of elements. Therefore, the number of times a TFBS occurs in a specific CAGE peak region is disregarded, and instead, the TFBS is considered as either present or absent. Fisher exact probabilities were calculated using the R Statistics package (http://www.r-project.org/). Negative natural logarithms of the probabilities are used as the Fisher scores.
+    The Fisher score is based on one-tailed Fisher exact probability. In contrast to the z-score, for a given TF, the one-tailed Fisher exact probability compares the proportion of CAGE peak regions containing at least one predicted binding site to the proportion of the background set that contains at least one predicted binding site to determine the probability of a non-random association between the CAGE peak regions and the TF of interest.  It is calculated using the hypergeometric probability distribution that describes sampling without replacement from a finite population consisting of two types of elements. Therefore, the number of times a TFBS occurs in a specific CAGE peak region is disregarded, and instead, the TFBS is considered as either present or absent. Fisher exact probabilities were calculated using the R Statistics package (<a href="http://www.r-project.org/" target=_blank>http://www.r-project.org/</a>). Negative natural logarithms of the probabilities are used as the Fisher scores.
     </p>
 
   <a name="results"></a>
@@ -169,19 +158,19 @@
   <a name="detailed_description"></a>
   <h2>Detailed Description of Input Options and Results</h2>
   <p>
-  For a much more detailed description of the input options and results please see the <a href="help/option_details.html" target="help_detail">Detailed Description of Input Options and Results</a> page.
+  For a much more detailed description of the input options and results please see the <a href="help/option_details.html" target="_self">Detailed Description of Input Options and Results</a> page.
   </p>
 
-  <a name="download">Download API</a>
-  <h2>Download API</h2>
+  <a name="download"></a>
+  <h2>Download Software</h2>
   <p>
-  To download the CAGEd-oPOSSUM API please see the <a href="download.html" target="download">Download API</a> page.
+  To download the CAGEd-oPOSSUM software and data please see the <a href="download.html" target="_self">Download</a> page.
   </p>
 
   <a name="faq"></a>
   <h2>FAQ</h2>
   <p>
-  Frequently asked questions page is here: <a href="faq.html" target="faq">FAQ</a>
+  Frequently asked questions page is here: <a href="faq.html" target="_self">FAQ</a>
   </p>
 
 

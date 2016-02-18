@@ -33,7 +33,7 @@
   }
 </style>
 
-<body class="text">
+<body class="doctext">
 
   <a name="top"></a>
 
@@ -130,36 +130,36 @@
   <h4>Select by FANTOM5 sample expression levels</h4>
 
   <p>
-  The target set of CAGE peaks may be specified by selecting one or more FANTOM5 samples along with a minimum level of expression. By selecting a set of one or more FANTOM5 samples and a mimimum expression level, the target set of CAGE peaks will consist of <b>all</b> FANTOM5 CAGE peaks which have <b>at least</b> this level of expression in <b>any</b> of the selected FANTOM5 samples.
+  The target set of CAGE peaks may be specified by selecting one or more FANTOM5 samples along with a minimum level of expression. By selecting a set of one or more FANTOM5 samples and a mimimum expression level, the target set of CAGE peaks will consist of <em>all</em> FANTOM5 CAGE peaks which have <em>at least</em> this level of expression in <em>any</em> of the selected FANTOM5 samples.
   <p>
 
   <p>
-    The FANTOM5 samples are provided as a heirarchical ontology tree. You can expand or collapse branches of the tree by clicking on the small triangles next to the sample name. The lowest level of the tree, the "leaf nodes", contain the individual FANTOM5 sample names. Nodes higher up in the tree describe higher level groupings of those samples. You may select one or more FANTOM5 samples by clicking the checkboxes next to the sample names on the ontology tree. Clicking a checkbox at the lowest level of the hierarchy (a leaf node) chooses that sample only. Clicking on a node higher up in the tree selects all samples below that node. For more infomation on the samples contained in the tree, right click on the item name and "Open Link in New Tab" to open a link to the FANTOM5 Sstar page describing that sample (or higher level group). 
+    The FANTOM5 samples are provided as a heirarchical ontology tree. You can expand or collapse branches of the tree by clicking on the small triangles next to the sample name. The lowest level of the tree, the "leaf nodes", contain the individual FANTOM5 sample names. Nodes higher up in the tree describe higher level groupings of those samples. You may select one or more FANTOM5 samples by clicking the checkboxes next to the sample names on the ontology tree. Clicking a checkbox at the lowest level of the hierarchy (one of the leaf nodes) chooses that sample only. Clicking on a node higher up in the tree selects all samples that are children of that node. For more infomation on the samples contained in the tree, right click on the item name and <kbd>Open Link in...</kbd> to open a new browser link to the FANTOM5 SSTAR page describing that sample (or higher level group). 
   </p>
 
   <p>
-    A convenient search funtion has also been provided to find samples in the tree. Type a term in the search box, e.g. "liver" and hit the "Search Ontology" button (or just hit Enter on your keyboard) and the tree will expand to display all the samples and/or higher level groupings containing the search string and as highlight them in blue. <b>NOTE</b> that the search does not automaticall select (check) the matching samples. You still need to explicitly check the samples you want to use in your analysis. Hitting the "Clear" button will clear the search terms, unhighlight them and collapse the tree. <b>NOTE</b> that any samples you have checked are not automatically unchecked by the Clear button.
+    A convenient search funtion has also been provided to find samples in the tree. Type a term in the search box, e.g. "liver" and click the <span class="text_button">Search ontology</span> button (or just hit <kbd>Enter</kbd> on your keyboard) and the tree will expand to display all the samples and/or higher level groupings containing the search string and as highlight them in blue. <em>PLEASE NOTE</em> that using the search function does not automatically select (check) the samples matching your search term(s). You still need to explicitly check the samples you want to use in your analysis. Hitting the <span class="text_button">Clear</span> button will clear the search terms, unhighlight them and collapse the tree. <em>PLEASE NOTE</em> that any samples you may have checked previously are not automatically unchecked by the <span class="text_button">Clear</span> button.
   </p>
 
   <p>
-  The expression level may be selected in one of two ways, by choosing either the "relative expression" level OR a combination of the "raw tag count" AND the number of "tags per million". Relative expression refers to the log10(relative expression over median). By selecting relative expression, CAGE peaks which have at least this level of relative expression in any of the FANTOM5 samples chosen above will comprise the target set of CAGE peaks. By selecting raw tag count and tags per million to specify the minimum expression level then CAGE peaks which have at least this number of raw tag counts <b>and</b> at least this many tags per million for the selected FANTOM5 sample(s) will comprise the target set of CAGE peaks.
+  The expression level may be selected in one of two ways, by choosing either the "relative expression" level OR a combination of the "raw tag count" AND the number of "tags per million". Relative expression refers to the log10(relative expression over median). By selecting relative expression, CAGE peaks which have at least this level of relative expression in any of the FANTOM5 samples chosen above will comprise the target set of CAGE peaks. By selecting raw tag count and tags per million to specify the minimum expression level then CAGE peaks which have at least this number of raw tag counts <em>and</em> at least this many tags per million for the selected FANTOM5 sample(s) will comprise the target set of CAGE peaks.
 
   <br>
   <a name="select_t_cage_ids"></a>
   <h4>Select specific FANTOM5 CAGE peak IDs</h4>
   <p>
-  Alternatively you may specify the CAGE peaks to use directly by providing a list of CAGE peak IDs. The CAGE peaks ID format is <code>chr:start..end,strand</code>, e.g. chr1:8938736..8938756,-. This can be done in two ways; by either pasting the IDs directly into the text area, or by uploading a file of IDs. The file must be formatted in <em>plain text</em> (no MS Word documents or other more complex formats) with one ID per line. Click the Browse... button to select a file from your compute to upload. For demonstration purposes, clicking the "Use sample FANTOM5 CAGE peak IDs" fills the text box with sample CAGE peak IDs. Use the Clear button to clear the text box.
+  Alternatively you may specify the CAGE peaks to use directly by providing a list of FANTOM5 CAGE peak IDs. The FANTOM5 CAGE peak ID format is <code>chr:start..end,strand</code>, e.g. <code>chr1:8938736..8938756,-</code>. This can be done in two ways; by either pasting the IDs directly into the text area, or by uploading a file of IDs. The file must be formatted in <em>plain text</em> (no MS Word documents or other more complex formats) with one ID per line. Click the <span class="text_button">Browse...</span> button to select a file from your compute to upload. For demonstration purposes, clicking the <kbd>Use sample FANTOM5 CAGE peak IDs</kbd> fills the text box with sample CAGE peak IDs. Use the <span class="text_button">Clear</span> button to clear the text box.
   </p>
 
   <br>
   <a name="select_t_cage_cust"></a>
   <h4>Select custom CAGE peaks</h4>
   <p>
-  Finally, you may select CAGE peaks by pasting or uploading a <a href='http://genome.ucsc.edu/FAQ/FAQformat.html#format1' target=_blank>BED</a> formatted file defining the CAGE peaks. Note that only the first 6 fields specified by the BED file format are required (up to the strand). The score field is not used and can be set to 0. Clicking the "Use sample custom CAGE peaks" button fills the text box with an example BED formatted file. Use the Clear button to clear the text box. If you upload a file with of custom CAGE peaks, then the file must be formatted in <em>plain text</em> (no MS Word documents or other complex formats) with one CAGE peak per line.
+  Finally, you may select CAGE peaks by pasting or uploading a <a href='http://genome.ucsc.edu/FAQ/FAQformat.html#format1' target=_blank>BED</a> formatted file defining the CAGE peaks. Note that only the first 6 fields specified by the BED file format are required (up to the strand). The score field is not used and can be set to 0. Clicking the <span class="text_button">Use sample custom CAGE peaks</span> button fills the text box with an example BED formatted file. Use the <span class="text_button">Clear</span> button to clear the text box. If you upload a file with of custom CAGE peaks, then the file must be formatted in <em>plain text</em> (no MS Word documents or other complex formats) with one CAGE peak per line.
   </p>
   <br>
   <p>
-  Once you have selected your target CAGE peaks, click the "Select target CAGE peak filters" button to progress to the next step which provides you the option to apply one of more filters to the selected CAGE peak data. If you are unhappy with the selections you have made, clicking the <code>Reset</code> button clears the selections from the form and allows you to start again (please note that any samples checked in the FANTOM5 sample ontology tree are not automatically cleared).
+  Once you have selected your target CAGE peaks, click the <span class="text_button">Select target CAGE peak filters</span> button to progress to the next step which provides you the option to apply one of more filters to the selected CAGE peak data. If you are unhappy with the selections you have made, clicking the <span class="text_button">Reset</span> button clears the selections from the form and allows you to start again (please note that any samples checked in the FANTOM5 sample ontology tree are not automatically cleared).
   </p>
 
   <br>
@@ -170,7 +170,7 @@
   </p>
 
   <p>
-  You may apply multiple filering criteria. The filters act in a cumulative manner such that only CAGE peaks and their resulting TFBS search regions which pass <b>all</b> filters are retained for the analysis. For example, if you select all 3 filters, then the CAGE peaks selected in the first step are filtered so that only those CAGE peaks which are classified as TSSs <b>and</b> which are associated to at lease one of the genes in the list of gene identifiers are retained and used to compute an initial set of CAGE peak regions. These regions are then intersected with the filtering regions such that only those portions of the initial CAGE peak regions which overlap with the filtering regions are retained to form the final set of CAGE peak regions searched for TFBS.
+  You may apply multiple filering criteria. The filters act in a cumulative manner such that only CAGE peaks and their resulting TFBS search regions which pass <em>all</em> filters are retained for the analysis. For example, if you select all 3 filters, then the CAGE peaks selected in the first step are filtered so that only those CAGE peaks which are classified as TSSs <em>and</em> which are associated to at lease one of the genes in the list of gene identifiers are retained and used to compute an initial set of CAGE peak regions. These regions are then intersected with the filtering regions such that only those portions of the initial CAGE peak regions which overlap with the filtering regions are retained to form the final set of CAGE peak regions searched for TFBS.
   </p>
 
   <p>
@@ -206,19 +206,19 @@
   <a name="select_b_cage_data"></a>
   <h2>Select Background CAGE Peaks</h2>    
   <p>
-    The same methods for providing target CAGE peaks are also available for selecting background CAGE peaks. Please see the <a href=#select_t_cage_data>Select Target CAGE Peaks</a> section for details. Additionally, you may select to use a random background which is %GC composition and length matched to the target CAGE peak regions. This is the default and helps to reduce biases in the results which may appear when the %GC composition differs of the foreground and background regions differs. See below for more details.
+    The same methods for providing target CAGE peaks are also available for selecting background CAGE peaks. Please see the <a href=#select_t_cage_data>Select Target CAGE Peaks</a> section for details. Additionally, you may select to use a random background which is %GC composition and length matched to the target CAGE peak regions. This is the default and helps to reduce biases in the results which may appear when the %GC composition of the foreground and background regions differs. See below for more details.
   </p>
 
   <br>
   <a name="select_b_cage_mrbg"></a>
   <h4>Use a matched random background</h4>
-  <p>This is selected by default. When this option is selected, a random background is generated to match as closely as possible the %GC composition and length distribution of the foreground CAGE peak regions. This is performed using the <a href="http://homer.salk.edu/homer" target=_blank>HOMER software</a>. <b>Please note</b> the regions generated by HOMER for the random background are not specifically CAGE peaks. Rather HOMER pulls out genomic regions which closely match the sequence composition properties of the target CAGE peak regions. This helps to reduce any biases as a result of sequence composition differences in the foreground and background. For example, if the foreground regions have a higher %GC composition than the background regions, TFBS motifs which are more GC rich will have a tendency to appear more enriched in the foreground. This bias can be ascertained by examining the motif score vs. %GC composition plots generated as part of the results.
+  <p>This is selected by default. When this option is selected, a random background is generated to match as closely as possible the %GC composition and length distribution of the foreground CAGE peak regions. This is performed using the <a href="http://homer.salk.edu/homer" target=_blank>HOMER software</a>. <em>PLEASE NOTE</em> the regions generated by HOMER for the random background are not specifically CAGE peaks. Rather HOMER pulls out genomic regions which closely match the sequence composition properties of the target CAGE peak regions. This helps to reduce any biases as a result of sequence composition differences in the foreground and background. For example, if the foreground regions have a higher %GC composition than the background regions, TFBS motifs which are more GC rich will have a tendency to appear more enriched in the foreground. This bias can be ascertained by examining the motif score vs. %GC composition plots generated as part of the results. Please refer to <a href="http://www.ncbi.nlm.nih.gov/pubmed/24927817" target=_blank>Worsley Hunt et al</a> for an in depth discussion of this issue.
   </p>
   <p>
-  As this is the best way to ensure that biases due to %GC composition mismatches are reduced, this is the recommended way to provide the background. Please note however that generating the background is quite computationally intensive and will result in longer analysis times. Additionally, a side affect of using a random background is that it requires the background TFBS search to be performed on-the-fly rather than taking advantage of the pre-computed TFBS set even when the pre-computed JASPAR profiles are selected later in the Select TFBS Profiles step which also increases to analysis time.
+  As this is the best way to ensure that biases due to %GC composition mismatches are reduced, this is the recommended way to provide the background. Please note however that generating the background is quite computationally intensive and will result in longer analysis times. Additionally, a side affect of using a random background is that it requires the background TFBS search to be performed on-the-fly rather than taking advantage of the pre-computed TFBS set even when the pre-computed JASPAR profiles are selected later in the <a href=#select_profiles>Select TFBS Profiles</a> step which also adds to analysis time.
   </p>
   <p>
-  If you publish any work which includes analyses where HOMER generated random backgrounds were used, please also cite HOMER (see the Citing section on the main help page).
+  If you publish any work which includes analyses where HOMER generated random backgrounds were used, please also cite HOMER (see the <a href="../help.html#citing" target="_self">Citing CAGEd-oPOSSUM</a> section on the main help page).
   </p>
   <br>
 
@@ -240,7 +240,7 @@
   <a name="select_b_cage_filters"></a>
   <h2>Select Background CAGE Peak Filters</h2>    
   <p>
-    <b>Please note</b> that if you select a random background in the Select Background CAGE peaks step, then CAGE peak filters do not apply and this step is skiipped.
+    <em>PLEASE NOTE</em> that if you select a random background in the Select Background CAGE peaks step, then CAGE peak filters do not apply and this step is skiipped.
   </p>
   <p>
     Otherwise, the same choices are provided for selecting background CAGE peak filters as for target CAGE peak filters. Please see the <a href=#select_t_cage_filters>Select Target CAGE Peak Filters</a> section for details.
@@ -272,56 +272,57 @@
 	<a name="select_profiles"></a>
   <h3>Select TFBS Profiles</h3>
   <p>
-  You may select TFBS profiles by choosing ones from the <a href="jaspar.genereg.net" target=_blank>JASPAR</a> collection of curated TFBS profiles or by supplying your own custom matrices. If you choose JASPAR profiles, the binding sites have been pre-computed and stored in the CAGEd-oPOSSUM database. If you use your own custom profile matrices then the binding sites are computed on-the-fly, although note that other parameter selections may cause parts of the analysis to be computed on-the-fly regardles of whether pre-computed profiles are used. For example, choosing to use a random background results in the background TFBS search to be performed on-the-fly regardles regardles of the TFBS profile selection method. Generally, analyses performed with custom profiles will take longer than analyses performed with the pre-computed JASPAR binding sites.
+  You may select TFBS profiles by choosing ones from the <a href="http://jaspar.genereg.net" target="jaspar">JASPAR</a> collection of curated TFBS profiles or by supplying your own custom matrices. If you choose JASPAR profiles, the binding sites have been pre-computed and stored in the CAGEd-oPOSSUM database. If you use your own custom profile matrices then the binding sites are computed on-the-fly, although note that other parameter selections may cause parts of the analysis to be computed on-the-fly regardles of whether pre-computed profiles are used. For example, choosing to use a random background results in the background TFBS search to be performed on-the-fly regardles regardles of the TFBS profile selection method. Generally, analyses performed with custom profiles will take longer than analyses performed with the pre-computed JASPAR binding sites.
   </p>
     
   <br>
 	<a name="jaspar_core"></a>
   <h4>JASPAR CORE Profiles</h4>
-	<p>The matrices used to pre-compute binding sites in CAGEd-oPOSSUM were obtained from the 2016 release of the <a href="http://jaspar.genereg.net/" target="_blank">JASPAR</a> database. This pre-computed set includes all JASPAR CORE vertebrates profiles with a minimum specificity of 8 bits. You may use the entire pre-computed set or a selected subset of the profiles.
+	<p>The matrices used to pre-compute binding sites in CAGEd-oPOSSUM were obtained from the 2016 release of the <a href="http://jaspar.genereg.net/" target="jaspar">JASPAR</a> database. This pre-computed set includes all JASPAR CORE vertebrates profiles with a minimum information content (specificity) of 8 bits. You may use the entire pre-computed set or a selected subset of the profiles.
 	</p>
     <p>
 	  The default setting is to use the entire set JASPAR 2016 CORE vertebrate profiles with a minimum specificity of 8 bits. The specificity is also known as the information content (IC). Loosely defined, the IC combines the length and the complexity of the motif into a value that describes what we know collectively about the sequences a TF recognizes. The minimum specificity of 8 bits was chosen because TF matrices with IC of less than 8 bits are relatively uninformative for scoring DNA sequence. If you choose to threshold matrices with a higher specificity, you are limiting your analyses to matrices with stronger, more selective patterns. In general, it is not necessary to use a threshold higher than 8 bits unless you have specific requirements, as you may later filter your final results by specificity (the IC column of the results table). The only advantage of using a higher threshold is that it will generally result in a faster compute time, although other parameter choices can have a much greater impact on this.
 	</p>
   <p>
-  You may also select a specific set of TFBS profiles by choosing one or more TFBS profiles from the scrollable list. Click on an individual TF to select it. You may select multiple profiles using the <code>Ctrl</code> or <code>Shift</code> Keys. You can select a group of profiles by clicking on one, then holding down the <code>Shift</code> key and clicking another which selects all profiles between the two click points. By holding the <code>Ctrl</code> key down while clicking, each profile clicked will be selected.
+  You may also select a specific set of TFBS profiles by choosing one or more TFBS profiles from the scrollable list. Click on an individual TF to select it. You may select multiple profiles using the <kbd>Ctrl</kbd> or <kbd>Shift</kbd> keys. You can select a group of profiles by clicking on one, then holding down the <kbd>Shift</kbd> key and clicking another which selects all profiles between the two click points. By holding the <kbd>Ctrl</kbd> key down while clicking, each profile clicked will be selected.
 	</p>
 	
   <br>
 	<a name="custom_profiles"></a>
   <h4>Custom TFBS Profiles</h4>
 	<p>To use custom TFBS profiles, you may either paste in or upload a file containing your own set of custom TFBS profile matrices. The matrices must be in one of the following formats, e.g.:
-	</p>
-	<p>
-  <pre>
-  > NFE2L2
+  </p>
+
+  <pre><kbd>
+  &gt; NFE2L2
   A  [10  0  0 20  0  6  5 16  0  0 15 ]
   C  [ 1  0  0  0 17  2 10  0  0 20  2 ]
   G  [ 9  0 19  0  1  1  1  2 20  0  2 ]
   T  [ 0 20  1  0  2 11  4  2  0  0  1 ]
-  </pre>
-  OR simply
-  <pre>
-  > NFE2L2
+  </pre></kbd>
+
+  or simply
+  <pre><kbd>
+  &gt; NFE2L2
   10  0  0 20  0  6  5 16  0  0 15
    1  0  0  0 17  2 10  0  0 20  2
    9  0 19  0  1  1  1  2 20  0  2
    0 20  1  0  2 11  4  2  0  0  1
-  </pre>
-	</p>
+  </kbd></pre>
 
-  <p>NOTE that the header line of the matrix format may contain just a name or an ID and a name separated by space, e.g.:</p>
+  <p>
+  NOTE that the header line of the matrix format may contain just a name or an ID and a name separated by space, e.g.:
+  </p>
 
-  <p>either</p>
-  <pre>
-  > NFE2L2
-  </pre>
+  either
+  <pre><kbd>  &gt; NFE2L2</kbd></pre>
 
-  <p>or</p>
-  <pre>
-  > MA0150 NFE2L2
-  </pre>
-  <p>The latter replicates the JASPAR format but is not necessary. If only a name is provided then the name will appear in both the "TF" and "TF ID" columns in the results table</p>
+  or
+  <pre><kbd>  &gt; MA0150 NFE2L2</kbd></pre>
+
+  <p>
+  The latter replicates the JASPAR format but is not necessary. If only a name is provided then the name will appear in both the "TF" and "TF ID" columns in the results table
+  </p>
   
   <br>
   <a name="search_criteria"></a>
@@ -370,21 +371,21 @@
   <br>
   <a name="homer_motif_analysis"></a>
 	<h4>Also run HOMER motif analysis</h4>
-	<p>If this box is checked then a <a href="http://homer.salk.edu/homer" target=_blank>HOMER</a> motif overrepresentation analysis is performed. For this analysis the defined HOMER motifs are used with their pre-defined default thresholds. The main results page will contain a link to the HOMER results. For more information on HOMER motif analysis please visit the HOMER homer page <a href="http://homer.salk.edu/homer" target=_blank>here</a>.
+	<p>If this box is checked then a <a href="http://homer.salk.edu/homer" target=_blank>HOMER</a> motif overrepresentation analysis is performed. For this analysis the defined HOMER motifs are used with their pre-defined default thresholds. The main results page will contain a link to the HOMER results. For more information on HOMER motif analysis please visit the HOMER page at <a href="http://homer.salk.edu/homer" target=_blank>http://homer.salk.edu/homer</a>.
 	</p>
   <p>
-  If you perform any HOMER motif overrepresentation analyses and use the results in a published work, please also cite HOMER (see the Citing section on the main help page).
+  If you perform any HOMER motif overrepresentation analyses and use the results in a published work, please also cite HOMER (see the <a href="../help.html#citing" target="_self">Citing CAGEd-oPOSSUM</a> section on the main help page).
   </p>
 
   <br>
   <a name="email_address"></a>
 	<h4>Email address</h4>
   <p>
-  Once you are satisfied with your chosen TFBS search parameters, you must enter your email address to receive notification of when the analysis has completed. Your email address is not used for any other purpose than to send you this notification. Once you have entered a valid email address click the <code>Perform analysis</code> button to execute the analysis.
+  Once you are satisfied with your chosen TFBS search parameters, you must enter your email address to receive notification of when the analysis has completed. Your email address is not used for any other purpose than to send you this notification. Once you have entered a valid email address click the <span class="text_button">Perform analysis</span> button to execute the analysis.
   </p>
 
   <p>
-  The <code>Reset</code> button will clear all TFBS search parameter values.
+  The <span class="text_button">Reset</span> button will clear all TFBS search parameter values.
   </p>
 
   <br>
@@ -394,7 +395,7 @@
   <a class="section_head">Analysis Summary</a>
   <br>
   <p>
-  After you hit the <code>Perform analysis</code> button an analysis summary page is displayed in a new browser tab. This notifies you of your job ID and summarizes the criteria selected for the analysis.
+  After you hit the <span class="text_button">Perform analysis</span> button an analysis summary page is displayed in a new browser tab. This notifies you of your job ID and summarizes the criteria selected for the analysis.
   </p>
   
   <p>
@@ -406,7 +407,7 @@
 
   <a class="section_head" name="notification_email">Notification Email</a>
   <p>
-  Once your analysis is complete an email will be sent to the email address you provided with a link to your analysis results. The email also gives a summary of the analysis parameters you provided similar to what is displayed on the Analysis Summary page. If for any reason you do not receive the email notification in a reasonable time it is possible that the job failed silently for some reason. In this case, please use the <a href="http://cagedop.cmmt.ubc.ca/CAGEd_oPOSSUM_dev/contact.html">Contact</a> page to notify us so we can investigate. Please provide the Job ID in your email correspondence.
+  Once your analysis is complete an email will be sent to the email address you provided with a link to your analysis results. The email also gives a summary of the analysis parameters you provided similar to what is displayed on the Analysis Summary page. If for any reason you do not receive the email notification in a reasonable time it is possible that the job failed silently for some reason. In this case, please use the <a href="../contact.html">Contact</a> page to notify us so we can investigate. Please provide the Job ID in your email correspondence.
   </p>
 	  
   <br>
@@ -422,14 +423,14 @@
   <br>
   <h3><a name="results_summary"></a>Summary</h3>
   <p>
-  This section summarizes the analysis parameters that were chosen including the source of the CAGE peaks, which transcription factors were selected, the matrix score threshold, the amount of flanking sequence etc. It also provides the final number of CAGE peak regions analysized once flanking regions are added to the individual CAGE peaks and the regions are merged and any optional filtering is performed. See <a href="../help.html#algorithm" target="help">Basic Algorithm</a> for more details on this merging and filtering of CAGE peaks regions.
+  This section summarizes the analysis parameters that were chosen including the source of the CAGE peaks, which transcription factors were selected, the matrix score threshold, the amount of flanking sequence etc. It also provides the final number of CAGE peak regions analysized once flanking regions are added to the individual CAGE peaks and the regions are merged and any optional filtering is performed. See <a href="../help.html#algorithm" target="_self">Basic Algorithm</a> for more details on this merging and filtering of CAGE peaks regions.
   </p>
 	
   <br>
   <h3><a name="results_table"></a>Analysis Results Table</h3>
     
 	<p>For a general explanation of what the oPOSSUM analysis results mean, please
-	refer to the main <a href="../help.html#results" target="help">help page</a>.</p>
+	refer to the <a href="../help.html#results" target="_self">Understanding the Results</a> section on the main CAGEd-oPOSSUM help page.</p>
 	
 	<p>
   The results table contains the ranked list of overrepresented TFBS motifs. Results of both the Z-score and Fisher analyses appear in the last two columns. The results table is initially ordered by either Z-score or Fisher score (depending on which was selected in the "Sort results by" option) from most to least significant (higher to lower score). The table can be re-sorted by any other column by clicking on the column header. If there are no TFBS found in the background CAGE peak regions for a specific motif, this is highlighted in red and a general warning message will also appear before the table. Other factors that may affect the rankings of a particular TF in the results such as whether a TFBS profile has a particularly high information content (specificity) or a particularly high or low GC composition are also highlighted in red. The table columns are described in detail below.
@@ -442,7 +443,7 @@
   <br>
 	<h4><a name="jaspar_id"></a>TF / JASPAR ID</h4>
 	<p>
-  The TFBS profile ID. If the TFBS profiles came from JASPAR then this column is named "JASPAR ID" and the JASPAR matrix ID is displayed here, e.g. 'MA0150.2'. Clicking on the matrix ID links to the <a href="http://jaspar.genereg.net" target=_blank>JASPAR</a> summary page for this TFBS profile.
+  The TFBS profile ID. If the TFBS profiles came from JASPAR then this column is named "JASPAR ID" and the JASPAR matrix ID is displayed here, e.g. 'MA0150.2'. Clicking on the matrix ID links to the <a href="http://jaspar.genereg.net" target="jaspar">JASPAR</a> summary page for this TFBS profile.
   </p>
 	<p>
   If custom matrices were entered instead, this column is labelled "TF ID". If the header format of the custom matrices contained an ID and a name, the TF ID is shown here and the name is shown in the "TF" column. If only an ID or name was given then the "TF" and "TF ID" columns will contain the same information. 
@@ -450,11 +451,11 @@
 	
   <br>
 	<h4><a name="tf_class"></a>Class</h4>
-    <p>The class of transcription factors to which this particular TF belongs, e.g. "Basic leucine zipper factors (bZIP)". This follows the heirarchical classification based on DBD characteristics as defined by <a href="http://tfclass.bioinf.med.uni-goettingen.de/tfclass" target=_blank>TFClass</a>. This only applies to JASPAR profiles.</p>
+    <p>The class of transcription factors to which this particular TF belongs, e.g. "Basic leucine zipper factors (bZIP)". This follows the heirarchical classification based on DBD characteristics as defined by <a href="http://tfclass.bioinf.med.uni-goettingen.de/tfclass" target=_blank>TFClass</a>. This only applies if you selected to use the pre-computed set of TFBS based on JASPAR profiles.</p>
 	
   <br>
   <h4><a name="tf_family"></a>Family</h4>
-	<p>The family of transcription factors to which this particular TF belongs, e.g. "Jun-related factors". This follows a heirarchical classification based on DBD characteristics as defined by the <a href="http://tfclass.bioinf.med.uni-goettingen.de/tfclass" target=_blank>TFClass</a> framework. This only applies to JASPAR profiles.</p>
+	<p>The family of transcription factors to which this particular TF belongs, e.g. "Jun-related factors". This follows a heirarchical classification based on DBD characteristics as defined by the <a href="http://tfclass.bioinf.med.uni-goettingen.de/tfclass" target=_blank>TFClass</a> framework. This only applies if you selected to use the pre-computed set of TFBS based on JASPAR profiles.</p>
 	
   <br>
 	<h4><a name="tax_group"></a>Tax group</h4>
@@ -522,13 +523,13 @@
   <br>
 	<h4><a name="zscore"></a>Z-score</h4>
 	<p>
-	The Z-score measures the likelihood that the total number of predicted TFBS in the target CAGE peak regions is significant when compared with the total number of predicted TFBS in the background CAGE peak regions. It computes the ratio of the total number of nucleotides within predicted binding sites to the total number of nucleotides in the CAGE peaks regions for both the target and background set and compares these two ratios. The Z-score is expressed in units of magnitude of the standard deviation. For a more detailed description of the Z-score calculation please see the <a href="http://cagedop.cmmt.ubc.ca/CAGEd_oPOSSUM/help.html#zscore" target=_help>Z-score</a> description under the <a href="http://cagedop.cmmt.ubc.ca/CAGEd_oPOSSUM/help.html#statistical_analysis" target=_help>Statistical Analysis</a> section of the main help page.
+	The Z-score measures the likelihood that the total number of predicted TFBS in the target CAGE peak regions is significant when compared with the total number of predicted TFBS in the background CAGE peak regions. It computes the ratio of the total number of nucleotides within predicted binding sites to the total number of nucleotides in the CAGE peaks regions for both the target and background set and compares these two ratios. The Z-score is expressed in units of magnitude of the standard deviation. For a more detailed description of the Z-score calculation please see the <a href="../help.html#zscore" target="_self">Z-score</a> description under the <a href="../help.html#statistical_analysis" target="_self">Statistical Analysis</a> section of the main help page.
 	</p>
     
   <br>
 	<h4><a name="fisher_score"></a>Fisher score</h4>
 	<p>
-	The Fisher score takes the likelihood that the difference in the ratio of the number of target CAGE peak regions containing at least one predicted binding site and the number of target CAGE peak regions that do not contain any predicted binding sites could have occured by random chance as compared to the same ratio of predicted binding sites in the background CAGE peak regions. The Fisher score is actually given as the negative natural logarithm of the Fisher p-value. For a more detailed description of the Fisher calculation please see the <a href="http://cagedop.cmmt.ubc.ca/CAGEd_oPOSSUM/help.html#fisher" target=_help>Fisher Score</a> description under the <a href="http://cagedop.cmmt.ubc.ca/CAGEd_oPOSSUM/help.html#statistical_analysis" target=_help>Statistical Analysis</a> section of the main help page.
+	The Fisher score takes the likelihood that the difference in the ratio of the number of target CAGE peak regions containing at least one predicted binding site and the number of target CAGE peak regions that do not contain any predicted binding sites could have occured by random chance as compared to the same ratio of predicted binding sites in the background CAGE peak regions. The Fisher score is actually given as the negative natural logarithm of the Fisher p-value. For a more detailed description of the Fisher calculation please see the <a href="../help.html#fisher" target="_self">Fisher Score</a> description under the <a href="../help.html#statistical_analysis" target="_self">Statistical Analysis</a> section of the main help page.
 	</p>
 
   <br>

@@ -78,46 +78,73 @@ h6 {
 	font-family: Verdana, Arial, Helvetica, sans-serif; 
 	font-size: 12px;
 }
+
+.doctext {
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	font-size: 14px;
+}
+
 .subtext {
 	font-family: Verdana, Arial, Helvetica, sans-serif; 
 	font-size: 10px;
 }
+
 .seqtext {
 	font-family: Courier; 
 	font-size: 12px; 
 }
+
 .menu {
 	font-family: Verdana, Arial, Helvetica, sans-serif; 
 	font-size: 14px; 
 	font-weight: bold; 
 	cursor: text;
 }
+
 .table_title {
 	font-family: Verdana, Arial, Helvetica, sans-serif; 
 	font-size: 12px; 
 	font-style: normal; 
 	font-weight: bold; color: #000000;
 }
+
 .table_text {
-	font-family: Verdana, Arial, Helvetica, sans-serif; 
-	font-size: 10px; 
-	font-style: normal; 
-	font-weight: normal; 
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	font-style: normal;
+	font-weight: normal;
 	color: #000000;
 }
+
 .warn_text {
-	font-family: Verdana, Arial, Helvetica, sans-serif; 
-	font-size: 12px; 
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
 	color: #FF0000;
 }
+
 .warn_table_text {
-	font-family: Verdana, Arial, Helvetica, sans-serif; 
-	font-size: 10px; 
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
 	color: #FF0000;
 }
+
+/*
+ * This was an attempt to make a piece of text look like a form button.
+ * To be used for documentation in the help pages when referring to buttons.
+ */
+span.text_button {
+	font-family: monospace;
+	border-radius: 3px;
+	font-size: inherit;
+	border:1px solid gray;
+	padding: 2px 7px 2px 7px;
+	background: linear-gradient(#fff, #eee);
+}
+
 a img {
 	border: 0;
 }
+
 table.sortable {
 	border-spacing: 0;
 	border-style: solid;
@@ -128,6 +155,7 @@ table.sortable {
 	/* width: 100%; */
 	margin: 0 auto;
 }
+
 table.sortable th, table.sortable td {
 	padding: 2px 4px 2px 4px;
 	width: 100px;
@@ -135,31 +163,42 @@ table.sortable th, table.sortable td {
 	border-color: #aaa;
 	font-size: 11px;
 }
+
 table.sortable th {
 	border-width: 1px 1px 1px 1px;
 	background-color: #ddd;
 }
+
 table.sortable th a {
 	text-decoration: none;
 	color: #000;
 }
+
 table.sortable td {
 	border-width: 1px;
 }
+
 table.sortable tr.odd td {
 	background-color: #fff;
 }
+
 table.sortable tr.even td {
 	background-color: #eee;
 }
+
 table.sortable tr.sortbottom td {
 	border-width: 1px 1px 1px 1px;
 	background-color: #ccc;
 	font-weight: bold;
 }
 
-code {
+pre {
+	font-size: 12px;
 	background-color: #eee;
-	color: black;
-	padding: 5px 20px 5px 20px;
+	padding: 5px 10px 5px 10px;
+}
+
+kbd {
+	background-color: #eee;
+	padding: 0px 5px 0px 5px;
 }
