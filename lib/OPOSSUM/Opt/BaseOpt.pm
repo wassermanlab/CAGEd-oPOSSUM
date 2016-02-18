@@ -1,8 +1,9 @@
 #
-# oPOSSUM DB Access
+# CAGEd-oPOSSUM DB Access
 #
-# The species name is dynamically appended to OPOSSUM_DB_NAME for full
-# oPOSSUM DB name, e.g. oPOSSUM3_human
+# NOTE: When either human or mouse analysis is chosen, the software
+# automatically appends species name to the OPOSSUM_DB_NAME to dynamically
+# generate the actual CAGEd-oPOSSUM DB name, e.g. CAGEd_oPOSSUM3_human
 #
 use constant OPOSSUM_DB_HOST    => 'cagedop.cmmt.ubc.ca';
 use constant OPOSSUM_DB_NAME    => 'CAGEd_oPOSSUM';
@@ -12,7 +13,7 @@ use constant OPOSSUM_DB_PASS    => '';
 #
 # XXX
 # The definitions commented out below were not getting included properly!
-# No idea why. So defined these explicityl in the modules which use them,
+# No idea why. So defined these explicitly in the modules which use them,
 # e.g. lib/OPOSSUM/Tools/SearchRegionTool.pm. Please update these paths in
 # those modules to your local paths where these are installed.
 # This is not really ideal...
