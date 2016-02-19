@@ -346,7 +346,7 @@ sub plot
     # way. DJA 2016/1/22
     #
     foreach my $cmd (@R_cmds) {
-        $logger->info("Running R command: $cmd") if $logger;
+        #$logger->info("Running R command: $cmd") if $logger;
 
         my $out;
         eval {
