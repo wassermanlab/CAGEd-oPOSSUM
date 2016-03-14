@@ -24,7 +24,7 @@ use constant RESULTS_TEXT_FILENAME      => 'results.txt';
 use constant RESULTS_HTDOCS_FILENAME    => 'results.html';
 use constant FISHER_PLOT_FILENAME       => 'fisher_vs_gc.png';
 use constant ZSCORE_PLOT_FILENAME       => 'zscore_vs_gc.png';
-use constant KS_PLOT_FILENAME           => 'ks_vs_gc.png';
+use constant KS_PLOT_FILENAME           => 'ks_vs_gc.png';  # not used
 
 #
 # oPOSSUM system paths
@@ -130,7 +130,7 @@ use constant DFLT_PEAK_DIST_DISTRIBUTION => 'punif';
 
 # temp. file cleanup no. of days
 use constant REMOVE_TEMPFILES_OLDER_THAN    => 30;
-use constant REMOVE_RESULTFILES_OLDER_THAN  => 90;
+use constant REMOVE_RESULTFILES_OLDER_THAN  => 30;
 
 use constant DEBUG          => 0;
 

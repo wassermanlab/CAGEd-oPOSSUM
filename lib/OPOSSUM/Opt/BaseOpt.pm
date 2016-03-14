@@ -3,7 +3,7 @@
 #
 # NOTE: When either human or mouse analysis is chosen, the software
 # automatically appends species name to the OPOSSUM_DB_NAME to dynamically
-# generate the actual CAGEd-oPOSSUM DB name, e.g. CAGEd_oPOSSUM3_human
+# generate the actual CAGEd-oPOSSUM DB name, e.g. CAGEd_oPOSSUM_human
 #
 use constant OPOSSUM_DB_HOST    => 'cagedop.cmmt.ubc.ca';
 use constant OPOSSUM_DB_NAME    => 'CAGEd_oPOSSUM';
