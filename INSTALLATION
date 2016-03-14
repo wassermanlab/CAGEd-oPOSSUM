@@ -3,7 +3,7 @@ CAGEd-oPOSSUM Installation
 
 This file contains instructions for installing your own local copy of
 CAGEd-oPOSSUM. This is not necessary if you just want to use the CAGEd-oPOSSUM
-tool at http://cagedop.cmmt.ubc.ca/CAGEd_oPOSSUM.
+web-based tool at http://cagedop.cmmt.ubc.ca/CAGEd_oPOSSUM.
 
 CAGEd-oPOSSUM was developed and tested in a Linux environment, specifically
 CentOS and Ubuntu. We do not provide any instructions or support if you wish
@@ -15,40 +15,49 @@ libraries, programs and databases that are required by CAGEd-oPOSSUM.
 The steps listed below depend on the type of installation that is required,
 i.e. whether you are just planning to run a stand-alone analysis by connecting
 to the Wasserman lab databases, or wether you want to do a full install
-including the web interface and local copies of the databases.
+including the web interface and local copies of the databases, or something
+in between.
 
 1) The code is available on GitHub at:
 
-	https://github.com/wassermanlab/CAGEd-oPOSSUM
+        https://github.com/wassermanlab/CAGEd-oPOSSUM
 
-   It is also available for download as a compressed tar file by clicking
-   Download link on the CAGEd-oPOSSUM website at:
+   It is also available for download as a compressed tar file by going to the
+   Download page on the CAGEd-oPOSSUM website at:
    
-   	http://cagedop.cmmt.ubc.ca/CAGEd_oPOSSUM/download.html
+        http://cagedop.cmmt.ubc.ca/CAGEd_oPOSSUM/download.html
 
    Download the code from GitHub or the CAGEd-oPOSSUM website and uncompress
-   it as necessary into the local directory you want to use. From here on
-   this will be referred to as [$COPHOME].
+   it as necessary into the local directory you want to use,
+
+   e.g. /apps/CAGEd_oPOSSUM.
+   
+   This directory will be referred to as $COHOME.
 
    If you just want to run the stand-alone analysis script, it is located
-   in (path relative to wherever you downloaded/installed the software):
+   in:
 
-   	[$COPHOME]/scripts/integrated_ssa.pl
+        $COHOME/scripts/integrated_ssa.pl
 
-   Our own installation required a particular version of perl, so you will
-   probably need to modify the perl directive on the first line of the script
-   (the line starting with "#!") to reflect your local perl set up.
+   NOTE that CAGEd-oPOSSUM needs perl version of at least 5.10. In our local
+   installation this required specifying a newer perl version to override
+   our default installed version which was too old. You will need to change
+   directive on the first line of the script:
+
+        #!/usr/bin/env perl5.14
+   
+   As long as your default perl version is >= 5.10 you can just change this to:
+
+        #!/usr/bin/env perl
+
+   Otherwise you will need to specifiy an alternate newer installed version of
+   perl.
 
    You will also probably need to change some settings in the options file:
 
-	[$COPHOME]/lib/OPOSSUM/Web/Opt/BaseOpt.pm
+        $COHOME/lib/OPOSSUM/Web/Opt/BaseOpt.pm
 
-   Particularly you will need to edit some paths to reflect your local setup.
-   The 
-   Some of the settings are only used when CAGEd-oPOSSUM is run in web context
-
-   This script had *many* options. There is internal documentation describing
-   these in a fair amount of detail.
+   Please see the "Configuring CAGEd-oPOSSUM Option Files" section below.
 
    If you are only planning to do a few analyses at a time, it is acceptable
    to use this script "as is" and have it retrieve necessary data from
@@ -58,8 +67,91 @@ including the web interface and local copies of the databases.
    Lab Databases" section further down. You may also need to do this if
    you find you are haveing any connection issues to our databases from your
    locale.
-   
-2) Install the HOMER software. This is only required if you wish to use
+
+   The script itself has *many* options. The script contains internal
+   documentation describing these in a fair amount of detail.
+
+   A typical usage of the script would be:
+
+        $COHOME/scripts/integrated_ssa.pl -j COPJOB1 -m <my_email>@<my_domain> -s human -dir $COHOME/analysis/results/COPJOB1 -plot -txids FF:11881-125C9,FF:11871-125B8,FF:11861-125A7 -trex 1 -tto -brand -co CORE -tax vertebrates -ic 8 -up 500 -dn 500 -th 0.85 -n All -hma -sr fisher_p_value
+
+   where the options indicate:
+        -j = Assign the job ID COPJOB1 to this job. Used for identifying the
+             job. This appears in the summary section of the HTML results page
+             and also within the email notification messages.
+
+        -m = Your email address. Sends an email to you notifying when the job
+             is complete. Generally used for web-based CAGEd-oPOSSUM.
+
+        -s = The species name, either 'human' or 'mouse'. Required when running
+             CAGEd-oPOSSUM with the pre-computed binding sites retrieved from
+             the CAGEd_oPOSSUM_human or CAGEd_oPOSSUM_mouse database.
+
+        -dir = The directory where the analysis results files will be written.
+               If it does not already exist the script will attempt to create
+               it. NOTE that is only creates the lowest level directory so the
+               parent path must exist.
+
+        -plot = Create the Z-score and Fisher score vs. %GC composition plots.
+                These plots display the distribution of scores for the
+                transcription factors binding site motifs. Motifs whose scores
+                fall above the default threshold are labelled. This helps in
+                visually determining significance. These plots are also very
+                useful in alerting you to any %GC composition biases that may
+                have affected the analysis by observing any skew in the plots.
+
+        -txids = There are several different methods of specifying the CAGE
+                 peaks to be used in the foreground. This specific option
+                 is used to to supply a comma-separated list of FANTOM5 sample
+                 IDs.
+
+        -trex = Specifies that CAGE peaks with at least this relative
+                expression level for any of the FANTOM5 samples provided with
+                the -txids option be used to define the CAGE peak TFBS search
+                regions used in the analysis.
+
+        -tto = Filter CAGE peaks so that only CAGE peaks flagged as TSSs by
+               the FANTOM5 peak classifier be included in the analysis.
+
+        -brand = Generate a random background set of genomic regions to closely
+                 match the %GC composition and length distribution of the
+                 foreground CAGE peak regions being analyzed. Uses the HOMER
+                 software to accomplish this.
+
+        -co = Specify which JASPAR collection to use. The database of
+              pre-computed binding sites is created using the JASPAR CORE
+              collection. The default is "CORE".
+
+        -tax = Only applies if the collection used is JASPAR CORE. Specify
+               which JASPAR CORE collection taxonomic supergroups to use.
+               One or more tax groups may be specified as a comma-separated
+               list.
+
+        -ic = Only use TFBS profiles with at least this level of information
+              content (specificity).
+
+        -up = Apply this amount of upstream flanking sequence to the CAGE peaks
+              when computing the regions to search for TFBS.
+
+        -dn = Apply this amount of downstream flanking sequence to the CAGE
+              peaks when computing the regions to search for TFBS.
+
+        -th = TFBS score threshold. Report TFBS positions which have at least
+              this relative matrix score.
+
+        -n = Only the top N scoring motifs are reported in the results based
+             on the selected score sort order as specified by the -sr option.
+             The default is 'All'. There is not real advantage in setting this
+             to anything else than 'All'.
+
+        -hma = If specified also run the HOMER motif analysis on the CAGE peak
+               regions.
+
+        -sr = Specifies whether to sort the results from high to low by either
+              the Fisher or Z-score. The default is to sort by the Fisher
+              score.
+
+2) Install the HOMER software. This is required if you wish to use
    the %GC composition and length matched random background option or if
    you want to also run the HOMER motif analysis.
 
@@ -68,18 +160,27 @@ including the web interface and local copies of the databases.
    From here on, this document will assume you have installed HOMER under
    /apps/Homer.
 
+   NOTE that HOMER itself has several dependencies such as weblogo and
+   ghostscript which you will also need to install.
+
 3) Install the CAGEd-oPOSSUM databases. This is only necessary if you are
    planning to do a lot of analyses. For light use, you may just connect
-   to the Wasserman lab databases. Please see Accessing / Downloading
-   Wasserman Lab Databases for details on these two options.
+   to the Wasserman lab databases. Please see the Accessing / Downloading
+   Wasserman Lab Databases section below for details on these two options.
 
-2) For web-based oPOSSUM, set up symbolic links from your webserver htdocs and
-   cgi-bin directories. For example if you have installed oPOSSUM in 
-   [$COPHOME]/apps/oPOSSUM3 then assuming you are using the Apache server installed in
-   /usr/local/apache you would use something like the following:
+The rest of the installation steps below are generally only required if you
+plan to install your own local copy of the CAGEd-oPOSSUM webtool. You will
+also need to edit the CAGEd-oPOSSUM option files. See the
+"Configuring CAGEd-oPOSSUM Option Files" section below.
 
-    $ ln -s [$COPHOME]/apps/oPOSSUM3/cgi-bin /usr/local/apache/cgi-bin/oPOSSUM3
-    $ ln -s [$COPHOME]/apps/oPOSSUM3/htdocs /usr/local/apache/htdocs/oPOSSUM3
+4) If you wish to set up your own local CAGEd-oPOSSUM web-based tool, you
+   need to set up symbolic links from your webserver htdocs and
+   cgi-bin directories. For example if you have installed CAGEd-oPOSSUM in 
+   $COHOME/apps/CAGEd_oPOSSUM then assuming you are using the Apache server
+   installed in /var/www you would use something like the following:
+
+        $ ln -s $COHOME/cgi-bin /var/www/cgi-bin/CAGEd_oPOSSUM
+        $ ln -s $COHOME/htdocs /var/www/htdocs/CAGEd_oPOSSUM
 
    You may have to edit your apache config file (httpd.conf) to allow following
    of symbolic links and executing cgi-bin files, e.g.:
@@ -90,13 +191,16 @@ including the web interface and local copies of the databases.
         Allow from all
     </Directory>
 
-   Alternatively, of course you could copy the oPOSSUM htdocs and cgi-bin
-   directories directly into the apache tree.
+    You then need to edit the CAGEd-oPOSSUM option files. See the 
+    "Configuring CAGEd-oPOSSUM Option Files" section below.
 
-3) For web-based oPOSSUM, create the following directories:
-    htdocs/tmp
-    htdocs/results
-    logs
+5) Create the following directories (if they have not already been
+   automatically created when you downloaded and uncompressed the CAGEd-oPOSSUM
+   source code or fetched it from GitHub):
+
+        $COHOME/tmp
+        $COHOME/htdocs/results
+        $COHOME/logs
 
    Change the ownership of these directories to that of the user under which the
    web server runs (usually 'nobody' or 'apache') and/or make these directories
@@ -105,42 +209,62 @@ including the web interface and local copies of the databases.
        chown apache:apache htdocs/tmp
        chmod 700 htdocs/tmp
 
-4) For web-based oPOSSUM, edit the configuration constants in the main web
-   options file lib/OPOSSUM/Web/Opt/BaseOpt.pm to reflect your specific
-   installation.
+6) Edit the $COHOME/htdocs/index.html file and change specific URL to refer
+   to the webserver CAGEd-oPOSSUM is residing on.
+
+7) Edit the htdocs/templates/master.html file and change specific URLs to
+   refer to the webserver CAGEd-oPOSSUM is residing on.
+
+
+Configuring CAGEd-oPOSSUM Options Files
+=======================================
+
+There are two main options files which need to be configured to reflect your
+own local setup:
+
+   $COHOME/lib/OPOSSUM/Opt/BaseOpt.pm
+   $COHOME/lib/OPOSSUM/Web/Opt/BaseOpt.pm
+
+There intention of having two different options files was to logically separate
+options specific to the CAGEd-oPOSSUM web-tool vs. general options but due to
+the way in which the CAGEd-oPOSSUM software evolved, the current distribution
+of the various options between these two files is admittedly not entirely
+logical.
+
+A third options file, $COPHOMT/lib/OPOSSUM/Opt/ExperimentOpt.pm contains
+default parameters settting and generally does not need to be changed.
+
+Particularly you will need to edit some paths to reflect your local setup.
+Some of the settings are only used when CAGEd-oPOSSUM is run as a web tool.
+
+Edit the configuration constants in the main options file
+$COHOME/lib/OPOSSUM/Web/Opt/BaseOpt.pm to reflect your specific
+installation.
+
+   * Edit the CAGEd-oPOSSUM DB connection constants, OPOSSUM_DB_HOST etc.
+
+For web-based CAGEd-oPOSSUM, edit the configuration constants in the main
+web options file $COHOME/lib/OPOSSUM/Web/Opt/BaseOpt.pm to reflect your
+specific installation.
 
    Specifically,
    
-   * edit the OPOSSUM_HOME constant to point to the top-level directory
-     under which oPOSSUM is installed.
+   * Edit the OPOSSUM_HOME constant to point to the top-level directory
+     under which CAGEd-oPOSSUM is installed. This should be the directory
+     referred to earlier in this document as $COHOME.
    
-   * edit the WEB_SERVER_URL constant to point to the top-level URL of your
-     oPOSSUM web server.
+   * Edit the WEB_SERVER_URL constant to point to the top-level URL of your
+     CAGEd-oPOSSUM web server.
    
-   * edit the WEB_SERVER_HOME constant to point to the top-level directory
+   * Edit the WEB_SERVER_HOME constant to point to the top-level directory
      of your apache web server.
    
-   * edit the JASPAR DB connection constants, JASPAR_DB_HOST etc.
+   * Edit the JASPAR DB connection constants, JASPAR_DB_HOST etc. depending
+     on whether you are connecting to the Wasserman lab's JASPAR database
+     or you have installed your own local copy of the database.
 
-   There are additional web and standalone oPOSSUM option files under 
-   lib/OPOSSUM/Web/Opt/ and lib/OPOSSUM/Opt/ that may also require configuring
-   for your specific installation.
-
-   * edit the oPOSSUM DB connection constants, OPOSSUM_DB_HOST etc.
-   
-   It is also possible to edit other values in these files to reflect
-   different default values for the oPOSSUM analysis.
-
-5) Edit the htdocs/index.html file and change specific URL to refer to the
-   webserver oPOSSUM is residing on.
-
-6) Edit the htdocs/templates/master.html file and change specific URLs to
-   refer to the webserver oPOSSUM is residing on.
-
-7) Install the sorttable.js javascript file from
-   http://www.kryogenix.org/code/browser/sorttable into the oPOSSUM
-   htdocs/templates subdirectory.
-
+It is also possible to edit other values in these files to reflect
+different default values for the CAGEd-oPOSSUM analysis.
 
 
 Accessing / Downloading Wasserman Lab Databases
@@ -165,11 +289,11 @@ hosted on, and the associated "read-only" user:
 Database name           DB server host         User
 --------------------    -------------------    ---------
 JASPAR_2016             vm5.cmmt.ubc.ca        jaspar_r
-CAGEd-oPOSSUM3_human	cagedop.cmmt.ubc.ca    cagedop_r
-CAGEd-oPOSSUM3_mouse	cagedop.cmmt.ubc.ca    cagedop_r
+CAGEd-oPOSSUM_human     cagedop.cmmt.ubc.ca    cagedop_r
+CAGEd-oPOSSUM_mouse     cagedop.cmmt.ubc.ca    cagedop_r
 
 These connection parameters are set in CAGEd-oPOSSUM options files. To connect
-to the Wasserman lab databases, you do not need to change these. If you install local copies of these databases, you may need to modify these parameters. This
+to the Wasserman lab databases, you do not need to change these. If you install local copies of these databases, you will need to modify these parameters. This
 is described in the local installation section below.
 
 
@@ -183,40 +307,41 @@ To obtain copies of the databases required for CAGEd-oPOSSUM, please use the
 Wasserman lab anonymous FTP site, cisreg.ca.
 
 The JASPAR database, "JASPAR_2016" is available for FTP download under:
-    pub/JASPAR/JASPAR_2016.sql.gz
+    pub/JASPAR/JASPAR_2016.sql.tar.gz
 
 As the JASPAR database is relatively small, it is also be possible to obtain
 it by downloading it directly from our server with the mysqldump utility using
 the connection parameters as described in the table above.
 
-Note: you will probably need to use the --skip-lock-tables option to the
-mysqldump command, e.g.:
+Note: you will need to use the --skip-lock-tables option to the mysqldump
+command, e.g.:
 
     mysqldump -h vm5.cmmt.ubc.ca -u jaspar_r JASPAR_2016 --skip-lock-tables > JASPAR_2016.sql
 
 There are two CAGEd-oPOSSUM databases of pre-computed transcription factor
 binding sites based on the JASPAR 2016 profiles, one for human and one for
 mouse:
+
     CAGEd_oPOSSUM_human
     CAGEd_oPOSSUM_mouse
 
 Thes are also available for FTP download under:
-    pub/CAGEd_oPOSSUM/CAGEd_oPOSSUM_human.sql.gz
-    pub/CAGEd_oPOSSUM/CAGEd_oPOSSUM_mouse.sql.gz
+    pub/CAGEd_oPOSSUM/databases/
 
 *PLEASE DO NOT* use mysqldump to retrieve the CAGEd_oPOSSUM_human and
 CAGEd_oPOSSUM_mouse databases from our server as they are quite large,
-118GB and 73GB, for human and mouse respectively.
+118GB and 73GB, for human and mouse respectively. If you are having trouble
+downloading them from our FTP site, please contact us at opossum AT cmmt DOT ubc DOT ca.
 
 After you have downloaded and uncompressed each of the databases, create
 the databases in mysql:
 
     mysql> create database CAGEd_oPOSSUM_human;
-    (etc...)
+    mysql> create database CAGEd_oPOSSUM_mouse;
 
-Load the downloaded database SQL files into you local MySQL installation, e.g.  from the command line:
+Load the downloaded database SQL files into your local MySQL installation, e.g.  from the command line:
 
-    $ mysql -u root -p CAGEd< CAGEd_oPOSSUM_human.sql
+    $ mysql -u root -p CAGEd_oPOSSUM_human < CAGEd_oPOSSUM_human.sql
 
 Enter the MySQL root password when prompted. Note, if you didn't set a MySQL
 root password, leave out the -p switch in the command above. Run this for
@@ -239,9 +364,9 @@ files, one for JASPAR and one for the CAGEd-oPOSUM human and mouse databases:
 The JASPAR database settings are located under the "JASPAR DB Access" section
 in the file: 
 
-    lib/OPOSSUM/Web/Opt/BaseOpt.pm.
+    $COHOME/lib/OPOSSUM/Web/Opt/BaseOpt.pm.
 
 The CAGEd_oPOSUM_human and CAGEd_oPOSUM_mouse database settings are located
 under the "CAGEd-oPOSSUM DB Access" settings in the file:
 
-    lib/OPOSSUM/Opt/BaseOpt.pm.
+    $COHOME/lib/OPOSSUM/Opt/BaseOpt.pm.

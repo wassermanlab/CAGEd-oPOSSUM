@@ -56,7 +56,8 @@ Requirements
 
 4) BedTools is required. CAGEd-oPOSSUM has been developed with v2.21.0. Older
    versions may not work as some of the option parameters have changed over
-   time. Newer versions may work if the option parameters haven't changed.
+   time. Newer versions may work if the functionalities utilized by
+   CAGEd-oPOSSUM haven't changed.
 
 5) The TFBS perl modules are required.
 
@@ -73,16 +74,17 @@ Requirements
 
 6) The JASPAR DB of transcription factor binding site profiles is required.
 
-   If you plan to run a lot of CAGEd-oPOSSUM analyses, please install your
+   If you plan to run *a lot* of CAGEd-oPOSSUM analyses, please install your
    own local copy of this database!
    
    Please see the see the "Accessing / Downloading Wasserman Lab Databases"
    in the main INSTALL file for more information on accessing or downloading
    your own copy of the JASPAR DB.
 
-7) The CAGEd-oPOSSUM databases of pre-computed JASPAR TFBS profile binding
-   sites are required. There are two databases, one for human and one for
-   mouse.
+7) Unless you will only run CAGEd-oPOSSUM with your own user-defined CAGE peaks
+   and/or your own TFBS profiles matrices, the CAGEd-oPOSSUM databases of
+   pre-computed JASPAR TFBS profile binding sites are required. There are two
+   databases, one for human and one for mouse.
 
    Again, if you plan to run a lot of CAGEd-oPOSSUM analyses, please install
    your own local copy of these databases!
@@ -95,8 +97,10 @@ Requirements
    as to generate the Z-score and Fisher score vs. GC composition plots.
    R is available at http://www.r-project.org
 
-9) For the generation of %GC composition and length matched background
-   sequences, the HOMER software is required.
+9) The HOMER package is required if you wish to include the HOMER TFBS
+   over-representation analysis or if you just want to use randomly generated
+   backgrounds of %GC composition and length matched sequences.
+
    HOMER is available at http://homer.salk.edu/homer
 
 10) The web code utilizes jQuery and the jsTree jQuery plugin. This is *only*
@@ -106,5 +110,8 @@ Requirements
    
    	jQuery 1.11.3
 	jsTree 3.1.1
+
+    CAGEd-oPOSSUM also uses the sorttable.js javascript library. This is only
+    used to make the HTML results table columns sortable.
 
     These have already been included within the CAGEd-oPOSSUM download.
