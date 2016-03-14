@@ -602,7 +602,7 @@ sub _clean_tempfiles
 {
     my $self = shift;
 
-    my @tempfiles = glob(ABS_HTDOCS_TMP_PATH . "/*");
+    my @tempfiles = glob(OPOSSUM_TMP_PATH . "/*");
     foreach my $file (@tempfiles) {
         unlink $file if -M $file > REMOVE_TEMPFILES_OLDER_THAN;
     }
