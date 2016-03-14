@@ -274,7 +274,7 @@
         </td>
         <td align=right>
           [%IF write_tfbs_details and result.t_seq_hits > 0%]
-            <a href="[%rel_results_dir%]/[%tf_id%].html" target="_blank">[%result.t_seq_hits%]</a>
+            <a href="[%tf_id%].html" target="_blank">[%result.t_seq_hits%]</a>
           [%ELSE%]
             [%result.t_seq_hits%]
           [%END%]
@@ -290,7 +290,7 @@
         <td align=right>[%result.bg_seq_no_hits%]</td>
         <td align=right>
           [%IF write_tfbs_details and result.t_tfbs_hits > 0%]
-            <a href="[%rel_results_dir%]/[%tf_id%].html" target="_blank">[%result.t_tfbs_hits%]</a>
+            <a href="[%tf_id%].html" target="_blank">[%result.t_tfbs_hits%]</a>
           [%ELSE%]
             [%result.t_tfbs_hits%]
           [%END%]
@@ -330,25 +330,24 @@
     [%END%]
   </table>
   <p class="text" align="center">
-  <a href="[%rel_results_dir%]/[%results_file%]" target="_blank">Download as a tab delimited text file</a> (results will be kept on the server for [%result_retain_days%] days after analysis)
+  <a href="[%results_file%]" target="_blank">Download as a tab delimited text file</a> (results will be kept on the server for [%result_retain_days%] days after analysis)
   </p>
 
   [%IF homer_results_html_file%]
     <p class="text" align="center">
-    <a href="[%rel_results_dir%]/[%homer_results_html_file%]" target="_blank">HOMER results</a>
+    <a href="[%homer_results_html_file%]" target="_blank">HOMER results</a>
     </p>
   [%END%]
 
   <p class="text" align="center">
-  View plot of <a href="[%rel_results_dir%]/[%zscore_plot_file%]" target="_blank">Z-score vs. %GC content</a>
+  View plot of <a href="[%zscore_plot_file%]" target="_blank">Z-score vs. %GC content</a>
   <br>
-  View plot of <a href="[%rel_results_dir%]/[%fisher_plot_file%]" target="_blank">Fisher score vs. %GC content</a>
+  View plot of <a href="[%fisher_plot_file%]" target="_blank">Fisher score vs. %GC content</a>
   </p>
 
   <p align="center"><a href="#top"><img src="[%rel_htdocs_path%]/images/arrow-up.gif" border="0" alt="Back to top"></a></p>
   <p class="text">
-  Consult the <a href="javascript:newWindow=window.open('[%rel_htdocs_path%]/help.html','help','width=600,height=800,toolbar=1\
-  ,location=0,directories=0,status=0,menuBar=0,scrollBars=1,resizable=0'); newWindow.focus()">help file</a> for an explanation of the column headings.
+  Consult the <a href="[%rel_htdocs_path%]/help.html" target=help>help file</a> for an explanation of the column headings.
   </p>
   [%ELSE%]
     <p class="warn_text">No TFBSs were found which matched your search criteria</p>
