@@ -7,35 +7,54 @@
 
 <body class="doctext">
   <h1>CAGEd-oPOSSUM Download</h1>
-
-  <h2>API</h2>
   <p>
-    Download just the CAGEd-oPOSSUM API and stand-alone analysis script <a href="download/CAGEd_oPOSSUM_API.tar.gz">here</a> or via <a href="ftp://www.cisreg.ca/pub/CAGEd_oPOSSUM/CAGEd_oPOSSUM_API.tar.gz">FTP</a>
-  </p>
-  <p>
-    Download the full CAGEd-oPOSSUM code tree including the API, stand-alone analysis scripts and web code <a href="download/CAGEd_oPOSSUM_full.tar.gz">here</a> or via <a href="ftp://www.cisreg.ca/pub/CAGEd_oPOSSUM/CAGEd_oPOSSUM_full.tar.gz">FTP</a>
+  You may download and install your own local copy of CAGEd-oPOSSUM.<br>
+  Please see the <samp>INSTALL</samp> file included in the top-level of the CAGEd-oPOSSUM source code for details on how to perform a local installation.
   </p>
 
-  <h2>Source code</h2>
+  <h2>Web Download</h2>
   <p>
-    The CAGEd-oPOSSUM source code is also available as a public repository on GitHub under <a href="https://github.com/wassermanlab/CAGEd-oPOSSUM" target=_blank>wassermanlab/CAGEd-oPOSSUM</a>.
+    Download the full CAGEd-oPOSSUM source code including the API, stand-alone analysis scripts and web code directly from the web page here: <a href="download/CAGEd_oPOSSUM.tar.gz">CAGEd_oPOSSUM.tar.gz</a>
+  </p>
+
+  <h2>GitHub</h2>
+  <p>
+    The CAGEd-oPOSSUM source code is also available as a public repository on GitHub at: <a href="https://github.com/wassermanlab/CAGEd-oPOSSUM" target=_blank>https://github.com/wassermanlab/CAGEd-oPOSSUM</a>.
   </p>
 
   <h2>Databases</h2>
   <p>
-    The CAGEd-oPOSSUM databases may be downloaded directly from our database servers using the mysldump facility.
+    There are two CAGEd-oPOSSUM databases of pre-computed transcription factor binding sites, one for each species:<br><br>
+    <b>CAGEd_oPOSSUM_human</b><br>
+    <b>CAGEd_oPOSSUM_mouse</b>
   </p>
+
   <p>
-    There are two CAGEd-oPOSSUM databases, one for each species:<br><br>
-        <b>CAGEd_oPOSSUM_human</b><br>
-        <b>CAGEd_oPOSSUM_mouse</b>
+    As well there is our local copy of the JASPAR database of transcription factor binding site profiles:<br><br>
+    <b>JASPAR_2016</b>
   </p>
+
   <p>
-    The databases are hosted on cagedop.cmmt.ubc.ca and may be accessed using MySQL username 'cagedop_r'.
+    <em>By far the preferred</em> way to download these databases is via our <a href="ftp://www.cisreg.ca/pub/">FTP site</a> as CAGEd-oPOSSUM human and mouse databases are quite large (tens of Gigabytes).
+  </p>
+
+  <p>
+    The two CAGEd-oPOSSUM species database are located in the <code>CAGEd_oPOSSUM/databases</code> sub-directory and the JASPAR database is located in the <code>JASPAR_2016</code> sub-directory.
+  </p>
+
+  <p>
+    As the JASPAR database is quite small you may also download it directly from the database server using the mysldump facility.
     <br>
-    It may be necessary to use the --skip-lock-tables option to mysqldump, e.g.:
+    <em>NOTE</em>: It is necessary to use the <samp>--skip-lock-tables</samp> option when using mysqldump.
+
+  <p>
+    The JASPAR_2016 database is hosted on our <samp>vm5.cmmt.ubc.ca</samp> server and may be downloaded using the MySQL user <samp>jaspar_r</samp>:
     <br>
-    <pre><kbd>&nbsp;&nbsp;&nbsp;&nbsp;$ mysqldump -h cagedop.cmmt.ubc.ca -u cagedop_r --skip-lock-tables CAGEd_oPOSSUM_human &gt; CAGEd_oPOSSUM_human.sql</kbd></pre>
+    <pre><kbd>&nbsp;&nbsp;&nbsp;&nbsp;$ mysqldump -h vm5.cmmt.ubc.ca -u jaspar_r --skip-lock-tables JASPAR_2016 &gt; JASPAR_2016.sql</kbd></pre>
+  </p>
+
+  <p>
+    As the CAGEd-oPOSSUM human and mouse databases are quite large <em>please download them from our</em> <a href="ftp://www.cisreg.ca/pub/CAGEd_oPOSSUM/databases">FTP server</a>. If for some reason you are unable to download them via FTP please email us a 'opossum AT cmmt DOT ubc DOT ca' and we will try to rectify the problem or grant you permission to directly mysqldump them from our servers.  
   </p>
 </body>
 </html>
