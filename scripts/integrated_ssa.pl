@@ -1769,20 +1769,17 @@ sub parse_args
         if ($tf_ids_file) {
             $job_args{-tf_select_criteria} = 'file';
             $job_args{-tf_ids_file} = $tf_ids_file;
-        } elsif ($tf_ids) {
+        } elsif (@tf_ids) {
             $job_args{-tf_select_criteria} = 'ids';
 
-            my $tf_ids_str;
-            if (@tf_ids) {
-                my $tf_ids_str = join(',', @tf_ids);
-                @tf_ids = split(/\s*,\s*/, $tf_ids_str);
+            my $tf_ids_str = join(',', @tf_ids);
+            @tf_ids = split(/\s*,\s*/, $tf_ids_str);
 
-                unless (@tf_ids) {
-                    fatal("Error parsing JASPAR TF IDs", \%job_args);
-                }
-
-                $job_args{-tf_ids} = \@tf_ids;
+            unless (@tf_ids) {
+                fatal("Error parsing JASPAR TF IDs", \%job_args);
             }
+
+            $job_args{-tf_ids} = \@tf_ids;
         } else {
             $job_args{-tf_select_criteria} = 'collections';
 
