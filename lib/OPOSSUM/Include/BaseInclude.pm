@@ -943,6 +943,20 @@ sub opossum_db_connect
     return $opdba;
 }
 
+sub tfbs_cluster_db_connect
+{
+    my ($db_name) = @_;
+    
+    my $dba = TFBSCluster::DBSQL::DBAdaptor->new(
+        -host     => OPOSSUM_DB_HOST,
+        -dbname   => $db_name,
+        -user     => OPOSSUM_DB_USER,
+        -password => OPOSSUM_DB_PASS
+    );
+    
+    return $dba;
+}
+
 sub write_search_regions
 {
     my ($search_regions, $outfile, $format) = @_;
