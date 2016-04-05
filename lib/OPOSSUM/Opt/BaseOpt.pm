@@ -9,6 +9,7 @@ use constant OPOSSUM_DB_HOST    => 'cagedop.cmmt.ubc.ca';
 use constant OPOSSUM_DB_NAME    => 'CAGEd_oPOSSUM';
 use constant OPOSSUM_DB_USER    => 'opossum_r';
 use constant OPOSSUM_DB_PASS    => '';
+use constant TFBS_CLUSTER_DB_NAME      => 'TFBS_cluster';
 
 #
 # XXX
@@ -52,9 +53,9 @@ use constant HOMER_BIN_PATH     => '/apps/Homer/bin/';
 # preparseGeneome.pl in creating background regions.
 #
 use constant HOMER_HUMAN_CAGE_PEAK_FILE =>
-    '/apps/CAGEd_oPOSSUM/data/hg19.cage_peak_coord_permissive.txt';
+    '/devel/CAGEd_oPOSSUM/data/hg19.cage_peak_coord_permissive.txt';
 use constant HOMER_MOUSE_CAGE_PEAK_FILE =>
-    '/apps/CAGEd_oPOSSUM/data/mm9.cage_peak_coord_permissive.txt';
+    '/devel/CAGEd_oPOSSUM/data/mm9.cage_peak_coord_permissive.txt';
 use constant HOMER_VERTEBRATES_KNOWN_MOTIFS_FILE => '/apps/Homer/data/knownTFs/vertebrates/known.motifs';
 
 #
