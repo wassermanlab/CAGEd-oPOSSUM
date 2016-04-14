@@ -137,8 +137,14 @@ sub teardown
         $state->commit();
     }
 
-    $self->_clean_tempfiles;
-    $self->_clean_resultfiles;
+    #
+    # This caused big slow downs in the web application. This functionality
+    # has now been moved to the cleanup_old_results.pl script which will
+    # be called as a cron job.
+    # DJA 2016/4/14
+    #
+    #$self->_clean_tempfiles;
+    #$self->_clean_resultfiles;
 }
 
 #
