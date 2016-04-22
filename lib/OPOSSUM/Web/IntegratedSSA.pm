@@ -137,8 +137,8 @@ sub teardown
         $state->commit();
     }
 
-    $self->_clean_tempfiles;
-    $self->_clean_resultfiles;
+    #$self->_clean_tempfiles;
+    #$self->_clean_resultfiles;
 }
 
 #
@@ -1201,6 +1201,7 @@ sub tfbs_parameters_selected
     $state->tfbs_details(undef);
     $state->tf_select_criteria(undef);
     $state->run_homer_motif_analysis(undef);
+    $state->run_cluster_analysis(undef);
 
     if (my $text = $self->parse_textbox('matrix_paste_text')) {
         my $filename = "$results_dir/matrices.txt";
@@ -1347,6 +1348,7 @@ sub tfbs_parameters_selected
     $state->result_sort_by($q->param('result_sort_by'));
     $state->tfbs_details($q->param('tfbs_details'));
     $state->run_homer_motif_analysis($q->param('run_homer_motif_analysis'));
+    $state->run_cluster_analysis($q->param('run_cluster_analysis'));
 
     my $email = $q->param('email');
     unless (defined $email) {
@@ -1608,6 +1610,10 @@ sub results
 
     if ($state->run_homer_motif_analysis()) {
         $command .= " -hma";
+    }
+
+    if ($state->run_cluster_analysis()) {
+        $command .= " -cla";
     }
 
     my $submitted_time = scalar localtime(time);

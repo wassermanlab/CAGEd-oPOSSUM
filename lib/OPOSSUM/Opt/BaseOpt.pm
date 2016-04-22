@@ -9,7 +9,6 @@ use constant OPOSSUM_DB_HOST    => 'cagedop.cmmt.ubc.ca';
 use constant OPOSSUM_DB_NAME    => 'CAGEd_oPOSSUM';
 use constant OPOSSUM_DB_USER    => 'opossum_r';
 use constant OPOSSUM_DB_PASS    => '';
-use constant TFBS_CLUSTER_DB_NAME      => 'TFBS_cluster';
 
 #
 # XXX

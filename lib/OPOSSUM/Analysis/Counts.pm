@@ -57,48 +57,48 @@ sub new
 {
     my ($class, %args) = @_;
 
-    my $seq_ids  = $args{-seq_ids};
-    my $tf_ids   = $args{-tf_ids};
-    my $counts   = $args{-counts};
+    my $tf_ids          = $args{-tf_ids};
+    my $seq_tfbs_map    = $args{-seq_tfbs_map};
 
-    if ($args{-tf_info_set}) {
-        carp "Support for TFInfoSet is deprecated.\n";
+    unless ($tf_ids) {
+        carp "No TF IDs provided\n";
+        return;
+    }
+
+    unless ($seq_tfbs_map) {
+        carp "No sequence TFBS map provided\n";
+        return;
+    }
+
+    my @seq_ids = sort keys %$seq_tfbs_map;
+
+    unless (@seq_ids) {
+        carp "No region/sequence/gene IDs retrieved from seq./TFBS map\n";
+        return;
     }
 
     my $self = bless {
-        -seq_ids           => undef,
-        -tf_ids            => undef,
-        -seq_exists        => undef,
-        -tf_exists         => undef,
-        _seq_tfbs_counts   => {},
-        _tfbs_seq_exists   => {},
-        _params            => {}
+        -seq_ids            => \@seq_ids,
+        -tf_ids             => $tf_ids,
+        -seq_exists         => undef,
+        -tf_exists          => undef,
+        _seq_tfbs_counts    => undef,
+        _tfbs_seq_exists    => {},
+        _params             => {}
     }, ref $class || $class;
 
-    if ($seq_ids && $tf_ids) {
-        #
-        # If sequence ID and TF ID list provided, initialize counts with 0's
-        #
-        foreach my $seq_id (@$seq_ids) {
-            foreach my $tf_id (@$tf_ids) {
-                $self->seq_tfbs_count($seq_id, $tf_id, 0);
-            }
-        }
-    }
+    foreach my $seq_id (@seq_ids) {
+        $self->{-seq_exists}->{$seq_id} = 1;
+        foreach my $tf_id (@$tf_ids) {
+            $self->{-tf_exists}->{$tf_id} = 1;
 
-    if ($counts) {
-        if (ref $counts eq 'HASH') {
-            #
-            # $counts should be a hash ref of hash refs of counts, e.g.:
-            # $count->{seq_id}->{tf_id} = $count;
-            # and count
-            #
-            $self->_set_all_seq_tfbs_counts_hash($counts);
-        } elsif (ref $counts eq 'ARRAY') {
-            #
-            # $counts should be an array ref of array containing counts
-            #
-            $self->_set_all_seq_tfbs_counts_array($counts);
+            my $sites = $seq_tfbs_map->{$seq_id}->{$tf_id};
+
+            my $count = 0;
+            if ($sites && $sites->[0]) {
+                $count = scalar @$sites;
+            }
+            $self->seq_tfbs_count($seq_id, $tf_id, $count);
         }
     }
 
