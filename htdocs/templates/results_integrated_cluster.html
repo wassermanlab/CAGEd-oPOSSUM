@@ -1,0 +1,314 @@
+<br>
+<h3>Summary</h3>
+&nbsp;[<a href="[%rel_htdocs_path%]/help/option_details.html#results_summary" target="help">HELP</a>]
+<br>
+<table border="0" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="table_title">Job ID:</td>
+    <td class="table_text">[%job_id%]</td>
+  </tr>
+  [%IF num_t_experiments%]
+    <tr>
+      <td class="table_title">Number of target experiments:</td>
+      <td class="table_text">[%num_t_experiments%]</td>
+    </tr>
+  [%END%]
+  [%IF t_tag_count%]
+  <tr>
+    <td class="table_title">Target minimum tag count:</td>
+    <td class="table_text">[%t_tag_count%]</td>
+  </tr>
+  [%END%]
+
+  [%IF t_tpm%]
+  <tr>
+    <td class="table_title">Target minimum tags per million (TPM):</td>
+    <td class="table_text">[%t_tpm%]</td>
+  </tr>
+  [%END%]
+
+  [%IF t_relative_expression%]
+  <tr>
+    <td class="table_title">Target minimum relative expression:</td>
+    <td class="table_text">[%t_relative_expression%]</td>
+  </tr>
+  [%END%]
+  <tr>
+    <td class="table_title">Number of target CAGE peaks:</td>
+    <td class="table_text">[%num_t_tss%]</td>
+  </tr>
+  <tr>
+    <td class="table_title">Number of target CAGE peak regions:</td>
+    <td class="table_text">[%num_t_search_regions%]</td>
+  </tr>
+  [%IF num_b_experiments%]
+    <tr>
+      <td class="table_title">Number of background experiments:</td>
+      <td class="table_text">[%num_b_experiments%]</td>
+    </tr>
+  [%END%]
+  [%IF b_tag_count%]
+  <tr>
+    <td class="table_title">Background minimum tag count:</td>
+    <td class="table_text">[%b_tag_count%]</td>
+  </tr>
+  [%END%]
+
+  [%IF b_tpm%]
+  <tr>
+    <td class="table_title">Background minimum tags per million (TPM):</td>
+    <td class="table_text">[%b_tpm%]</td>
+  </tr>
+  [%END%]
+
+  [%IF b_relative_expression%]
+  <tr>
+    <td class="table_title">Background minimum relative expression:</td>
+    <td class="table_text">[%b_relative_expression%]</td>
+  </tr>
+  [%END%]
+  [%IF b_is_rand%]
+  <tr>
+    <td class="table_title">Number of background CAGE peaks:</td>
+    <td class="table_text">random background</td>
+  </tr>
+  [%ELSE%]
+  <tr>
+    <td class="table_title">Number of background CAGE peaks:</td>
+    <td class="table_text">[%num_b_tss%]</td>
+  </tr>
+  [%END%]
+  <tr>
+    <td class="table_title">Number of background CAGE peak regions:</td>
+    <td class="table_text">[%num_b_search_regions%]</td>
+  </tr>
+  [%IF tf_select_criteria == 'custom'%]
+    <tr>
+      <td class="table_title">TFBS profile type:</td>
+      <td class="table_text">Custom</td>
+    </tr>
+  [%ELSE%]
+    <tr>
+      <td class="table_title">TFBS profile type:</td>
+      <td class="table_text">JASPAR</td>
+    </tr>
+    <tr>
+      <td class="table_title">JASPAR collection(s):</td>
+      [%using_core_collection = 0%]
+      <td class="table_text">
+        [%FOREACH collection = collections%]
+          [%IF collection == 'CORE'%]
+            [%using_core_collection = 1%]
+          [%END%]
+          [%collection%]&nbsp;
+        [%END%]
+      </td>
+    </tr>
+    [%IF using_core_collection == 1%]
+      [%IF tax_groups%]
+        <tr>
+          <td class="table_title">Taxonomic supergroup(s):</td>
+          <td class="table_text">
+            [%FOREACH tax_group = tax_groups%][%tax_group%]&nbsp;[%END%]
+          </td>
+        </tr>
+      [%END%]
+    [%END%]
+  [%END%]
+  [%IF tf_select_criteria == 'min_ic'%]
+    <tr>
+      <td class="table_title">Minimum profile specificity:</td>
+      <td class="table_text">[%min_ic%] bits</td>
+    </tr>
+  [%ELSIF tf_select_criteria == 'specific'%]
+    [%IF tf_set%]
+      [%matrix_list = tf_set.get_matrix_list('name')%]
+      <tr>
+        <td class="table_title">TFBS profiles:</td>
+        <td class="table_text">
+          [%FOREACH matrix = matrix_list%]
+            [%matrix.name()%] 
+          [%END%]
+        </td>
+      </tr>
+    [%END%]
+  [%END%]
+  <tr>
+    <td class="table_title">Matrix score threshold:</td>
+    <td class="table_text">[%threshold*100%]%</td>
+  </tr>
+  <tr>
+    <td class="table_title">CAGE peak flanking sequence size:</td>
+    <td class="table_text">[%upstream_bp%] / [%downstream_bp%]</td>
+  </tr>
+
+  [%IF result_sort_by == 'zscore'%]
+    [%display_sort_by = 'Z-score'%]
+  [%ELSIF result_sort_by == 'fisher_p_value'%]
+    [%display_sort_by = 'Fisher score'%]
+  [%ELSE%]
+    [%display_sort_by = result_sort_by%]
+  [%END%]
+  <tr>
+    <td class="table_title">Results returned:</td>
+    [%IF result_type == 'top_x_results'%]
+      [%IF num_display_results == 'All'%]
+        <td class="table_text">All results sorted by [%display_sort_by%]</td>
+      [%ELSE%]
+        <td class="table_text">Top [%num_display_results%] results sorted by [%display_sort_by%]</td>
+      [%END%]
+    [%ELSIF result_type == 'significant_hits'%]
+      <td class="table_text">All results with a Z-score >= [%zscore_cutoff%] and a Fisher score >= [%fisher_cutoff%] sorted by [%display_sort_by%]</td>
+    [%END%]
+  </tr>
+</table>
+
+[%IF t_experiments%]
+  <br>
+  <h3>Target Experiments</h3>
+  <br>
+  <table border="0" cellpadding="2" cellspacing="0">
+  [%FOREACH t_exp = t_experiments%]
+    <tr>
+      <td class="table_text">FF:[%t_exp.FF_id()%]</td>
+      <td class="table_text">[%t_exp.name()%]</td>
+    </tr>
+  [%END%]
+  </table>
+[%END%]
+
+[%IF b_experiments%]
+  <br>
+  <h3>Background Experiments</h3>
+  <br>
+  <table border="0" cellpadding="2" cellspacing="0">
+  [%FOREACH b_exp = b_experiments%]
+    <tr>
+      <td class="table_text">FF:[%b_exp.FF_id()%]</td>
+      <td class="table_text">[%b_exp.name()%]</td>
+    </tr>
+  [%END%]
+  </table>
+[%END%]
+
+<!--
+<h3>Target CAGE peaks</h3>
+[%FOREACH tss = t_tss%] [%tss.name()%][%END%]
+</p>
+-->
+
+<br>
+<br>
+<h3>Results</h3>
+&nbsp;[<a href="[%rel_htdocs_path%]/help/option_details.html#results_table" target="help">HELP</a>]
+
+[%IF results%]
+  <br>
+  <b>Click column headers to sort by that column</b>
+  [%IF warn_zero_bg_hits%]
+    <p class="warn_text"><b>Warning</b>: The provided background set resulted in zero binding sites for one or more TF clusters. These cases are highlighted in red. In cases where there were also zero binding sites for the target set, the Z-score is undefined (NA). In cases where there were one or more binding sites in the target set, the Z-score is infinite (Inf). However, the result may or may not be considered significant. Results for which this was the case are marked with an asterisk (*).
+    </p>
+  [%END%]
+
+  <table id="results_summary_table" class="sortable" cellpadding="2" cellspacing="0">
+    <tr class="table_title">
+      <th title="Cluster ID (click to sort)">Cluster ID</th>
+      <th title="Target CAGE peak region hits (click to sort)">Target CAGE peak region hits</th>
+      <th title="Target CAGE peak region non-hits (click to sort)">Target CAGE peak region non-hits</th>
+      <th title="Background CAGE peak region hits (click to sort)">Background CAGE peak region hits</th>
+      <th title="Background CAGE peak region non-hits (click to sort)">Background CAGE peak region non-hits</th>
+      <th title="Target TFBS cluster hits (click to sort)">Target TFBS cluster hits</th>
+      <th title="Target TFBS cluster nucleotide rate (click to sort)">Target TFBS cluster nucleotide rate</th>
+      <th title="Background TFBS cluster hits (click to sort)">Background TFBS cluster hits</th>
+      <th title="Background TFBS cluster nucleotide rate (click to sort)">Background TFBS cluster nucleotide rate</th>
+      <th title="Assesses the enrichment of TFBS cluster nucleotide density (click to sort)">Z-score</th>
+      <th title="Assesses the enrichment of CAGE peak regions with one or more TFBS clusters (click to sort)">Fisher score</th>
+    </tr>
+
+    [%FOREACH result = results%]
+      [%cl_id = result.id%]
+      [%cl = tf_cluster_set.get_tf_cluster(cl_id)%]
+
+      <tr class="table_text">
+        [%IF result.bg_seq_hits == 0 and result.t_seq_hits > 0%]
+          <td><b class="warn_table_text"><a href="[%cluster_info_url%]/[%cl.name%].html" target="_blank">*[%cl.name%]</a></b></td>
+        [%ELSE%]
+          <td><a href="[%cluster_info_url%]/[%cl.name%].html" target="_blank">[%cl.name%]</a></td>
+        [%END%]
+
+        <td align=right>
+          [%IF write_tfbs_details and result.t_seq_hits > 0%]
+            <a href="[%cl.name%].html" target="_blank">[%result.t_seq_hits%]</a>
+          [%ELSE%]
+            [%result.t_seq_hits%]
+          [%END%]
+        </td>
+        <td align=right>[%result.t_seq_no_hits%]</td>
+        <td align=right>
+        [%IF result.bg_seq_hits == 0%]
+          <b class="warn_table_text">[%result.bg_seq_hits%]</b>
+        [%ELSE%]
+          [%result.bg_seq_hits%]
+        [%END%]
+        </td>
+        <td align=right>[%result.bg_seq_no_hits%]</td>
+        <td align=right>
+          [%IF write_tfbs_details and result.t_cluster_hits > 0%]
+            <a href="[%cl.name%].html" target="_blank">[%result.t_cluster_hits%]</a>
+          [%ELSE%]
+            [%result.t_cluster_hits%]
+          [%END%]
+        </td>
+        <td align=right>[%formatg(3, result.t_cluster_rate)%]</td>
+        <td align=right>
+        [%IF result.bg_seq_hits == 0%]
+          <b class="warn_table_text">[%result.bg_cluster_hits%]</b>
+        [%ELSE%]
+          [%result.bg_cluster_hits%]
+        [%END%]
+        </td>
+        <td align=right>
+        [%IF result.bg_seq_hits == 0%]
+          <b class="warn_table_text">[%formatg(3, result.bg_cluster_rate)%]</b>
+        [%ELSE%]
+          [%formatg(3, result.bg_cluster_rate)%]
+        [%END%]
+        </td>
+
+        [%IF result.bg_seq_hits == 0%]
+          [%IF result.zscore == 'inf' or result.zscore == 'Inf'%]
+            <td sorttable_customkey="999999999" align=right nowrap><b class="warn_table_text">Inf</b></td>
+          [%ELSE%]
+            <td align=right nowrap><b class="warn_table_text">NA</b></td>
+          [%END%]
+        [%ELSE%]
+          <td align=right nowrap>[%formatf(3, result.zscore)%]</td>
+        [%END%]
+
+        [%IF result.fisher_p_value == 'inf' or result.fisher_p_value == 'Inf'%]
+          <td sorttable_customkey="999999999" align=right nowrap>Inf</td>
+        [%ELSE%]
+          <td align=right nowrap>[%formatf(3, result.fisher_p_value)%]</td>
+        [%END%]
+      </tr>
+    [%END%]
+  </table>
+  <p class="text" align="center">
+  <a href="[%results_file%]" target="_blank">Download as a tab delimited text file</a> (results will be kept on the server for [%result_retain_days%] days after analysis)
+  </p>
+
+  <!--
+  <p class="text" align="center">
+  View plot of <a href="[%zscore_plot_file%]" target="_blank">Z-score vs. %GC content</a>
+  <br>
+  View plot of <a href="[%fisher_plot_file%]" target="_blank">Fisher score vs. %GC content</a>
+  </p>
+  -->
+
+  <p align="center"><a href="#top"><img src="[%rel_htdocs_path%]/images/arrow-up.gif" border="0" alt="Back to top"></a></p>
+  <p class="text">
+  Consult the <a href="[%rel_htdocs_path%]/help.html" target=help>help file</a> for an explanation of the column headings.
+  </p>
+  [%ELSE%]
+    <p class="warn_text">No TFBS clusters were found which matched your search criteria</p>
+[%END%]

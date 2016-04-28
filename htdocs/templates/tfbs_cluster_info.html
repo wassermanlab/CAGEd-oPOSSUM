@@ -1,0 +1,39 @@
+  <h2>Cluster [%tf_cluster.name%]</h2>
+  
+  <h3>Member TFBS</h3>
+  <table border="0" cellpadding="2 5" cellspacing="2 5 2 5">
+    <tr class="table_title">
+      <th>JASPAR ID</th>
+      <th>TF Name</th>
+      <th>Collection</th>
+      <th>Tax Group</th>
+      <th align="left">Class</th>
+      <th align="left">Family</th>
+      <th align="right">IC</th>
+      <th align="right">Width</th>
+    </tr>
+
+    [%FOREACH tf = cluster_tfs%]
+      [%tfid = tf.ID%]
+      <tr align="left" class="table_text">
+        <td>
+          [%IF collections.$tfid == 'PENDING'%]
+            [%tf.ID%]
+          [%ELSE%]
+            <a href="javascript:newWindow=window.open('[%jaspar_url%]?rm=present&collection=[%collections.$tfid%]&ID=[%tf.ID%]', '[%tf.ID%]', 'width=850,height=700,toolbar=0,location=0,directories=0,status=0,menuBar=0,scrollBars=1'); newWindow.focus()">[%tf.ID%]</a>
+          [%END%]
+        </td>
+        <td>[%tf.name%]</td>
+        <td>[%collections.$tfid%]</td>
+        <td>[%tax_groups.$tfid%]</td>
+        <td align="left">[%classes.$tfid%]</td>
+        <td align="left">[%families.$tfid%]</td>
+        <td align="right">[%tf_ic.$tfid%]</td>
+        <td align="right">[%tf.length%]</td>
+      </tr>
+    [%END%]
+  </table>
+
+<hr solid=1>
+
+<p align="center"><a href="#top"><img src="[%rel_htdocs_path%]/images/arrow-up.gif" border="0" alt="Back to top"></a></p>

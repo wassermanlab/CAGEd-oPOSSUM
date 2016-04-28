@@ -1,0 +1,69 @@
+<html>
+
+<head>
+  <link rel="stylesheet" href="[%rel_htdocs_path%]/styles.css" type="text/css">
+  <title>[%title%]</title>
+</head> <a name="top"></a>
+
+<body>
+<form name="tfbs_cluster_details" enctype="multipart/form-data" method="post" onSubmit="window.close()">
+
+  <table border="0" cellpadding="2" cellspacing="0">
+    <tr class="table_text">
+      <td align="left" class="table_title">Cluster name:</td>
+      <td align="left" class="table_text"><a href="[%cluster_info_url%]/[%cl.name%].html">[%cluster.name%]</a></td>
+    </tr>
+  </table>
+
+  <br>
+  <br>
+  <h3>Binding Sites</h3>
+  <br>
+
+  [%USE sites = datafile(data_file, delim = '|')%]
+
+  <table width="100%"  border="0" cellpadding="2" cellspacing="1">
+    <tr align="left" class="table_title">
+      <th align="left">Region</th>
+      <th align="left">Chr</th>
+      <th align="right">Start</th>
+      <th align="right">End</th>
+      <th align="center">Strand</th>
+      <th align="right">Abs. Score</th>
+      <th align="right">Rel. Score</th>
+      <th align="left">Sequence</th>
+    </tr>
+
+    [%last_region = ''%]
+    [%FOREACH site = sites%]
+      <tr align="left" class="table_text">
+        [%IF site.region == last_region%]
+          <td align="left"></td>
+        [%ELSE%]
+          <td align="left">[%site.region%]</td>
+          [%last_region = site.region%]
+        [%END%]
+
+        <td align="left">[%site.chr%]</td>
+        <td align="right">[%site.start%]</td>
+        <td align="right">[%site.end%]</td>
+        <td align="center">[%site.strand%]</td>
+        <td align="right">[%site.score%]</td>
+        <td align="right">[%site.rel_score%]</td>
+        <td align="left" class="seqtext">[%site.seq%]</td>
+      </tr>
+    [%END%] <!--foreach site -->
+  </table>
+<hr solid=1>
+
+<p class="text" align="center">
+<a href="[%cluster_details_file%]" target="_blank">Download as a tab delimited text file</a> (results will be kept on the server for [%result_retain_days%] days after analysis)
+</p>
+
+<p align="center"><a href="#top"><img src="[%rel_htdocs_path%]/images/arrow-up.gif" border="0" alt="Back to top"></a></p>
+
+<p align="center"><input type="submit" name="Submit" value="Close Window"></p>
+</form>
+</body>
+
+</html>
