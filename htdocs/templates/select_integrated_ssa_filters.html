@@ -61,30 +61,42 @@ function verify(f)
 
       <br>
       <br>
-      <h4>Filter FANTOM5 CAGE peaks to those associated with specific genes</h4>
-      &nbsp;[[%IF t_or_b == 'target'%]<a href="[%rel_htdocs_path%]/help/option_details.html#select_t_filt_genes" target="help">HELP</a>[%ELSIF t_or_b == 'background'%]<a href="[%rel_htdocs_path%]/help/option_details.html#select_b_filt_genes" target="help">HELP</a>[%END%]]
-
-      <br>
-      <br>
-      Specify genes using [%IF species == 'human'%]HGNC IDs/symbols, [%END%]EntrezGene IDs or UniProt IDs<br><br>
-      Paste gene IDs/symbols (one per line):
-      <br>
-      <textarea name="filter_gene_ids_text" rows=10 cols=60 wrap=SOFT"></textarea>
-      <input type="button" name="clear_filter_gene_ids" value="Clear"
-        onClick="{input.filter_gene_ids_text.value=''}">
-      <br>
-      <br>
-
-      <b>OR</b> upload a plain text file containing gene IDs/symbols (one per line):
-      <br>
-      <span class="subtext">
-        <input type="file" name="filter_gene_ids_file" size="33">
-        <input type="button" name="clear_filter_gene_ids_file" value="Clear"
-          onClick="{input.filter_gene_ids_file.value=''}">
-      </span>
-      <br>
-      <br>
     [%END%] <!-- tss_type == 'fantom5'-->
+
+    <!--
+      We can now filter both FANTOM5 and custom CAGE peaks by association to
+      specific genes. Just use different heading text.
+    -->
+    <br>
+    [%IF tss_type == 'fantom5'%] 
+      <h4>Filter FANTOM5 CAGE peaks to those associated with specific genes</h4>
+    [%ELSE%] 
+      <h4>Filter custom CAGE peaks to those associated with specific genes</h4>
+    [%END%] 
+    &nbsp;[[%IF t_or_b == 'target'%]<a href="[%rel_htdocs_path%]/help/option_details.html#select_t_filt_genes" target="help">HELP</a>[%ELSIF t_or_b == 'background'%]<a href="[%rel_htdocs_path%]/help/option_details.html#select_b_filt_genes" target="help">HELP</a>[%END%]]
+
+    <br>
+    <br>
+    [%IF tss_type == 'fantom5'%] 
+      Specify genes using [%IF species == 'human'%]HGNC IDs/symbols, [%END%]EntrezGene IDs or UniProt IDs<br><br>
+    [%END%] 
+    Paste gene IDs/symbols (one per line):
+    <br>
+    <textarea name="filter_gene_ids_text" rows=10 cols=60 wrap=SOFT"></textarea>
+    <input type="button" name="clear_filter_gene_ids" value="Clear"
+    onClick="{input.filter_gene_ids_text.value=''}">
+    <br>
+    <br>
+
+    <b>OR</b> upload a plain text file containing gene IDs/symbols (one per line):
+    <br>
+    <span class="subtext">
+    <input type="file" name="filter_gene_ids_file" size="33">
+    <input type="button" name="clear_filter_gene_ids_file" value="Clear"
+	onClick="{input.filter_gene_ids_file.value=''}">
+    </span>
+    <br>
+    <br>
 
     <!--
       We can filter both FANTOM5 and custom CAGE peaks by regions.

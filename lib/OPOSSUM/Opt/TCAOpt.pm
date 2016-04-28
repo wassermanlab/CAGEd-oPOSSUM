@@ -5,7 +5,7 @@
 #
 # TFBS_Cluster system paths
 #
-use constant TFBS_CLUSTER_HOME       => '/apps/CAGEd_oPOSSUM/lib/TFBSCluster';
+use constant TFBS_CLUSTER_HOME       => '/devel/CAGEd_oPOSSUM/lib/TFBSCluster';
 use constant TFBS_CLUSTER_LIB_PATH   => TFBS_CLUSTER_HOME . '/lib';
 
 

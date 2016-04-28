@@ -27,6 +27,7 @@ experiment_ssa.pl
           | [-tfids tf_ids]
           | ([-co collections] [-tax tax_groups] [-ic min_ic])
       [-hma]
+      [-cla]
       [-th threshold]
       [-up upstream_bp]
       [-dn downstream_bp]
@@ -187,7 +188,7 @@ e.g: -tax vertebrates -tax "insects, nematodes"
             Specifies which TF database to use; default = JASPAR_2016.
 
     -tfmf FILE
-            File containing one or more JASPAR TFBS profile matrices.
+            File containing one or more "custom" TFBS profile matrices.
             If specified, it takes presedence over any of the
             -tff, -tfids, -co, -tax and -ic options below.
 
@@ -343,14 +344,14 @@ use strict;
 
 use warnings;
 
-use lib '/apps/CAGEd_oPOSSUM/lib';
+use lib '/devel/CAGEd_oPOSSUM/lib';
 
 use Getopt::Long;
 use Pod::Usage;
 use Carp;
 use Array::Utils qw(:all);   # for debugging only
 use File::Spec::Functions qw(abs2rel catdir catfile splitpath file_name_is_absolute);
-use File::Path qw(remove_tree);
+use File::Path qw(remove_tree make_path);
 use POSIX qw/ floor /;
 
 use Log::Log4perl qw(get_logger :levels);
@@ -368,11 +369,15 @@ use OPOSSUM::Analysis::Counts;
 use OPOSSUM::Analysis::Zscore;
 use OPOSSUM::Analysis::Fisher;
 use OPOSSUM::Analysis::CombinedResultSet;
+use OPOSSUM::Analysis::Cluster::Zscore;
+use OPOSSUM::Analysis::Cluster::Fisher;
+use OPOSSUM::Analysis::Cluster::CombinedResultSet;
 use OPOSSUM::Plot::ScoreVsGC;
 use OPOSSUM::Tools::SearchRegionTool;
 #use OPOSSUM::Tools::BiasAway;
 use OPOSSUM::Tools::Homer;
 #use Statistics::Distributions;
+use OPOSSUM::Include::TCAInclude;
 
 #
 # Not used any more. We are fetching sequences using BEDTools now.
@@ -426,6 +431,7 @@ my @collections;
 my @tax_groups;
 my $min_ic;
 my $hma;
+my $cla;
 my $threshold;
 my $upstream_bp;
 my $downstream_bp;
@@ -481,6 +487,7 @@ GetOptions(
     'tax=s'         => \@tax_groups,
     'ic=s'          => \$min_ic,
     'hma'           => \$hma,
+    'cla'           => \$cla,
     'th=s'          => \$threshold,
     'up=i'          => \$upstream_bp,
     'dn=i'          => \$downstream_bp,
@@ -531,6 +538,25 @@ $job_args{-rel_results_dir} = $rel_results_dir;
 my $logger = init_logging();
 
 $logger->info("Starting analysis");
+$logger->info("Performing TFBS motif analysis");
+
+my $tf_type = $job_args{-tf_type};
+
+my $do_cluster_analysis = 0;
+if ($cla) {
+    if ($tf_type eq 'custom') {
+        $logger->warn(
+              "TFBS cluster analysis indicated but user-defined TFBS profiles"
+            . " provided. Cannot perform cluster analysis with user-defined"
+            . " TFBS profiles. Will skip cluster analysis.",
+            \%job_args
+        );
+    } else {
+        $do_cluster_analysis = 1;
+    }
+}
+
+$job_args{-do_cluster_analysis} = $do_cluster_analysis;
 
 #
 # Connect to CAGEd-oPOSSUM DB and get the necessary adaptors
@@ -558,6 +584,9 @@ my $sra = $opdba->get_SearchRegionAdaptor
     
 my $tfbsa = $opdba->get_TFBSAdaptor
     || fatal("Could not get TFBSAdaptor", \%job_args);
+
+my $gdba = $opdba->get_GeneAdaptor
+    || fatal("Could not get GeneAdaptor", \%job_args);
 
 my $db_info = $dbia->fetch_db_info();
 unless ($db_info) {
@@ -591,35 +620,34 @@ unless ($db_info) {
 #}
 
 my $t_tss_type = $job_args{-t_tss_type};
-if ($t_tss_type eq 'fantom5') {
+
+#
+# Get optional gene IDs on which to filter target CAGE peaks. We need these
+# BEFORE we retrieve CAGE peaks below.
+#
+if ($t_gene_ids_file && !@t_gene_ids) {
     #
-    # Get optional gene IDs on which to filter target CAGE peaks. We need these
-    # BEFORE we retrieve CAGE peaks below.
+    # Read gene IDs from file.
     #
-    if ($t_gene_ids_file && !@t_gene_ids) {
-        #
-        # Read gene IDs from file.
-        #
-        $logger->info("Reading target gene IDs from file $t_gene_ids_file");
+    $logger->info("Reading target gene IDs from file $t_gene_ids_file");
 
-        my $gene_ids = read_gene_ids_from_file($t_gene_ids_file, \%job_args);
+    my $gene_ids = read_gene_ids_from_file($t_gene_ids_file, \%job_args);
 
-        unless ($gene_ids) {
-            fatal(
-                "No target filtering gene IDs read from file $t_gene_ids_file",
-                \%job_args
-            );
-        }
-
-        $logger->info(
-            sprintf(
-                "Read %d target filtering gene IDs from file $t_gene_ids_file",
-                scalar @$gene_ids
-            )
+    unless ($gene_ids) {
+        fatal(
+            "No target filtering gene IDs read from file $t_gene_ids_file",
+            \%job_args
         );
-
-        @t_gene_ids = @$gene_ids;
     }
+
+    $logger->info(
+        sprintf(
+            "Read %d target filtering gene IDs from file $t_gene_ids_file",
+            scalar @$gene_ids
+        )
+    );
+
+    @t_gene_ids = @$gene_ids;
 }
 
 #
@@ -636,27 +664,97 @@ if ($t_tss_type eq 'fantom5') {
 # gene/proteins IDs.
 #
 $logger->info("Fetching target CAGE peaks");
+
+my $t_srt = OPOSSUM::Tools::SearchRegionTool->new(
+    -species    => $species,
+    -t_or_b     => 'target',
+    -dir        => $results_dir
+);
+
+unless ($t_srt) {
+    fatal("Error initializing target search region tool", \%job_args);
+}
+
 my $t_tss;
 my $t_experiments;
 if ($t_tss_regions_file) {
-    #
-    # Read user defined target CAGE peak regions from the specified file
-    #
-    $logger->info(
-        "Reading user defined target CAGE peaks from file"
-        . " $t_tss_regions_file"
-    );
+    if (@t_gene_ids) {
+        #
+        # Now also implementing gene filters for user supplied CAGE peaks
+        #
+        $logger->info("Fetching target filtering gene promoter regions");
 
-    $t_tss = read_tss_regions_from_file($t_tss_regions_file, \%job_args);
-
-    unless ($t_tss) {
-        fatal("Error reading user defined target CAGE peaks."
-            . " Please make sure that at least the first 6 columns"
-            . " (chromosome, start, end, name, score and strand)"
-            . " are defined. Note the score is not used and can be set to"
-            . " some dummy value, e.g. 0.",
-            \%job_args
+        my $t_gene_prom_srs = fetch_gene_promoter_regions(
+            $gdba, \@t_gene_ids,
+            FILTER_TSS_UPSTREAM_BP,
+            FILTER_TSS_DOWNSTREAM_BP
         );
+
+        unless ($t_gene_prom_srs) {
+            fatal("No target filtering gene promoter regions obtained");
+        }
+
+        $job_args{-t_gene_prom_srs} = $t_gene_prom_srs;
+
+        $logger->info(
+            "Intersecting target user defined CAGE peaks with filtering gene"
+            . " promoter regions"
+        );
+
+        my $t_gene_prom_srs_file = catfile(
+            $results_dir, 't_gene_promoter_search_regions.bed'
+        );
+
+        my $ok = $t_srt->write_bed(
+            -filename   => $t_gene_prom_srs_file,
+            -regions    => $t_gene_prom_srs
+        );
+
+        unless ($ok) {
+            fatal("Error writing target promoter regions file");
+        }
+
+        my $t_gene_filtered_tss_file = catfile(
+            $results_dir, 't_gene_filtered_tss.bed'
+        );
+
+        $ok = $t_srt->intersect_regions(
+            -in_regions_file             => $t_tss_regions_file,
+            -intersecting_regions_file   => $t_gene_prom_srs_file,
+            -out_regions_file            => $t_gene_filtered_tss_file,
+            -options                     => '-u -wa'
+        );
+
+        unless ($ok) {
+            fatal(
+                "Error intersecting target CAGE peaks with filtering gene"
+                . " promoter regions"
+            );
+        }
+
+        $t_tss = read_tss_regions_from_file(
+            $t_gene_filtered_tss_file, \%job_args
+        );
+    } else {
+        #
+        # Read user defined target CAGE peak regions from the specified file
+        #
+        $logger->info(
+            "Reading user defined target CAGE peaks from file"
+            . " $t_tss_regions_file"
+        );
+
+        $t_tss = read_tss_regions_from_file($t_tss_regions_file, \%job_args);
+
+        unless ($t_tss) {
+            fatal("Error reading user defined target CAGE peaks."
+                . " Please make sure that at least the first 6 columns"
+                . " (chromosome, start, end, name, score and strand)"
+                . " are defined. Note the score is not used and can be set to"
+                . " some dummy value, e.g. 0.",
+                \%job_args
+            );
+        }
     }
 } elsif ($t_tss_names_file) {
     #
@@ -708,16 +806,6 @@ my $num_t_tss = scalar @$t_tss;
 $logger->info("Number of target CAGE peaks: $num_t_tss");
 
 $logger->info("Computing target CAGE peak search regions");
-
-my $t_srt = OPOSSUM::Tools::SearchRegionTool->new(
-    -species    => $species,
-    -t_or_b     => 'target',
-    -dir        => $results_dir
-);
-
-unless ($t_srt) {
-    fatal("Error initializing target search region tool", \%job_args);
-}
 
 my $t_search_regions_file = catfile($results_dir, 't_search_regions.bed');
 my $ok = $t_srt->compute_tss_search_regions(
@@ -800,27 +888,97 @@ if ($b_tss_type eq 'fantom5') {
 # indicated to be TSSs and/or  whether they are associated to specific
 # gene/proteins IDs.
 #
+
+my $b_srt = OPOSSUM::Tools::SearchRegionTool->new(
+    -species    => $species,
+    -t_or_b     => 'background',
+    -dir        => $results_dir
+);
+
+unless ($b_srt) {
+    fatal("Error initializing background search region tool", \%job_args);
+}
+
 my $b_tss;
 my $b_experiments;
 if ($b_tss_regions_file) {
-    #
-    # Read user defined background CAGE peak regions from the specified file
-    #
-    $logger->info(
-        "Reading user defined background CAGE peaks from file"
-        . " $b_tss_regions_file"
-    );
+    if (@b_gene_ids) {
+        #
+        # Now also implementing gene filters for user supplied CAGE peaks
+        #
+        $logger->info("Fetching background filtering gene promoter regions");
 
-    $b_tss = read_tss_regions_from_file($b_tss_regions_file, \%job_args);
-
-    unless ($b_tss) {
-        fatal("Error reading user defined background CAGE peaks."
-            . " Please make sure that at least the first 6 columns"
-            . " (chromosome, start, end, name, score and strand)"
-            . " are defined. Note the score is not used and can be set to"
-            . " some dummy value, e.g. 0.",
-            \%job_args
+        my $b_gene_prom_srs = fetch_gene_promoter_regions(
+            $gdba, \@b_gene_ids,
+            FILTER_TSS_UPSTREAM_BP,
+            FILTER_TSS_DOWNSTREAM_BP
         );
+
+        unless ($b_gene_prom_srs) {
+            fatal("No background filtering gene promoter regions obtained");
+        }
+
+        $job_args{-b_gene_prom_srs} = $b_gene_prom_srs;
+
+        $logger->info(
+            "Intersecting background user defined CAGE peaks with filtering gene"
+            . " promoter regions"
+        );
+
+        my $b_gene_prom_srs_file = catfile(
+            $results_dir, 'b_gene_promoter_search_regions.bed'
+        );
+
+        my $ok = $b_srt->write_bed(
+            -filename   => $b_gene_prom_srs_file,
+            -regions    => $b_gene_prom_srs
+        );
+
+        unless ($ok) {
+            fatal("Error writing background promoter regions file");
+        }
+
+        my $b_gene_filtered_tss_file = catfile(
+            $results_dir, 'b_gene_filtered_tss.bed'
+        );
+
+        $ok = $b_srt->intersect_regions(
+            -in_regions_file             => $b_tss_regions_file,
+            -intersecting_regions_file   => $b_gene_prom_srs_file,
+            -out_regions_file            => $b_gene_filtered_tss_file,
+            -options                     => '-u -wa'
+        );
+
+        unless ($ok) {
+            fatal(
+                "Error intersecting background CAGE peaks with filtering gene"
+                . " promoter regions"
+            );
+        }
+
+        $b_tss = read_tss_regions_from_file(
+            $b_gene_filtered_tss_file, \%job_args
+        );
+    } else {
+        #
+        # Read user defined background CAGE peak regions from the specified file
+        #
+        $logger->info(
+            "Reading user defined background CAGE peaks from file"
+            . " $b_tss_regions_file"
+        );
+
+        $b_tss = read_tss_regions_from_file($b_tss_regions_file, \%job_args);
+
+        unless ($b_tss) {
+            fatal("Error reading user defined background CAGE peaks."
+                . " Please make sure that at least the first 6 columns"
+                . " (chromosome, start, end, name, score and strand)"
+                . " are defined. Note the score is not used and can be set to"
+                . " some dummy value, e.g. 0.",
+                \%job_args
+            );
+        }
     }
 } elsif ($b_tss_names_file) {
     #
@@ -891,16 +1049,6 @@ $job_args{-b_experiments} = $b_experiments if $b_experiments;
 # the random set.
 #
 $job_args{-b_tss} = $b_tss if $b_tss && !$b_is_rand;
-
-my $b_srt = OPOSSUM::Tools::SearchRegionTool->new(
-    -species    => $species,
-    -t_or_b     => 'background',
-    -dir        => $results_dir
-);
-
-unless ($b_srt) {
-    fatal("Error initializing background search region tool", \%job_args);
-}
 
 my $tf_set = get_tfbs_matrix_set(\%job_args);
 
@@ -1065,13 +1213,7 @@ if ($b_is_rand) {
               \%job_args);
     }
 
-    #
-    # XXX
-    # Is there a way (as with the BiasAway version) to retrieve regions
-    # corresponding to the background sequences so we can fetch TFBS from
-    # the DB rather than scan the sequences?
-    # XXX
-    #
+    #$b_search_regions = create_search_region_list_from_bioseq_list($b_seqs);
 } else {
     $logger->info("Computing background CAGE peak search regions");
 
@@ -1175,7 +1317,7 @@ if ($hma && !$b_is_rand) {
 #
 # Compute target and backround counts
 #
-my $tf_type = $job_args{-tf_type};
+my $t_sr_tfbs_map;
 my $t_counts;
 if ($t_tss_type eq 'custom' || $tf_type eq 'custom') {
     #
@@ -1206,19 +1348,51 @@ if ($t_tss_type eq 'custom' || $tf_type eq 'custom') {
     }
 
     #
+    # XXX
+    # t_search_regions already exits. We originally get the sequences using the
+    # t_search_regions above. For now just recreate it rather than trying
+    # to combine the sequence information with the search region info.
+    # In the future we could modify the SearchRegionTool code to just add the
+    # sequence information to the search region structures.
+    # DJA 2016/4/21
+    # XXX
+    #
+    $t_search_regions = create_search_region_list_from_bioseq_list($t_seqs);
+
+    #
     # Search target sequences with the matrix set.
     #
-    $logger->info("Searching target sequences for TFBSs and computing counts");
+    $logger->info("Searching target search region sequences for TFBSs");
 
-    $t_counts = search_seqs_and_compute_tfbs_counts(
-        $tf_set, $t_seqs, $threshold, $write_details, \%job_args
+    $t_sr_tfbs_map = search_regions($tf_set, $t_search_regions, $threshold);
+
+    unless ($t_sr_tfbs_map) {
+        fatal("Error scanning target search region sequences for TFBSs",
+            \%job_args
+        );
+    }
+
+    if ($write_details) {
+        $logger->info("Writing target TFBS details");
+
+        #write_details_from_seq_tfbs_map(
+        write_details_from_search_region_tfbs_map(
+            $t_sr_tfbs_map, $tf_set, $t_search_regions, $results_dir
+        );
+    }
+
+    $logger->info("Computing target TFBS counts");
+
+    #$t_counts = search_seqs_and_compute_tfbs_counts(
+    #    $tf_set, $t_seqs, $threshold, $write_details, \%job_args
+    #);
+    $t_counts = OPOSSUM::Analysis::Counts->new(
+        -seq_tfbs_map   => $t_sr_tfbs_map,
+        -tf_ids         => $tf_ids
     );
 
     unless ($t_counts) {
-        fatal(
-            "Error scanning target CAGE peak regions for TFBSs",
-            \%job_args
-        );
+        fatal("Error computing target TFBS counts", \%job_args);
     }
 } else {
     #
@@ -1258,35 +1432,45 @@ if ($t_tss_type eq 'custom' || $tf_type eq 'custom') {
     #    ));
     #}
 
+    $logger->info("Fetching target TFBS");
+
+    $t_sr_tfbs_map = $tfbsa->fetch_search_region_tfbs_map(
+        -tf_set             => $tf_set,
+        -threshold          => $threshold,
+        #-search_region_ids  => \@t_pc_sr_ids,
+        -search_region_map  => $t_search_region_map,
+        #-logger             => $logger
+    );
+
+    unless ($t_sr_tfbs_map) {
+        fatal("Error retrieving target TFBSs", \%job_args);
+    }
+
     if ($write_details) {
-        $logger->info("Fetching target TFBS counts and detail data");
+        $logger->info("Writing target TFBS details");
 
-        $t_counts = $tfbsa->fetch_tfbs_counts(
-            -tf_set             => $tf_set,
-            -threshold          => $threshold,
-            #-search_region_ids  => \@t_pc_sr_ids,
-            -search_region_map  => $t_search_region_map,
-            -results_dir        => $results_dir,
-            #-logger             => $logger
-        );
-    } else {
-        $logger->info("Fetching target TFBS counts");
-
-        $t_counts = $tfbsa->fetch_tfbs_counts(
-            -tf_set             => $tf_set,
-            -threshold          => $threshold,
-            #-search_region_ids  => \@t_pc_sr_ids,
-            -search_region_map  => $t_search_region_map,
-            #-logger             => $logger
+        write_details_from_search_region_tfbs_map(
+            $t_sr_tfbs_map, $tf_set, $t_search_regions, $results_dir
         );
     }
 
+    $logger->info("Computing target TFBS counts");
+
+    #$t_counts = compute_counts_from_search_region_tfbs_map(
+    #    $t_sr_tfbs_map, $tf_set
+    #);
+    $t_counts = OPOSSUM::Analysis::Counts->new(
+        -seq_tfbs_map   => $t_sr_tfbs_map,
+        -tf_ids         => $tf_ids
+    );
+
     unless ($t_counts) {
-        fatal("Error retrieving target CAGE peak region TFBSs", \%job_args);
+        fatal("Error computing target TFBS counts", \%job_args);
     }
 }
 
 my $b_counts;
+my $b_sr_tfbs_map;
 if ($b_tss_type eq 'custom' || $tf_type eq 'custom') {
     #
     # Fetch background search region sequences
@@ -1320,21 +1504,43 @@ if ($b_tss_type eq 'custom' || $tf_type eq 'custom') {
     }
 
     #
-    # Search background sequences with the matrix set.
+    # XXX
+    # b_search_regions already exits. We originally get the sequences using the
+    # b_search_regions above. For now just recreate it rather than trying
+    # to combine the sequence information with the search region info.
+    # In the future we could modify the SearchRegionTool code to just add the
+    # sequence information to the search region structures.
+    # DJA 2016/4/21
+    # XXX
     #
-    $logger->info(
-        "Searching background sequences for TFBSs and computing counts
-    ");
+    $b_search_regions = create_search_region_list_from_bioseq_list($b_seqs);
 
-    $b_counts = search_seqs_and_compute_tfbs_counts(
-        $tf_set, $b_seqs, $threshold, 0, \%job_args
-    );
+    #
+    # Search target sequences with the matrix set.
+    #
+    $logger->info("Searching background search region sequences for TFBSs");
 
-    unless ($b_counts) {
+    $b_sr_tfbs_map = search_regions($tf_set, $b_search_regions, $threshold);
+
+    unless ($b_sr_tfbs_map) {
         fatal(
             "Error scanning background CAGE peak regions for TFBSs",
             \%job_args
         );
+    }
+
+    $logger->info("Computing background TFBS counts");
+
+    #$b_counts = search_seqs_and_compute_tfbs_counts(
+    #    $tf_set, $b_seqs, $threshold, $write_details, \%job_args
+    #);
+    $b_counts = OPOSSUM::Analysis::Counts->new(
+        -seq_tfbs_map   => $b_sr_tfbs_map,
+        -tf_ids         => $tf_ids
+    );
+
+    unless ($b_counts) {
+        fatal("Error computing background TFBS counts", \%job_args);
     }
 } else {
     #my %b_pc_sr_ids_hash = map {$_->search_region_id => 1} @$b_tss;
@@ -1355,17 +1561,32 @@ if ($b_tss_type eq 'custom' || $tf_type eq 'custom') {
 
     my $b_search_region_map = create_search_region_map($b_search_regions);
 
-    $logger->info("Fetching background TFBS counts");
-    $b_counts = $tfbsa->fetch_tfbs_counts(
+    $logger->info("Fetching background TFBS");
+
+    $b_sr_tfbs_map = $tfbsa->fetch_search_region_tfbs_map(
         -tf_set             => $tf_set,
         -threshold          => $threshold,
-        #-search_region_ids  => \@b_pc_sr_ids,
+        #-search_region_ids  => \@t_pc_sr_ids,
         -search_region_map  => $b_search_region_map,
         #-logger             => $logger
     );
 
-    unless ($b_counts) {
-        fatal("Error retrieving background search region TFBSs", \%job_args);
+    unless ($b_sr_tfbs_map) {
+        fatal("Error retrieving background CAGE peak region TFBSs", \%job_args);
+    }
+
+    $logger->info("Computing background TFBS counts");
+
+    #$b_counts = compute_counts_from_search_region_tfbs_map(
+    #    $b_sr_tfbs_map, $tf_set
+    #);
+    $b_counts = OPOSSUM::Analysis::Counts->new(
+        -seq_tfbs_map   => $b_sr_tfbs_map,
+        -tf_ids         => $tf_ids
+    );
+
+    unless ($t_counts) {
+        fatal("Error computing background TFBS counts", \%job_args);
     }
 }
 
@@ -1536,6 +1757,10 @@ if ($plot) {
     }
 }
 
+if ($do_cluster_analysis) {
+    do_cluster_analysis();
+}
+
 if ($email) {
     $logger->info("Sending notification email to $email");
     send_email(\%job_args);
@@ -1550,6 +1775,277 @@ $logger->info("Finished analysis");
 exit;
 
 ##########################################
+
+sub do_cluster_analysis
+{
+    $logger->info("Performing clustered TFBS motif analysis");
+
+    my $cl_results_dir = catdir($results_dir, CLUSTER_RESULTS_SUBDIR);
+    my $cl_rel_results_dir = catdir($rel_results_dir, CLUSTER_RESULTS_SUBDIR);
+
+    $job_args{-cl_results_dir}     = $cl_results_dir;
+    $job_args{-cl_rel_results_dir} = $cl_rel_results_dir;
+
+    make_path($cl_results_dir, mode => 0700);
+
+    my $cldba = tfbs_cluster_db_connect();
+    unless ($cldba) {
+        $logger->error(
+            "Could not connect to TFBS cluster database", \%job_args);
+        return;
+    }
+
+    my $tf_cluster_set = fetch_tf_cluster_set($cldba, \%job_args);
+    unless ($tf_cluster_set) {
+        $logger->error("Could not fetch TF cluster set", \%job_args);
+        return;
+    }
+
+    $job_args{-tf_cluster_set} = $tf_cluster_set;
+
+    my $t_sr_tfbs_cluster_map = create_search_region_tfbs_cluster_map(
+        $t_sr_tfbs_map, $tf_cluster_set, $tf_set
+    );
+
+    if ($write_details) {
+        write_details_from_search_region_tfbs_map(
+            $t_sr_tfbs_cluster_map, $tf_cluster_set, $t_search_regions,
+            $cl_results_dir
+        );
+    }
+
+    #my $t_cluster_counts = compute_counts_from_search_region_tfbs_cluster_map(
+    #    $t_sr_tfbs_cluster_map, $tf_cluster_set
+    #);
+    my $t_cluster_counts = OPOSSUM::Analysis::Cluster::Counts->new(
+        -cluster_ids        => $tf_cluster_set->ids(),
+        -seq_cluster_map    => $t_sr_tfbs_cluster_map
+    );
+
+    unless ($t_cluster_counts) {
+        $logger->error("Computing target TFBS cluster counts");
+        return;
+    }
+
+    my $b_sr_tfbs_cluster_map = create_search_region_tfbs_cluster_map(
+        $b_sr_tfbs_map, $tf_cluster_set, $tf_set
+    );
+
+    #my $b_cluster_counts = compute_counts_from_search_region_tfbs_cluster_map(
+    #    $b_sr_tfbs_cluster_map, $tf_cluster_set
+    #);
+    my $b_cluster_counts = OPOSSUM::Analysis::Cluster::Counts->new(
+        -cluster_ids        => $tf_cluster_set->ids(),
+        -seq_cluster_map    => $b_sr_tfbs_cluster_map
+    );
+
+    unless ($b_cluster_counts) {
+        $logger->error("Computing background TFBS cluster counts");
+        return;
+    }
+
+    #my $cl_fisher = OPOSSUM::Analysis::Cluster::Fisher->new();
+    my $cl_fisher = OPOSSUM::Analysis::Cluster::Fisher->new();
+    unless ($cl_fisher) {
+        $logger->error("Initializing Fisher TFBS cluster analysis", \%job_args);
+        return;
+    }
+
+    $logger->info("Computing Fisher TFBS cluster scores");
+    my $cl_fresult_set = $cl_fisher->calculate_Fisher_probability(
+        $b_cluster_counts,
+        $t_cluster_counts
+    );
+
+    unless ($cl_fresult_set) {
+        $logger->error("Performing Fisher TFBS cluster analysis", \%job_args);
+        return;
+    }
+
+    #my $cl_zscore = OPOSSUM::Analysis::Cluster::Zscore->new();
+    my $cl_zscore = OPOSSUM::Analysis::Cluster::Zscore->new();
+
+    unless ($cl_zscore) {
+        $logger->error(
+            "Initializing Z-score TFBS cluster analysis", \%job_args
+        );
+        return;
+    }
+
+    $logger->info("Computing TFBS cluster Z-scores");
+    my $cl_zresult_set = $cl_zscore->calculate_Zscore(
+        $b_cluster_counts,
+        $t_cluster_counts,
+        $b_seq_length,
+        $t_seq_length,
+        $tf_cluster_set
+    );
+
+    unless ($cl_zresult_set) {
+        $logger->error("Computing TFBS cluster Z-score", \%job_args);
+        return;
+    }
+
+    #
+    # Use new OPOSSUM::Analysis::CombinedResultSet to combine Fisher and
+    # Z-score result sets.
+    #
+    $logger->info("Combining TFBS cluster Fisher and Z-scores");
+    my $cl_cresult_set = OPOSSUM::Analysis::Cluster::CombinedResultSet->new(
+        -fisher_result_set  => $cl_fresult_set,
+        -zscore_result_set  => $cl_zresult_set
+    );
+
+
+    unless ($cl_cresult_set) {
+        $logger->error(
+            "Combining TFBS cluster Fisher and Z-score result_set",
+            \%job_args
+        );
+        return;
+    }
+
+    #
+    # Get results as a list
+    #
+    my %cl_result_params;
+    $cl_result_params{-num_results} = $num_results if defined $num_results;
+    $cl_result_params{-zscore_cutoff} = $zscore_cutoff
+        if defined $zscore_cutoff;
+    $cl_result_params{-fisher_cutoff} = $fisher_cutoff
+        if defined $fisher_cutoff;
+
+    if (defined $sort_by) {
+        if ($sort_by =~ /^fisher/) {
+            $sort_by = 'fisher_p_value';
+        } elsif ($sort_by =~ /^z_score/ || $sort_by =~ /^z-score/) {
+            $sort_by = 'zscore';
+        }
+
+        $cl_result_params{-sort_by} = $sort_by;
+
+        # Sort z-score from highest to lowest
+        $cl_result_params{-reverse} = 1;
+    }
+
+    $logger->info("Getting filtered/sorted TFBS cluster result list");
+    my $cl_cresults = $cl_cresult_set->get_list(%cl_result_params);
+
+    $job_args{-cl_cresults} = $cl_cresults;
+
+    $message = "";
+    $ok = 1;
+    unless ($cl_cresults) {
+        $message = "No TFBS clusters scored above the selected Z-score/Fisher"
+            . " thresholds";
+        $logger->info($message);
+        $ok = 0;
+        #
+        # XXX
+        # The ok/message stuff is not handled properly later, so just fatal it
+        # for now.
+        # DJA 2012/05/03
+        #
+        #fatal($message, \%job_args);
+        return;
+    }
+
+    $job_args{-cl_num_results} = scalar @$cl_cresults;
+
+    #
+    # Stringify any TF attributes which may be stored as array refs (e.g. class,
+    # family).
+    #
+    #stringify_tf_set_attributes($tf_set, 'class', 'family');
+
+    if ($web) {
+        $logger->info("Writing TFBS cluster HTML results");
+        write_cluster_results_html(\%job_args); 
+    }
+
+    $logger->info("Writing TFBS cluster text results");
+    $out_file = catfile($cl_results_dir, RESULTS_TEXT_FILENAME);
+    write_cluster_results_text(
+        $out_file, $cl_cresults, $tf_cluster_set, \%job_args
+    );
+
+    if ($write_details) {
+        $logger->info("Writing TFBS cluster details");
+        write_tfbs_cluster_details($cl_cresults, $tf_cluster_set, \%job_args);
+    }
+
+    #
+    # Can't really plot as we do not have GC compositions for clusters.
+    #
+#    if ($plot) {
+#        $logger->info("Plotting TFBS cluster scores vs. profile \%GC content");
+#
+#        my $cl_z_plot_file      = "$cl_results_dir/" . ZSCORE_PLOT_FILENAME;
+#        my $cl_fisher_plot_file = "$cl_results_dir/" . FISHER_PLOT_FILENAME;
+#
+#        my $plotter = OPOSSUM::Plot::ScoreVsGC->new(-logger => $logger);
+#
+#        if ($plotter) {
+#            my @z_plot_errs;
+#            unless (
+#                $plotter->plot(
+#                    $cl_cresults, $tf_cluster_set, 'Z', ZSCORE_PLOT_SD_FOLD,
+#                    $cl_z_plot_file, \@z_plot_errs
+#                )
+#            ) {
+#                my $plot_err_str = '';
+#                if (@z_plot_errs) {
+#                    $plot_err_str = join '\n', @z_plot_errs;
+#                }
+#                $logger->error(
+#                    "Could not plot TFBS cluster Z-scores vs. GC content"
+#                    . " - $plot_err_str"
+#                );
+#            }
+#
+#            $logger->info(
+#                "Finished plotting TFBS cluster Z-scores vs. GC content"
+#            );
+#        } else {
+#            $logger->error("Could not initialize TFBS cluster Z-score vs."
+#                         . " GC content plotting");
+#        }
+#
+#        #
+#        # XXX
+#        # Create new plotter instance to avoid R "plot.new has not been called yet"
+#        # error. Still don't know why this seemed to work before and still works
+#        # in oPOSSUM3 but now doesn't work here.
+#        #
+#        #$plotter = OPOSSUM::Plot::ScoreVsGC->new(-logger => $logger);
+#
+#        if ($plotter) {
+#            my @f_plot_errs;
+#            unless(
+#                $plotter->plot(
+#                    $cl_cresults, $tf_cluster_set, 'Fisher',
+#                    FISHER_PLOT_SD_FOLD, $cl_fisher_plot_file, \@f_plot_errs
+#                )
+#            ) {
+#                my $plot_err_str = '';
+#                if (@f_plot_errs) {
+#                    $plot_err_str = join '\n', @f_plot_errs;
+#                }
+#                $logger->error(
+#                    "Could not plot TFBS cluster Fisher scores vs. GC content"
+#                    . " - $plot_err_str"
+#                );
+#            }
+#
+#            $logger->info(
+#                "Finished plotting TFBS cluster Fisher scores vs. GC content"
+#            );
+#        } else {
+#            $logger->error("Could not initialize TFBS cluster Fisher vs."
+#                         . " GC content plotting");
+#        }
+#    }
+}
 
 #
 # Parse program arguments. Set any default values for required arguments that
@@ -1574,7 +2070,13 @@ sub parse_args
     my $heading = sprintf(
         "%s Analysis", ucfirst $species
     );
+
+    my $cluster_heading = sprintf(
+        "%s TFBS Cluster Analysis", ucfirst $species
+    );
+
     $job_args{-heading} = $heading;
+    $job_args{-cluster_heading} = $heading;
 
     #
     # Check that exactly one target experiment / CAGE peak argument
@@ -1882,6 +2384,7 @@ sub parse_args
     $sort_by       = DFLT_RESULT_SORT_BY unless $sort_by;
 
     $job_args{-hma} = 1 if $hma;
+    $job_args{-cla} = 1 if $cla;
     $job_args{-tf_db} = $tf_db;
     $job_args{-threshold} = $threshold;
     $job_args{-upstream_bp} = $upstream_bp;
@@ -2325,6 +2828,11 @@ sub write_results_html
         );
     }
 
+    my $cluster_results_subdir = undef;
+    if ($job_args->{-do_cluster_analysis}) {
+        $cluster_results_subdir = CLUSTER_RESULTS_SUBDIR;
+    }
+
     my $title = "CAGEd-oPOSSUM $heading";
 
     my $vars = {
@@ -2376,6 +2884,7 @@ sub write_results_html
         downstream_bp       => $downstream_bp,
         results             => $cresults,
         rel_results_dir     => $rel_results_dir,
+        cluster_results_subdir  => $cluster_results_subdir,
         result_type         => $result_type,
         num_display_results => $num_results,
         zscore_cutoff       => $zscore_cutoff,
@@ -2417,6 +2926,193 @@ sub write_results_html
                                },
 
         var_template        => "results_integrated_ssa.html"
+    };
+
+    my $output = process_template('master.html', $vars);
+
+    my $html_filename = catfile($results_dir, RESULTS_HTDOCS_FILENAME);
+
+    open(OUT, ">$html_filename")
+        || fatal("Could not create HTML results file $html_filename",
+                 $job_args);
+
+    print OUT $output;
+
+    close(OUT);
+
+    $logger->info("Wrote HTML formatted results to $html_filename");
+
+    return $html_filename;
+}
+
+#
+# Ouput combined Z-score/Fisher results as plain text
+#
+sub write_cluster_results_text
+{
+    my ($filename, $results, $tf_cluster_set, $job_args) = @_;
+
+    return unless $results && $results->[0];
+
+    my $text = "Cluster ID\tTarget region hits\tTarget region non-hits\tBackground region hits\tBackground region non-hits\tTarget cluster hits\tTarget cluster nucleotide rate\tBackground cluster hits\tBackground cluster nucleotide rate\tZ-score\tFisher score\n";
+
+    foreach my $result (@$results) {
+        my $cl = $tf_cluster_set->get_tf_cluster($result->id());
+
+        $text .= sprintf "%s\t%d\t%d\t%d\t%d\t%d\t%s\t%s\t%s\t%s\t%s\n",
+            'C' . $cl->id(),
+            $result->t_seq_hits() || 0,
+            $result->t_seq_no_hits() || 0,
+            $result->bg_seq_hits() || 0,
+            $result->bg_seq_no_hits() || 0,
+            $result->t_cluster_hits() || 0,
+            defined $result->t_cluster_rate()
+                ? sprintf("%.3f", $result->t_cluster_rate()) : 'NA',
+            $result->bg_cluster_hits() || 0,
+            defined $result->bg_cluster_rate()
+                ? sprintf("%.3f", $result->bg_cluster_rate()) : 'NA',
+            defined $result->zscore()
+                ? sprintf("%.3f", $result->zscore()) : 'NA',
+            defined $result->fisher_p_value()
+                ? sprintf("%.3f", $result->fisher_p_value()) : 'NA';
+    }
+    
+    unless (open(FH, ">$filename")) {
+        fatal("Unable to create TFBS cluster results text file $filename",
+            $job_args);
+        return;
+    }
+
+    print FH $text;
+
+    close(FH);
+    
+    return $filename;
+}
+
+#
+# Ouput combined Z-score/Fisher results as HTML
+#
+sub write_cluster_results_html
+{    
+    my $job_args = shift;
+
+    my $results             = $job_args->{-cl_cresults};
+    my $results_dir         = $job_args->{-cl_results_dir};
+    my $rel_results_dir     = $job_args->{-cl_rel_results_dir};
+    my $tf_cluster_set      = $job_args->{-tf_cluster_set};
+
+    my $warn_zero_bg_hits = 0;
+    foreach my $result (@$results) {
+        if ($result->bg_seq_hits() == 0) {
+            $warn_zero_bg_hits = 1;
+            last;
+        }
+    }
+
+    my $result_type;
+    if (defined $zscore_cutoff || defined $fisher_cutoff) {
+        $result_type = 'significant_hits';
+    } else {
+        $result_type = 'top_x_results';
+    }
+
+    my $heading             = $job_args->{-cluster_heading};
+    my $bg_color_class      = $job_args->{-bg_color_class};
+    my $tf_select_criteria  = $job_args->{-tf_select_criteria};
+
+    my $title = "CAGEd-oPOSSUM $heading";
+
+    my $vars = {
+        abs_htdocs_path     => ABS_HTDOCS_PATH,
+        abs_cgi_bin_path    => ABS_CGI_BIN_PATH,
+        rel_htdocs_path     => REL_HTDOCS_PATH,
+        rel_cgi_bin_path    => REL_CGI_BIN_PATH,
+        rel_htdocs_tmp_path => REL_HTDOCS_TMP_PATH,
+        cluster_info_url    => CLUSTER_INFO_URL,
+        jaspar_url          => JASPAR_URL,
+        title               => $title,
+        heading             => $heading,
+        section             => 'Analysis Results',
+        bg_color_class      => $bg_color_class,
+        version             => VERSION,
+        devel_version       => DEVEL_VERSION,
+        result_retain_days  => REMOVE_RESULTFILES_OLDER_THAN,
+        low_matrix_ic       => LOW_MATRIX_IC,
+        high_matrix_ic      => HIGH_MATRIX_IC,
+        low_matrix_gc       => LOW_MATRIX_GC,
+        high_matrix_gc      => HIGH_MATRIX_GC,
+        #low_seq_gc          => LOW_SEQ_GC,
+        #high_seq_gc         => HIGH_SEQ_GC,
+        species             => $species,
+        job_id              => $job_id,
+        b_is_rand           => $b_is_rand,
+        t_experiments       => $t_experiments,
+        b_experiments       => $b_experiments,
+        num_t_experiments   => $t_experiments ? scalar @$t_experiments : 0,
+        num_b_experiments   => $b_experiments ? scalar @$b_experiments : 0,
+        t_tss               => $t_tss,
+        num_t_tss           => $t_tss ? scalar @$t_tss : 0,
+        num_b_tss           => $b_tss ? scalar @$b_tss : 0,
+        num_t_search_regions    => $num_t_search_regions,
+        num_b_search_regions    => $num_b_search_regions,
+        #t_seq_ids           => \@t_sr_ids,
+        #num_t_seq_ids       => @t_sr_ids ? scalar @t_sr_ids : 0,
+        #num_b_seq_ids       => @b_sr_ids ? scalar @b_sr_ids : 0,
+        tf_db               => $tf_db,
+        cl_db               => TFBS_CLUSTER_DB_NAME,
+        tf_set              => $tf_set,
+        tf_cluster_set      => $tf_cluster_set,
+        tf_select_criteria  => $tf_select_criteria,
+        #t_cr_gc_content     => $t_cr_gc_content,
+        #b_cr_gc_content     => $b_cr_gc_content,
+        collections         => \@collections,
+        tax_groups          => \@tax_groups,
+        tf_ids              => \@tf_ids,
+        min_ic              => $min_ic,
+        threshold           => $threshold,
+        upstream_bp         => $upstream_bp,
+        downstream_bp       => $downstream_bp,
+        results             => $results,
+        rel_results_dir     => $rel_results_dir,
+        result_type         => $result_type,
+        num_display_results => $num_results,
+        zscore_cutoff       => $zscore_cutoff,
+        fisher_cutoff       => $fisher_cutoff,
+        result_sort_by      => $sort_by,
+        warn_zero_bg_hits   => $warn_zero_bg_hits,
+        results_file        => RESULTS_TEXT_FILENAME,
+        zscore_plot_file    => ZSCORE_PLOT_FILENAME,
+        fisher_plot_file    => FISHER_PLOT_FILENAME,
+        message             => $message,
+        user_t_exp_ids_file => $user_t_exp_ids_file,
+        user_b_exp_ids_file => $user_b_exp_ids_file,
+        user_t_gene_ids_file => $user_t_gene_ids_file,
+        user_b_gene_ids_file => $user_b_gene_ids_file,
+        user_t_filter_regions_file => $user_t_filter_regions_file,
+        user_b_filter_regions_file => $user_b_filter_regions_file,
+        user_t_tss_names_file => $user_t_tss_names_file,
+        user_b_tss_names_file => $user_b_tss_names_file,
+        write_tfbs_details  => $write_details,
+        email               => $email,
+
+        formatf             => sub {
+                                    my $dec = shift;
+                                    my $f = shift;
+                                    return ($f || $f eq '0')
+                                        ? sprintf("%.*f", $dec, $f)
+                                        : 'NA'
+                               },
+
+        formatg             => sub {
+                                    my $dec = shift;
+                                    my $f = shift;
+                                    return ($f || $f eq '0')
+                                        ? sprintf("%.*g", $dec, $f)
+                                        : 'NA'
+                               },
+
+        var_template        => "results_integrated_cluster.html"
     };
 
     my $output = process_template('master.html', $vars);
@@ -2479,251 +3175,64 @@ sub post_process_homer_results_html
     close(FH);
 }
 
-######################## old / deprecated routines #############################
-
-#
-# For each TF, write the details of the putative TFBSs out to text and html
-# files.
-#
-sub fetch_and_write_tfbs_details
+sub fetch_gene_promoter_regions
 {
-    my $sr_set = OPOSSUM::SearchRegionSet->new(-sr_list => $t_search_regions);
+    my ($ga, $gene_ids, $upstream_bp, $downstream_bp) = @_;
 
-    my $sr_ids = $sr_set->ids;
+    my $genes = $ga->fetch_by_external_ids($gene_ids);
 
-    # If only a subset of results was selected, get the relevant tf ids only
-    my $tf_ids;
-    foreach my $result (@$cresults) {
-        push @$tf_ids, $result->id;
-    }
-    
-    #my $results_dir .= "/tfbs_details";
-    #mkdir $results_dir;
-    
-    foreach my $tf_id (@$tf_ids) {
-        #
-        # Get search regions corresponding to TFBSs specific to this TF.
-        #
-        my @tf_sr_ids;
-
-        foreach my $sr_id (@$sr_ids) {
-            if ($t_counts->seq_tfbs_count($sr_id, $tf_id)) {
-                push @tf_sr_ids, $sr_id;
-            }
-        }
-
-        #
-        # Skip this TF if there were no sites in any search region.
-        #
-        next unless @tf_sr_ids;
-
-        my $tf_sr_set = $sr_set->subset(-ids => \@tf_sr_ids);
-
-        my $tf_search_regions = $tf_sr_set->get_search_region_list('position');
-
-        #
-        # Create a mapping of pre-computed search regions to actual search
-        # regions containing sites for this TF.
-        #
-        my %tf_pc_sr_to_sr;
-        foreach my $sr (@$tf_search_regions) {
-            push @{$tf_pc_sr_to_sr{$sr->parent_id}}, $sr;
-        }
-
-        my @tf_pc_sr_ids = keys %tf_pc_sr_to_sr;
-
-        # 
-        # Fetch TFBSs for this TF and pass to routines below.
-        #
-        $logger->info("Fetching TFBSs for $tf_id");
-        my $tfbss = $tfbsa->fetch_tfbss(
-            -tf_ids            => $tf_id,
-            -threshold         => $threshold,
-            #-search_regions    => \@tf_search_regions,
-            -search_region_ids => \@tf_pc_sr_ids
-        );
-
-        unless ($tfbss) {
-            fatal(
-                  "No TFBSs retrieved for TF $tf_id at threshold $threshold"
-                . " for pre-computed search regions IDs: "
-                . join(",", @tf_pc_sr_ids)
-            );
-        }
-
-        $logger->info("Computing which TFBSs fall into which search regions");
-        my $t_sr_tf_sites = compute_tf_search_region_tfbss(
-            \%tf_pc_sr_to_sr, $tfbss
-        );
-
-        my $tf = $tf_set->get_tf($tf_id);
-        
-        my $tf_name = $tf->name();
-        
-        my $text_filename = "$results_dir/$tf_id.txt";
-        my $html_filename = "$results_dir/$tf_id.html";
-
-        write_tfbs_details_text(
-            $text_filename, $tf, $tf_sr_set, $t_sr_tf_sites, \%job_args
-        );
-        
-        if ($web) {
-            write_tfbs_details_html(
-                $html_filename, $rel_results_dir, $species, $tf, $tf_sr_set,
-                $t_sr_tf_sites, $tf_db, \%job_args
-            );
-        }
-    }
-}
-
-#
-# Write the details of the putative TFBSs for the given TF for each sequence.
-#
-sub write_tfbs_details_text
-{
-    my ($filename, $tf, $seq_set, $seq_tfbss, $job_args) = @_;
-
-    my $total_ic;
-    if ($tf->isa("TFBS::Matrix::PFM")) {
-        $total_ic = sprintf("%.3f", $tf->to_ICM->total_ic());
-    } else {
-        $total_ic = 'NA';
-    }
-
-    my $text = sprintf("%s\n\n", $tf->name());
-
-    $text .= sprintf("JASPAR ID:\t%s\n", $tf->ID());
-    $text .= sprintf("Class:\t%s\n", $tf->class() || 'NA');
-    $text .= sprintf("Family:\t%s\n", $tf->tag('family') || 'NA');
-    $text .= sprintf("Tax group:\t%s\n", $tf->tag('tax_group') || 'NA');
-    $text .= sprintf("Information content:\t%s\n", $total_ic);
-
-    $text .= sprintf("\n\n%s Binding Sites:\n\n", $tf->name());
-
-    #$text .= "Tag cluster search region(s)";
-
-    $text .= qq{Chr\tStart\tEnd\tTFBS Start\tTFBS End\tTFBS Strand\tAbs. Score\tRel. Score\tTFBS Sequence\n};
-
-    foreach my $seq_id (sort keys %$seq_tfbss) {
-        my $seq = $seq_set->get_search_region($seq_id);
-
-        # fetch sequence positional information
-        my $seq_text = sprintf("%s\t%s\t%s",
-            $seq->chrom,
-            $seq->start,
-            $seq->end
-        );
-        
-        $text .= $seq_text;
-
-        my $sites = $seq_tfbss->{$seq_id};
-
-        my $site_text = '';
-        my $first_site = 1;
-        foreach my $site (@$sites) {
-            unless ($first_site) {
-                $site_text .= "\t\t\t\t";
-            }
-            $first_site = 0;
-
-            $site_text .= sprintf("\t%d\t%d\t%s\t%.3f\t%.1f%%\t%s\n",
-                $site->start,
-                $site->end,
-                $site->strand,
-                $site->score,
-                $site->rel_score * 100,
-                $site->seq);
-        }
-        
-        $text .= $site_text;
-    } # end foreach seq    
-    
-    unless (open(FH, ">$filename")) {
-        fatal("Unable to create TFBS details file $filename", $job_args);
+    unless ($genes) {
+        warning("Could not fetch genes by external ID list");
         return;
     }
 
-    print FH $text;
+    my @tss_regions;
+    foreach my $gene (@$genes) {
+        my $strand = $gene->strand();
 
-    close(FH);
-}
+        $gene->fetch_promoters();
+        foreach my $promoter (@{$gene->promoters()}) {
+            my $tss = $promoter->tss();
 
-#
-# Write the details of the putative TFBSs for the given TF for each sequence.
-#
-sub write_tfbs_details_html
-{
-    my ($filename, $rel_results_dir, $species, $tf, $seq_set, $seq_tfbss,
-        $tf_db, $job_args) = @_;
+            my $pstart;
+            my $pend;
+            if ($strand == 1) {
+                $pstart = $tss - $upstream_bp;
+                $pend   = $tss + $downstream_bp - 1;
+            } elsif ($strand == -1) {
+                $pstart = $tss - $upstream_bp + 1; 
+                $pend   = $tss + $downstream_bp;
+            } else {
+                $pstart = $tss - $upstream_bp;
+                $pend   = $tss + $downstream_bp;
+            }
 
-    my $tf_name = $tf->name();
-    my $tf_id   = $tf->ID();
+            push @tss_regions, OPOSSUM::SearchRegion->new(
+                -id     => sprintf("chr%s:%d-%d", $gene->chr(), $pstart, $pend),
+                -chrom  => $gene->chr(),
+                -start  => $pstart,
+                -end    => $pend,
+                -strand => $strand == -1 ? '-' : '+'
+            );
+        }
+    }
 
-    my $job_id          = $job_args->{-job_id};
-    my $heading         = $job_args->{-heading};
-    my $bg_color_class  = $job_args->{-bg_color_class};
-    my $email           = $job_args->{-email};
-    my $logger          = $job_args->{-logger};
-
-    my @seq_ids = sort keys %$seq_tfbss;
-    
-    open(FH, ">$filename") || fatal(
-        "Could not create TFBS details html file $filename", $job_args
-    );
-
-    $logger->info("Writing '$tf_name' TFBS details to $filename");
-
-    my $title = "CAGEd-oPOSSUM $heading";
-    my $section = sprintf("%s Conserved Binding Sites", $tf_name);
-
-    my $vars = {
-        abs_htdocs_path     => ABS_HTDOCS_PATH,
-        abs_cgi_bin_path    => ABS_CGI_BIN_PATH,
-        rel_htdocs_path     => REL_HTDOCS_PATH,
-        rel_cgi_bin_path    => REL_CGI_BIN_PATH,
-        rel_htdocs_tmp_path => REL_HTDOCS_TMP_PATH,
-        bg_color_class      => $bg_color_class,
-        title               => $title,
-        heading             => $heading,
-        section             => $section,
-        version             => VERSION,
-        devel_version       => DEVEL_VERSION,
-        low_matrix_ic       => LOW_MATRIX_IC,
-        high_matrix_ic      => HIGH_MATRIX_IC,
-        low_matrix_gc       => LOW_MATRIX_GC,
-        high_matrix_gc      => HIGH_MATRIX_GC,
-        #low_seq_gc          => LOW_SEQ_GC,
-        #high_seq_gc         => HIGH_SEQ_GC,
-        jaspar_url          => JASPAR_URL,
-
-        tf_db               => $tf_db,
-        tf                  => $tf,
-        seq_ids             => \@seq_ids,
-        seq_set             => $seq_set,
-        seq_tfbss           => $seq_tfbss,
-        rel_results_dir     => $rel_results_dir,
-        tfbs_details_file   => "$tf_id.txt",
-
-        formatf             => sub {
-                                    my $dec = shift;
-                                    my $f = shift;
-                                    return ($f || $f eq '0')
-                                        ? sprintf("%.*f", $dec, $f)
-                                        : 'NA'
-                               },
-                               
-        var_template        => "tfbs_details.html"
-    };
-
-    my $output = process_template('master.html', $vars, $job_args);
-
-    print FH $output;
-
-    close(FH);
+    return @tss_regions ? \@tss_regions : undef;
 }
 
 sub cleanup
 {
+    my $results_dir = $job_args{-results_dir};
+    my $cl_results_dir = $job_args{-cl_results_dir};
+
+    my @data_files = glob("$results_dir/*.data");
+
+    if ($cl_results_dir) {
+        push @data_files, glob("$cl_results_dir/*.data");
+    }
+
+    unlink (@data_files);
+
     if ($b_is_rand) {
         remove_tree($homer_preparsed_dir, {safe => 1});
     }

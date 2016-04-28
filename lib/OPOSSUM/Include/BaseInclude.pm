@@ -622,7 +622,7 @@ sub filter_overlapping_sites
 {
     my ($siteset) = @_;
 
-    return if !defined $siteset || $siteset->size == 0;
+    return undef if !defined $siteset || $siteset->size == 0;
 
     my $filtered_set = TFBS::SiteSet->new();
 
@@ -647,6 +647,94 @@ sub filter_overlapping_sites
     }
 
     return $filtered_set;
+}
+
+#
+# Similar to filter_overlapping_sites but takes an OPOSSUM::SearchRegion and
+# a TFBS::SiteSet.
+# Filter overlapping sites from the TFBS::SiteSet and returns a list of
+# OPOSSUM::TFBS objects.
+#
+sub filter_search_region_siteset
+{
+    my ($search_region, $tf_id, $siteset) = @_;
+
+    return undef if !defined $siteset || $siteset->size == 0;
+
+    my @tfbss;
+
+    my $sr_id = $search_region->id();
+    my $chrom = $search_region->chrom();
+
+    my $iter = $siteset->Iterator(-sort_by => 'start');
+    my $prev_site = $iter->next;
+    if ($prev_site) {
+        while (my $site = $iter->next) {
+            if ($site->overlaps($prev_site)) {
+                #
+                # Bias is toward the site pair with the lower start
+                # site (i.e. if the scores are equal).
+                # 
+                if ($site->score > $prev_site->score) {
+                    $prev_site = $site;
+                }
+            } else {
+                push @tfbss, OPOSSUM::TFBS->new(
+                    -search_region_id   => $sr_id,
+                    -tf_id              => $tf_id,
+                    -chrom              => $chrom,
+                    -start              => $prev_site->start,
+                    -end                => $prev_site->end,
+                    -strand             => $prev_site->strand,
+                    -score              => $prev_site->score,
+                    -rel_score          => $prev_site->rel_score,
+                    -seq                => uc $prev_site->seq->seq,
+                );
+
+                $prev_site = $site;
+            }
+        }
+
+        push @tfbss, OPOSSUM::TFBS->new(
+            -search_region_id   => $sr_id,
+            -tf_id              => $tf_id,
+            -chrom              => $chrom,
+            -start              => $prev_site->start,
+            -end                => $prev_site->end,
+            -strand             => $prev_site->strand,
+            -score              => $prev_site->score,
+            -rel_score          => $prev_site->rel_score,
+            -seq                => uc $prev_site->seq->seq,
+        );
+    }
+
+    return @tfbss ? \@tfbss : undef;
+}
+
+sub siteset_to_opossum_tfbs_list
+{
+    my ($siteset, $chrom) = @_;
+
+    return undef if !defined $siteset || $siteset->size == 0;
+
+    my $iter = $siteset->Iterator(-sort_by => 'start');
+
+    my @tfbss;
+    while (my $site = $iter->next()) {
+        push @tfbss, OPOSSUM::TFBS->new(
+            -search_region_id   => $site->seq->display_id(),
+            -tf_id              => $site->pattern->id(),
+            -chrom              => $chrom ? $chrom : undef,
+            -start              => $site->start,
+            -end                => $site->end,
+            -strand             => $site->strand,
+            -score              => $site->score,
+            -rel_score          => $site->rel_score,
+            -seq                => $site->seq->seq,
+        );
+    }
+
+    return @tfbss ? \@tfbss : undef;
 }
 
 sub tfbss_to_conserved_tfbss
@@ -1016,8 +1104,7 @@ sub write_sequences
 
 sub fetch_tss_by_names_file
 {
-    my ($tssa, $torb, $tss_names_file, $tss_only, $gene_ids, $job_args
-    ) = @_;
+    my ($tssa, $torb, $tss_names_file, $tss_only, $gene_ids, $job_args) = @_;
 
     my $logger = $job_args->{-logger};
 
@@ -1094,6 +1181,45 @@ sub compute_total_sequences_length
     }
 
     return $length;
+}
+
+#
+# From the search region to TFBS map, count the number binding sites and
+# store them in an OPOSSUM::Analysis::Counts object.
+#
+sub compute_counts_from_search_region_tfbs_map
+{
+    my ($sr_tfbs_map, $tf_set) = @_;
+
+    my $tf_ids = $tf_set->ids();
+    my @sr_ids = sort keys %$sr_tfbs_map;
+
+    #
+    # Set the search regions TFBS counts. The search region TFBS map may
+    # not contain any TFBS for a given TF so this also makes sure these are
+    # set (to 0), i.e. the counts for a given TF ID are set based on what was
+    # searched (the TF set) rather than what was found (the search regions
+    # TFBS map).
+    #
+    my %sr_tfbs_count;
+    foreach my $sr_id (@sr_ids) {
+        foreach my $tf_id (@$tf_ids) {
+            if ($sr_tfbs_map->{$sr_id}->{$tf_id}) {
+                $sr_tfbs_count{$sr_id}->{$tf_id}
+                        = scalar @{$sr_tfbs_map->{$sr_id}->{$tf_id}};
+            } else {
+                $sr_tfbs_count{$sr_id}->{$tf_id} = 0;
+            }
+        }
+    }
+
+    my $counts = OPOSSUM::Analysis::Counts->new(
+        -seq_ids    => \@sr_ids,
+        -tf_ids     => $tf_ids,
+        -counts     => \%sr_tfbs_count
+    );
+
+    return $counts;
 }
 
 #
@@ -1223,6 +1349,54 @@ sub create_search_region_map
     }
 
     return %sr_map ? \%sr_map : undef;
+}
+
+#
+# Create list of OPOSSUM::SearchRegion objects from list of Bio::Seq objects
+#
+sub create_search_region_list_from_bioseq_list
+{
+    my ($bioseqs) = @_;
+
+    my @search_regions;
+    foreach my $seq (@$bioseqs) {
+        push @search_regions, create_search_region_from_bioseq($seq);
+    }
+
+    return @search_regions ? \@search_regions : undef;
+}
+
+#
+# Create an OPOSSUM::SearchRegion object from a Bio::Seq object
+#
+sub create_search_region_from_bioseq
+{
+    my ($bioseq) = @_;
+
+    my $seq_id = $bioseq->display_id();
+
+    my $chrom = '';
+    my $start = 0;
+    my $end = 0;
+    if ($seq_id =~ /(\S+):(\d+)-(\d+)/) {
+        $chrom = $1;
+        $start = $2;
+        $end   = $3;
+
+        if ($chrom =~ /chr(\S+)/) {
+            $chrom = $1;
+        }
+    }
+
+    my $search_region = OPOSSUM::SearchRegion->new(
+        -id     => $bioseq->display_id,
+        -chrom  => $chrom,
+        -start  => $start,
+        -end    => $end,
+        -seq    => $bioseq
+    );
+
+    return $search_region;
 }
 
 sub chrom_compare
@@ -1385,6 +1559,163 @@ sub search_seqs_and_compute_tfbs_counts
 }
 
 #
+# Write the details of the putative TFBSs to the given file in a format
+# recognized by the Datafile plugin of the Template Toolkit, for later
+# conversion into text and html files.
+#
+sub write_tfbs_details_data
+{
+    my ($fh, $seq_id, $siteset) = @_;
+    
+    my $seq_start = 1;
+    my $seq_chrom = '';
+    if ($seq_id =~ /chr(\w+):(\d+)-(\d+)/) {
+        $seq_chrom = $1;
+        $seq_start = $2;
+    }
+
+    my $iter = $siteset->Iterator(-sort_by => 'start');
+
+    while (my $site = $iter->next()) {
+        printf $fh "%s|%s|%d|%d|%s|%.3f|%.1f|%s\n",
+            $seq_id,
+            $seq_chrom,
+            $site->start + $seq_start - 1,
+            $site->end + $seq_start - 1,
+            $site->strand == -1 ? '-' : '+',
+            $site->score,
+            $site->rel_score * 100,
+            $site->seq->seq();
+    }
+}
+
+#
+# Scan search regions for binding sites and create a map of the sequence IDs
+# TF IDs and binding sites analagous to what the
+# OPOSSUM::DBSQL::TFBSAdaptor->fetch_search_region_tfbs_map
+# returns.
+#
+# e.g. returns:
+#   map->{sr_id}->{tf_id}->tfbs_siteset
+#
+sub search_regions
+{
+    my ($tf_set, $search_regions, $threshold) = @_;
+
+    #
+    # If threshold is specified as a decimal, convert it to a
+    # percentage, otherwise the TFBS::Matrix::PWM::search_seq method
+    # treats the number as an absolute matrix score which is not what
+    # we intended. DJA 2012/06/07
+    #
+    unless ($threshold =~ /(.+)%$/ || $threshold > 1) {
+        $threshold *= 100;
+        $threshold .= '%';
+    }
+
+    my $tf_ids = $tf_set->ids();
+
+    my %sr_tfbs_map;
+	foreach my $tf_id (@$tf_ids) {
+	    my $matrix = $tf_set->get_matrix($tf_id);
+
+        my $pwm;
+        if ($matrix->isa("TFBS::Matrix::PFM")) {
+            $pwm = $matrix->to_PWM();
+        } else {
+            $pwm = $matrix;
+        }
+
+        foreach my $sr (@$search_regions) {
+            my $siteset = $pwm->search_seq(
+                -seqobj     => $sr->seq,
+                -threshold  => $threshold
+            );
+
+            if ($siteset && $siteset->size > 0) {
+                my $tfbs = filter_search_region_siteset($sr, $tf_id, $siteset);
+
+                if ($tfbs) {
+                    $sr_tfbs_map{$sr->id}->{$tf_id} = $tfbs;
+                }
+            }
+        }
+    }
+
+    return %sr_tfbs_map ? \%sr_tfbs_map : undef;
+}
+
+sub write_details_from_search_region_tfbs_map
+{
+    my ($sr_tfbs_map, $tf_or_cluster_set, $search_regions, $results_dir) = @_;
+
+    return unless $results_dir;
+
+    #
+    # $tf_or_cluster_set may be a TFSet OR a TFClusterSet.
+    #
+    my $tf_ids = $tf_or_cluster_set->ids();
+
+    my %tf_hit_lines;
+    foreach my $tf_id (@$tf_ids) {
+        foreach my $sr (@$search_regions) {
+            foreach my $tfbs (@{$sr_tfbs_map->{$sr->id}->{$tf_id}}) {
+                push @{$tf_hit_lines{$tf_id}},
+                    sprintf(
+                        "chr%s:%d-%d|%s|%d|%d|%s|%.3f|%.1f|%s",
+                        $sr->chrom,
+                        $sr->start,
+                        $sr->end,
+                        $tfbs->chrom,
+                        $tfbs->start,
+                        $tfbs->end,
+                        $tfbs->strand,
+                        $tfbs->score,
+                        $tfbs->rel_score * 100,
+                        $tfbs->seq
+                    );
+            }
+        }
+    }
+
+    foreach my $tf_id (@$tf_ids) {
+        my $hit_lines = $tf_hit_lines{$tf_id};
+
+        if ($hit_lines) {
+            my $fname;
+            if ($tf_or_cluster_set->isa('OPOSSUM::TFSet')) {
+                $fname = $tf_id;
+                $fname =~ s/\//_/g;
+            } elsif ($tf_or_cluster_set->isa('TFBSCluster::TFClusterSet')) {
+                my $cluster = $tf_or_cluster_set->get_tf_cluster($tf_id);
+                $fname = $cluster->name();
+            }
+
+            my $data_file = "$results_dir/$fname.data";
+
+            if (open(FH, ">$data_file")) {
+                #
+                # Specific header format recognized by Datafile plugin
+                # of the Template Toolkit.
+                #
+                print FH "region|chr|start|end|strand|score|rel_score|seq\n";
+
+                @$hit_lines = sort _sort_hit_line @$hit_lines;
+
+                foreach my $hit_line (@$hit_lines) {
+                    printf FH "$hit_line\n";
+                }
+
+                close FH;
+            } else {
+                carp  "Error opening output TFBS details data file"
+                    . " $data_file - $!\n";
+            }
+        }
+    }
+}
+
+#
 # For each TF's TFBS hit data files written out by whichever method fetched
 # or computed the TFBS hits, create formatted text and HTML TFBS detail files.
 #
@@ -1443,43 +1774,11 @@ sub write_tfbs_details
     }
 }
 
-#
-# Write the details of the putative TFBSs to the given file in a format
-# recognized by the Datafile plugin of the Template Toolkit, for later
-# conversion into text and html files.
-#
-sub write_tfbs_details_data
-{
-    my ($fh, $seq_id, $siteset) = @_;
-    
-    my $seq_start = 1;
-    my $seq_chrom = '';
-    if ($seq_id =~ /chr(\w+):(\d+)-(\d+)/) {
-        $seq_chrom = $1;
-        $seq_start = $2;
-    }
-
-    my $iter = $siteset->Iterator(-sort_by => 'start');
-
-    while (my $site = $iter->next()) {
-        printf $fh "%s|%s|%d|%d|%s|%.3f|%.1f|%s\n",
-            $seq_id,
-            $seq_chrom,
-            $site->start + $seq_start - 1,
-            $site->end + $seq_start - 1,
-            $site->strand == -1 ? '-' : '+',
-            $site->score,
-            $site->rel_score * 100,
-            $site->seq->seq();
-    }
-}
-
 sub write_tfbs_details_text_from_data
 {
     my ($tf, $data_file, $text_file, $job_args) = @_;
 
     my $logger = $job_args->{-logger};
-    my $tf_db  = $job_args->{-tf_db};
 
     unless (open(DFH, $data_file)) {
         $logger->error("Error opening TFBS detail data file $data_file - $!");
@@ -1616,6 +1915,210 @@ sub write_tfbs_details_html_from_data
     print FH $output;
 
     close(FH);
+}
+
+#
+# For each TFBS cluster hits data file written out by whichever method fetched
+# or computed the TFBS cluster hits, create formatted text and HTML TFBS
+# detail files.
+#
+sub write_tfbs_cluster_details
+{
+    my ($results, $cluster_set, $job_args) = @_;
+
+    my $logger      = $job_args->{-logger};
+    my $web         = $job_args->{-web};
+    my $results_dir = $job_args->{-cl_results_dir};
+
+    #
+    # Cycle through results rather than getting the cluster IDs from the
+    # cluster_set as not all clusters may actually have any hits (and therefore
+    # no associated hit details data file).
+    #
+    foreach my $result (@$results) {
+        my $cl_id = $result->id;
+        my $cluster = $cluster_set->get_tf_cluster($cl_id);
+        my $cl_name = $cluster->name;
+
+        #
+        # In the case where we are not using JASPAR matrices, we have to make
+        # sure the TF IDs (which are used to create the details file names)
+        # do not contain special characters interpreted by the OS and replace
+        # them if so. For now just replacing '/', any others?
+        #
+        my $fname = $cl_name;
+        $fname =~ s/\//_/g;
+
+        my $data_file = "$results_dir/$fname.data";
+
+        #
+        # If there were no hits for this cluster then the data file will not
+        # exist.
+        #
+        if (-e $data_file) {
+            my $text_file = "$results_dir/$fname.txt";
+
+            write_tfbs_cluster_details_text_from_data(
+                $cluster, $data_file, $text_file, $job_args
+            );
+
+            if ($web) {
+                my $html_file = "$results_dir/$fname.html";
+
+                write_tfbs_cluster_details_html_from_data(
+                    $cluster, $data_file, $html_file, $job_args
+                );
+            }
+        }
+
+        #
+        # Remove data file
+        #
+        #unlink $data_file;
+    }
+}
+
+sub write_tfbs_cluster_details_text_from_data
+{
+    my ($cluster, $data_file, $text_file, $job_args) = @_;
+
+    my $logger = $job_args->{-logger};
+
+    unless (open(DFH, $data_file)) {
+        $logger->error(
+            "Error opening TFBS cluster detail data file $data_file - $!"
+        );
+        return;
+    }
+
+    unless (open(OFH, ">$text_file")) {
+        $logger->error(
+            "Error creating TFBS cluster detail text file $text_file - $!"
+        );
+        return;
+    }
+
+    write_tfbs_cluster_details_text_header(\*OFH, $cluster);
+
+    my $last_region = '';
+    while (my $line = <DFH>) {
+        next if $line =~ /^\s*region/i;  # skip header
+
+        chomp $line;
+
+        my @cols = split /\s*\|\s*/, $line;
+
+        my $region = $cols[0];
+
+        if ($region eq $last_region) {
+            print OFH "\t";
+        } else {
+            print OFH "$region\t";
+
+            $last_region = $region;
+        }
+
+        printf(OFH "%s\t%s\t%s\t%s\t%s\t%s%%\t%s\n",
+            $cols[1],
+            $cols[2],
+            $cols[3],
+            $cols[4],
+            $cols[5],
+            $cols[6],
+            $cols[7]
+        );
+    }
+}
+
+sub write_tfbs_cluster_details_text_header
+{
+    my ($fh, $cluster) = @_;
+
+    printf $fh "%s Binding Sites\n\n", $cluster->name();
+
+    printf $fh "Cluster name:\t%s\n", $cluster->name();
+
+    print $fh "\n\nBinding Sites:\n\n";
+
+    print $fh "Region\tChr\tStart\tEnd\tStrand\tAbs. Score\tRel. Score\tSequence\n";
+}
+
+sub write_tfbs_cluster_details_html_from_data
+{
+    my ($cluster, $data_file, $html_file, $job_args) = @_;
+
+    my $cl_id   = $cluster->id();
+    my $cl_name = $cluster->name();
+
+    my $job_id          = $job_args->{-job_id};
+    my $heading         = $job_args->{-heading};
+    my $bg_color_class  = $job_args->{-bg_color_class};
+    my $rel_results_dir = $job_args->{-cl_rel_results_dir};
+    my $tf_db           = $job_args->{-tf_db};
+    my $email           = $job_args->{-email};
+    my $logger          = $job_args->{-logger};
+
+    open(FH, ">$html_file") || fatal(
+        "Could not create TFBS cluster details html file $html_file", $job_args
+    );
+
+    $logger->info("Writing '$cl_name' TFBS cluster details to $html_file");
+
+    my $title = "CAGEd-oPOSSUM $heading Results";
+    my $section = sprintf("%s Binding Sites", $cl_name);
+
+    my $fname = $cl_name;
+    $fname =~ s/\//_/g;
+
+    my $vars = {
+        abs_htdocs_path     => ABS_HTDOCS_PATH,
+        abs_cgi_bin_path    => ABS_CGI_BIN_PATH,
+        rel_htdocs_path     => REL_HTDOCS_PATH,
+        rel_cgi_bin_path    => REL_CGI_BIN_PATH,
+        rel_htdocs_tmp_path => REL_HTDOCS_TMP_PATH,
+        bg_color_class      => $bg_color_class,
+        title               => $title,
+        heading             => $heading,
+        section             => $section,
+        version             => VERSION,
+        devel_version       => DEVEL_VERSION,
+        low_matrix_ic       => LOW_MATRIX_IC,
+        high_matrix_ic      => HIGH_MATRIX_IC,
+        low_matrix_gc       => LOW_MATRIX_GC,
+        high_matrix_gc      => HIGH_MATRIX_GC,
+        jaspar_url          => JASPAR_URL,
+        cluster             => $cluster,
+        rel_results_dir     => $rel_results_dir,
+        data_file           => $data_file,
+        cluster_details_file    => "$fname.txt",
+
+        formatf             => sub {
+                                    my $dec = shift;
+                                    my $f = shift;
+                                    return ($f || $f eq '0')
+                                        ? sprintf("%.*f", $dec, $f)
+                                        : 'NA'
+                               },
+
+        var_template        => "tfbs_cluster_details.html"
+    };
+
+    my $output = process_template('master.html', $vars, $job_args);
+
+    print FH $output;
+
+    close(FH);
+}
+
+sub _sort_hit_line
+{
+    my ($chr1, $s1) = $a =~ /chr(\w+):(\d+)-\d+/;
+    my ($chr2, $s2) = $b =~ /chr(\w+):(\d+)-\d+/;
+
+    $chr1 = sprintf("%02d", $chr1) if $chr1 =~ /\d+/;
+    $chr2 = sprintf("%02d", $chr2) if $chr2 =~ /\d+/;
+
+    return $chr1 cmp $chr2 || $s1 <=> $s2;
 }
 
 1;

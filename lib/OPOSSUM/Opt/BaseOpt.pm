@@ -53,9 +53,9 @@ use constant HOMER_BIN_PATH     => '/apps/Homer/bin/';
 # preparseGeneome.pl in creating background regions.
 #
 use constant HOMER_HUMAN_CAGE_PEAK_FILE =>
-    '/apps/CAGEd_oPOSSUM/data/hg19.cage_peak_coord_permissive.txt';
+    '/devel/CAGEd_oPOSSUM/data/hg19.cage_peak_coord_permissive.txt';
 use constant HOMER_MOUSE_CAGE_PEAK_FILE =>
-    '/apps/CAGEd_oPOSSUM/data/mm9.cage_peak_coord_permissive.txt';
+    '/devel/CAGEd_oPOSSUM/data/mm9.cage_peak_coord_permissive.txt';
 use constant HOMER_VERTEBRATES_KNOWN_MOTIFS_FILE => '/apps/Homer/data/knownTFs/vertebrates/known.motifs';
 
 #
@@ -74,9 +74,18 @@ use constant MAX_TARGET_TSS     => 20000;
 use constant MAX_BACKGROUND_TSS => 20000;
 
 #
+# Use when user-defined CAGE peaks and filtering genes are entered. Only the
+# CAGE peaks which fall within (intersect?) the regions around the TSSs of
+# defined by this amount of upstream / downstream bp are retained.
+#
+use constant FILTER_TSS_UPSTREAM_BP     => 500;
+use constant FILTER_TSS_DOWNSTREAM_BP   => 500;
+
+#
 # For random background generation set the number of background CAGE peaks
 # selected is equal to the number target CAGE peaks multiplied by this number.
 # Currently this is not used
+#
 use constant RAND_BG_TSS_FOLD    => 10;
 
 #
