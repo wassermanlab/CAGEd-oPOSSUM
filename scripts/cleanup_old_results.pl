@@ -64,7 +64,10 @@ sub clean_tempfiles
             # to preserve some older results.
             #
             my $sb = stat($file);
-            if ($sb->uid == APACHE_UID && $sb->gid == APACHE_GID) {
+            my $user = getpwuid($sb->uid);
+            my $group = getgrgid($sb->gid);
+            print "Temp. file $file user is $user and group is $group\n";
+            if ($user eq 'apache' && $group eq 'apache') {
                 #print "Removing temp. file $file\n";
                 unlink $file;
             } else {
@@ -88,7 +91,10 @@ sub clean_resultfiles
             # to preserve some older results.
             #
             my $sb = stat($file);
-            if ($sb->uid == APACHE_UID && $sb->gid == APACHE_GID) {
+            my $user = getpwuid($sb->uid);
+            my $group = getgrgid($sb->gid);
+            #print "Result file $file user is $user and group is $group\n";
+            if ($user eq 'apache' && $group eq 'apache') {
                 if (-d $file) {
                     # remove entire tree if directory
                     #print "Removing result directory $file\n";
