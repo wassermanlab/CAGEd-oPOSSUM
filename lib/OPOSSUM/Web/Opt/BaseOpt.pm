@@ -29,7 +29,7 @@ use constant KS_PLOT_FILENAME           => 'ks_vs_gc.png';  # not used
 #
 # oPOSSUM system paths
 #
-use constant OPOSSUM_HOME           => '/devel/CAGEd_oPOSSUM';
+use constant OPOSSUM_HOME           => '/apps/CAGEd_oPOSSUM';
 use constant OPOSSUM_LIB_PATH       => OPOSSUM_HOME . '/lib';
 use constant OPOSSUM_HTDOCS_PATH    => OPOSSUM_HOME . '/htdocs';
 use constant OPOSSUM_CGI_BIN_PATH   => OPOSSUM_HOME . '/cgi-bin';
@@ -40,19 +40,19 @@ use constant OPOSSUM_SCRIPTS_PATH   => OPOSSUM_HOME . '/scripts';
 # oPOSSUM web server paths and URLs
 #
 use constant WEB_SERVER_URL             => 'http://cagedop.cmmt.ubc.ca';
-use constant CLUSTER_INFO_URL           => WEB_SERVER_URL . '/CAGEd_oPOSSUM_dev/data/tfbs_clusters';
+use constant CLUSTER_INFO_URL           => WEB_SERVER_URL . '/CAGEd_oPOSSUM/data/tfbs_clusters';
 use constant WEB_SERVER_HOME            => '/var/www';
 use constant ABS_HTDOCS_ROOT            => '/var/www/htdocs';
 use constant ABS_HTDOCS_PATH            => WEB_SERVER_HOME
-                                           . '/htdocs/CAGEd_oPOSSUM_dev';
+                                           . '/htdocs/CAGEd_oPOSSUM';
 use constant ABS_CGI_BIN_PATH           => WEB_SERVER_HOME
-                                           . '/cgi-bin/CAGEd_oPOSSUM_dev';
+                                           . '/cgi-bin/CAGEd_oPOSSUM';
 use constant ABS_HTDOCS_TEMPLATE_PATH   => ABS_HTDOCS_PATH . '/templates';
 use constant ABS_HTDOCS_TMP_PATH        => ABS_HTDOCS_PATH . '/tmp';
 use constant ABS_HTDOCS_RESULTS_PATH    => ABS_HTDOCS_PATH . '/results';
 use constant ABS_HTDOCS_DATA_PATH       => ABS_HTDOCS_PATH . '/data';
-use constant REL_HTDOCS_PATH            => '/CAGEd_oPOSSUM_dev';
-use constant REL_CGI_BIN_PATH           => '/cgi-bin/CAGEd_oPOSSUM_dev';
+use constant REL_HTDOCS_PATH            => '/CAGEd_oPOSSUM';
+use constant REL_CGI_BIN_PATH           => '/cgi-bin/CAGEd_oPOSSUM';
 use constant REL_HTDOCS_TMP_PATH        => REL_HTDOCS_PATH . '/tmp';
 use constant REL_HTDOCS_RESULTS_PATH    => REL_HTDOCS_PATH . '/results';
 use constant REL_HTDOCS_DATA_PATH       => REL_HTDOCS_PATH . '/data';

@@ -57,7 +57,7 @@ mysqlimport facility.
 use strict;
 use warnings;
 
-use lib '/devel/FANTOM5_oPOSSUM/lib';
+use lib '/apps/CAGEd_oPOSSUM/lib';
 
 use Getopt::Long;
 use Pod::Usage;

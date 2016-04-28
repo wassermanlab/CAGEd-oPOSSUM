@@ -59,7 +59,7 @@ use warnings;
 
 # Ensembl API lib
 use lib '/usr/local/src/ensembl-75/ensembl/modules';
-use lib '/devel/CAGEd_oPOSSUM/lib';
+use lib '/apps/CAGEd_oPOSSUM/lib';
 
 
 use Getopt::Long;

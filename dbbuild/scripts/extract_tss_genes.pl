@@ -47,7 +47,7 @@ use warnings;
 # Use most current (development) libs
 # comment out to use installed libs
 #
-use lib '/devel/FANTOM5_oPOSSUM/lib';
+use lib '/apps/FANTOM5_oPOSSUM/lib';
 
 use Getopt::Long;
 use Pod::Usage;

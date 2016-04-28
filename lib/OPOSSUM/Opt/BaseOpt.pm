@@ -53,9 +53,9 @@ use constant HOMER_BIN_PATH     => '/apps/Homer/bin/';
 # preparseGeneome.pl in creating background regions.
 #
 use constant HOMER_HUMAN_CAGE_PEAK_FILE =>
-    '/devel/CAGEd_oPOSSUM/data/hg19.cage_peak_coord_permissive.txt';
+    '/apps/CAGEd_oPOSSUM/data/hg19.cage_peak_coord_permissive.txt';
 use constant HOMER_MOUSE_CAGE_PEAK_FILE =>
-    '/devel/CAGEd_oPOSSUM/data/mm9.cage_peak_coord_permissive.txt';
+    '/apps/CAGEd_oPOSSUM/data/mm9.cage_peak_coord_permissive.txt';
 use constant HOMER_VERTEBRATES_KNOWN_MOTIFS_FILE => '/apps/Homer/data/knownTFs/vertebrates/known.motifs';
 
 #

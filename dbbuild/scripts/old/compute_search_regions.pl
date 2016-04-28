@@ -60,7 +60,7 @@ use warnings;
 #
 # On cognac/loire/rioja 
 #
-use lib '/homed/home/dave/devel/FANTOM5_oPOSSUM/lib';
+use lib '/apps/CAGEd_oPOSSUM/lib';
 
 
 use Getopt::Long;
