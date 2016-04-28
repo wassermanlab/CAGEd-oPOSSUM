@@ -1,0 +1,1 @@
+cmd = /var/www/htdocs/CAGEd_oPOSSUM/results/aXoPzZfFpZ/t_search_regions.bed hg19 /var/www/htdocs/CAGEd_oPOSSUM/results/aXoPzZfFpZ/homer_output -preparsedDir /var/www/htdocs/CAGEd_oPOSSUM/results/aXoPzZfFpZ/homer_preparsed -mknown /apps/Homer/data/knownTFs/vertebrates/known.motifs -size given -nlen 2 -N 1010 -cpg -chopify -dumpFasta -nomotif

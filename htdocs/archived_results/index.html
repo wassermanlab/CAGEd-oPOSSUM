@@ -1,0 +1,172 @@
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>CAGEd-oPOSSUM Human Archived Results</title>
+  <link type="text/css" rel="stylesheet" href="/CAGEd_oPOSSUM/opossum.css"/>
+  <link rel="stylesheet" href="/CAGEd_oPOSSUM/styles.css" type="text/css"/>
+</head>
+
+<body>
+  <a name="top"></a>
+
+  <div id="pageContainer">
+    <div id="header">
+      <div id="logo">
+        <a href="/CAGEd_oPOSSUM"><img src="/CAGEd_oPOSSUM/images/oPossum_logo_2_cropped.png" border="0" alt="CAGEd-oPOSSUM"></a>
+        <br>
+      </div>
+      <br>
+      <div id="version">
+        Version 1.0      </div>
+      <!--
+      <div id="heading">
+        Human Analysis      </div>
+      <div id="version">
+              </div>
+      -->
+    </div>
+
+    <br>
+    <div id="menuSecondary" class=bgc_f5_exp>
+      <a href="/CAGEd_oPOSSUM">Home</a> |
+      <a href="/CAGEd_oPOSSUM/about.html" target="about">About</a> | 
+      <a href="/CAGEd_oPOSSUM/help.html" target="help">Help</a> | 
+      <a href="/CAGEd_oPOSSUM/faq.html" target="faq">FAQ</a> | 
+      <a href="/CAGEd_oPOSSUM/news.html" target="news">News</a> | 
+      <a href="/CAGEd_oPOSSUM/contact.html" target="contact">Contact</a> |
+      <a href="/CAGEd_oPOSSUM/download.html" target="download">Download</a>
+    </div>
+
+    <div id="content">
+
+      <h1>Human Analysis Archived Results</h1>
+
+      <h2>Archive of 3 CAGEd-oPOSSUM analyses</h2>
+
+      <p>
+      The archive contains the results of 3 different CAGEd-oPOSSUM analyses performed on the following human adult tissue samples:
+      <br>
+      <br>
+
+      <table style="padding: 5px 5px 5px 20px;">
+        <tr>
+          <th align="left">
+            Tissue type
+          </th>
+          <th style="padding: 5px 5px 5px 20px;" align="left">
+            FANTOM5 Sample IDs
+          </th>
+        </tr>
+        <tr>
+          <th align="left">
+            CD19+ B cells
+          </th>
+          <td style="padding: 5px 5px 5px 20px;" valign="top">
+            FF:11544-120B5  CD19+ B Cells, donor1<br>
+            FF:11624-122B4  CD19+ B Cells, donor2<br>
+            FF:11705-123B4  CD19+ B Cells, donor3<br>
+          </td>
+        </tr>
+        <tr>
+          <th align="left">
+            Liver
+          </th>
+          <td style="padding: 5px 5px 5px 20px;">
+            FF:10018-101C9  liver, adult, pool1
+          </td>
+        </tr>
+        <tr>
+          <th align="left">
+            Testis
+          </th>
+          <td style="padding: 5px 5px 5px 20px;">
+            FF:10026-101D8  testis, adult, pool1<br>
+            FF:10096-102C6  testis, adult, pool2
+          </td>
+        </tr>
+      </table>
+
+      <br>
+      Dowload the archive here: <a href="http://cagedop.cmmt.ubc.ca/CAGEd_oPOSSUM/archived_results/archived_results.tar.gz">archived_results.tar.gz</a>
+
+      <br>
+      <br>
+
+      <h3>Contents of arhive:</h3>
+      <p>
+      The archive contains the following top-level directories corresponding to each of the analyized tissue samples:
+      </p>
+      <p>
+      <b>CD19_positive_B_Cells/</b>
+      <br>
+      <b>Liver/</b>
+      <br>
+      <b>Testis/</b>
+      </p>
+
+      <p>
+      Each of these directories contains the following main files/directories:
+      </p>
+      <table style="padding: 5px 5px 5px 20px;">
+        <tr>
+          <th align=left>results.html</th>
+          <td style="padding: 5px 5px 5px 60px;">HTML formatted results showing the relative rankings of TFBS motifs ordered by Fisher score from high to low.</td>
+        </tr>
+        <tr>
+          <th align=left>results.txt</th>
+          <td style="padding: 5px 5px 5px 60px;">Same as above but in plain text tab separated format.</td>
+        </tr>
+        <tr>
+          <th align=left>fisher_vs_gc.png</th>
+          <td style="padding: 5px 5px 5px 60px;">Plot of the Fisher scores vs. %GC composition of the TFBS motif.</td>
+        </tr>
+        <tr>
+          <th align=left>zscore_vs_gc.png</th>
+          <td style="padding: 5px 5px 5px 60px;">Plot of the Z-scores vs. %GC composition of the TFBS motif.</td>
+        </tr>
+        <tr>
+          <th align=left>t_search_regions.bed</th>
+          <td style="padding: 5px 5px 5px 60px;">BED formatted file of the target CAGE peak regions searched for TFBS.</td>
+        </tr>
+        <tr>
+          <th align=left>homer_output/</th>
+          <td style="padding: 5px 5px 5px 60px;">Subdirectory containing the following HOMER results files.</td>
+        </tr>
+      </table>
+
+      <table style="padding: 5px 5px 5px 75px;">
+        <tr>
+          <th></th>
+          <th style="padding: 5px 5px 5px 0px;" align=left>knownResults.html</th>
+          <td style="padding: 5px 5px 5px 20px;">HTML formatted table of HOMER motif results ranked by p-value.</td>
+        </tr>
+        <tr>
+          <th></th>
+          <th style="padding: 5px 5px 5px 0px;" align=left>knownResults.txt</th>
+          <td style="padding: 5px 5px 5px 20px;">Same as above but in tab-separated plain text format.</td>
+        </tr>
+        <tr>
+          <th></th>
+          <th style="padding: 5px 5px 5px 0px;" align=left>target.fa</th>
+          <td style="padding: 5px 5px 5px 20px;">Target sequences searched for both JASPAR and HOMER motifs. Corresponds to the regions defined in t_search_regions.bed described above.</td>
+        </tr>
+        <tr>
+          <th></th>
+          <th style="padding: 5px 5px 5px 0px;" align=left>background.fa</th>
+          <td style="padding: 5px 5px 5px 20px;">Background sequences randomly generated by HOMER to be %GC composition and length matched to the target sequences, searched for both JASPAR and HOMER motifs.</td>
+        </tr>
+        <tr>
+          <th></th>
+          <th style="padding: 5px 5px 5px 0px;" align=left>knownResults/</th>
+          <td style="padding: 5px 5px 5px 20px;">Subdirectory containing HOMER motif logos and matrices.</td>
+        </tr>
+      </table>
+
+      <br>
+      <br>
+
+    </div>
+  </div>
+</body>
+</html>

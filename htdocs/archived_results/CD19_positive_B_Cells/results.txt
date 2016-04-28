@@ -1,0 +1,479 @@
+TF	JASPAR ID	Class	Family	Tax Group	IC	GC Content	Target region hits	Target region non-hits	Background region hits	Background region non-hits	Target TFBS hits	Target TFBS nucleotide rate	Background TFBS hits	Background TFBS nucleotide rate	Z-score	Fisher score
+ELK3	MA0759.1	Tryptophan cluster factors	Ets-related factors	vertebrates	11.791	0.539	639	371	479	531	1029	0.009	712	0.006	37.646	28.332
+Gabpa	MA0062.2	Tryptophan cluster factors	Ets-related factors	vertebrates	13.335	0.647	746	264	596	414	1404	0.014	1069	0.011	34.114	27.682
+RELA	MA0107.1	Rel homology region (RHR) factors	NF-kappaB-related factors	vertebrates	14.757	0.567	486	524	331	679	693	0.006	405	0.004	45.298	27.367
+FLI1	MA0475.2	Tryptophan cluster factors	Ets-related factors	vertebrates	13.279	0.533	816	194	682	328	1701	0.015	1270	0.011	38.414	25.894
+ERG	MA0474.2	Tryptophan cluster factors	Ets-related factors	vertebrates	11.781	0.514	859	151	736	274	1999	0.018	1463	0.013	44.553	25.266
+ETV6	MA0645.1	Tryptophan cluster factors	Ets-related factors	vertebrates	12.354	0.564	900	110	789	221	2291	0.021	1741	0.016	41.955	25.044
+ELK4	MA0076.2	Tryptophan cluster factors	Ets-related factors	vertebrates	13.085	0.630	871	139	755	255	2153	0.021	1639	0.016	42.395	23.906
+ETV5	MA0765.1	Tryptophan cluster factors	Ets-related factors	vertebrates	9.461	0.569	921	89	823	187	2712	0.025	2174	0.020	36.788	22.894
+ERF	MA0760.1	Tryptophan cluster factors	Ets-related factors	vertebrates	12.896	0.540	522	488	381	629	740	0.007	498	0.005	34.331	22.471
+ETS1	MA0098.3	Tryptophan cluster factors	Ets-related factors	vertebrates	12.150	0.528	803	207	680	330	1707	0.015	1263	0.011	39.682	21.763
+ETV2	MA0762.1	Tryptophan cluster factors	Ets-related factors	vertebrates	14.664	0.452	372	638	245	765	492	0.005	298	0.003	37.291	21.372
+FEV	MA0156.2	Tryptophan cluster factors	Ets-related factors	vertebrates	11.713	0.519	819	191	700	310	1778	0.016	1318	0.012	40.255	21.365
+ETV1	MA0761.1	Tryptophan cluster factors	Ets-related factors	vertebrates	10.759	0.530	778	232	654	356	1572	0.014	1194	0.011	34.730	20.990
+SPI1	MA0080.4	Tryptophan cluster factors	Ets-related factors	vertebrates	21.562	0.391	141	869	65	945	150	0.002	68	0.001	37.189	18.178
+ETV4	MA0764.1	Tryptophan cluster factors	Ets-related factors	vertebrates	10.625	0.519	787	223	688	322	1669	0.015	1263	0.011	36.282	14.665
+ELK1	MA0028.2	Tryptophan cluster factors	Ets-related factors	vertebrates	14.316	0.561	521	489	412	598	783	0.007	600	0.005	23.650	14.170
+TFAP2B	MA0811.1	Basic helix-span-helix factors (bHSH)	AP-2	vertebrates	10.870	0.738	909	101	841	169	4178	0.045	3925	0.043	14.211	12.125
+ETV3	MA0763.1	Tryptophan cluster factors	Ets-related factors	vertebrates	11.632	0.531	493	517	398	612	703	0.006	533	0.005	23.304	11.292
+TFAP2C	MA0524.2	Basic helix-span-helix factors (bHSH)	AP-2	vertebrates	10.460	0.738	896	114	829	181	3833	0.042	3629	0.039	11.886	11.104
+BARHL2	MA0635.1	Homeo domain factors	NK-related factors	vertebrates	8.495	0.352	934	76	878	132	4797	0.043	4721	0.043	3.491	10.559
+Atf1	MA0604.1	Basic leucine zipper factors (bZIP)	CREB-related factors	vertebrates	10.519	0.476	591	419	500	510	1058	0.008	788	0.006	27.242	10.447
+PRDM1	MA0508.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	15.223	0.380	352	658	268	742	449	0.006	330	0.004	25.390	10.395
+TFAP2A(var.2)	MA0810.1	Basic helix-span-helix factors (bHSH)	AP-2	vertebrates	10.759	0.764	955	55	906	104	7073	0.077	6742	0.073	14.393	10.330
+Crem	MA0609.1	Basic leucine zipper factors (bZIP)	CREB-related factors	vertebrates	12.449	0.416	244	766	174	836	297	0.003	201	0.002	21.401	9.519
+Creb5	MA0840.1	Basic leucine zipper factors (bZIP)	CREB-related factors	vertebrates	16.321	0.443	162	848	104	906	183	0.002	116	0.001	21.532	9.383
+STAT1::STAT2	MA0517.1	STAT domain factors::STAT domain factors	STAT factors::STAT factors	vertebrates	16.390	0.373	271	739	201	809	339	0.005	227	0.003	28.800	8.872
+EHF	MA0598.2	Tryptophan cluster factors	Ets-related factors	vertebrates	14.797	0.591	207	803	145	865	238	0.003	165	0.002	19.673	8.688
+REL	MA0101.1	Rel homology region (RHR) factors	NF-kappaB-related factors	vertebrates	10.515	0.559	746	264	672	338	1408	0.013	1147	0.010	24.449	8.571
+GMEB2	MA0862.1	SAND domain factors	GMEB	vertebrates	9.886	0.392	347	663	273	737	464	0.003	341	0.002	18.831	8.458
+NFATC1	MA0624.1	Rel homology region (RHR) factors	NFAT-related factors	vertebrates	8.040	0.411	916	94	865	145	3058	0.028	2775	0.025	17.138	8.197
+FOXD2	MA0847.1	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	8.622	0.249	968	42	932	78	6583	0.042	6557	0.042	0.785	7.688
+RFX3	MA0798.1	Fork head / winged helix factors	RFX-related factors	vertebrates	16.894	0.507	92	918	53	957	101	0.001	57	0.001	23.289	7.605
+RUNX1	MA0002.2	Runt domain factors	Runt-related factors	vertebrates	10.401	0.502	844	166	786	224	2001	0.020	1674	0.017	26.672	7.343
+SPIC	MA0687.1	Tryptophan cluster factors	Ets-related factors	vertebrates	13.235	0.421	258	752	198	812	309	0.004	227	0.003	20.360	7.087
+ZNF740	MA0753.1	C2H2 zinc finger factors	Other factors with up to three adjacent zinc fingers	vertebrates	12.467	0.786	757	253	693	317	2004	0.018	2011	0.018	-0.554	6.997
+ELF4	MA0641.1	Tryptophan cluster factors	Ets-related factors	vertebrates	16.253	0.606	187	823	135	875	207	0.002	149	0.002	16.443	6.957
+Stat6	MA0520.1	STAT domain factors	STAT factors	vertebrates	14.063	0.406	431	579	363	647	619	0.008	511	0.007	18.527	6.784
+ELF5	MA0136.2	Tryptophan cluster factors	Ets-related factors	vertebrates	10.425	0.538	939	71	899	111	2909	0.029	2367	0.024	37.322	6.740
+Nr2e1	MA0676.1	Nuclear receptors with C4 zinc fingers	RXR-related receptors (NR2)	vertebrates	11.374	0.291	631	379	563	447	1209	0.010	1055	0.009	14.242	6.718
+ELF1	MA0473.2	Tryptophan cluster factors	Ets-related factors	vertebrates	16.243	0.536	247	763	190	820	294	0.003	216	0.002	18.374	6.704
+IRF7	MA0772.1	Tryptophan cluster factors	Interferon-regulatory factors	vertebrates	17.627	0.419	128	882	86	924	145	0.002	90	0.001	21.674	6.514
+RFX4	MA0799.1	Fork head / winged helix factors	RFX-related factors	vertebrates	15.596	0.481	137	873	94	916	158	0.002	104	0.002	21.165	6.421
+FOXD1	MA0031.1	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	11.926	0.275	610	400	544	466	1251	0.009	1141	0.008	9.207	6.359
+RUNX3	MA0684.1	Runt domain factors	Runt-related factors	vertebrates	11.687	0.452	642	368	577	433	1039	0.009	862	0.008	19.096	6.323
+JDP2(var.2)	MA0656.1	Basic leucine zipper factors (bZIP)	Fos-related factors	vertebrates	17.511	0.485	135	875	94	916	156	0.002	105	0.001	17.221	6.009
+FOXO3	MA0157.2	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	13.427	0.265	570	440	506	504	1076	0.008	1014	0.007	5.488	6.002
+SCRT2	MA0744.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	17.902	0.568	128	882	89	921	139	0.002	92	0.001	17.647	5.773
+Foxj2	MA0614.1	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	11.782	0.247	783	227	729	281	2372	0.017	2482	0.018	-6.356	5.724
+SCRT1	MA0743.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	17.728	0.573	98	912	64	946	107	0.001	64	0.001	20.795	5.697
+Stat4	MA0518.1	STAT domain factors	STAT factors	vertebrates	13.473	0.446	626	384	566	444	1067	0.014	988	0.013	9.414	5.574
+NFYB	MA0502.1	Heteromeric CCAAT-binding factors	Heteromeric CCAAT-binding factors	vertebrates	14.488	0.501	287	723	234	776	381	0.005	332	0.005	10.404	5.504
+IRF2	MA0051.1	Tryptophan cluster factors	Interferon-regulatory factors	vertebrates	21.134	0.412	37	973	17	993	37	0.001	17	0.000	20.544	5.499
+Ascl2	MA0816.1	Basic helix-loop-helix factors (bHLH)	MyoD / ASC-related factors	vertebrates	12.850	0.580	666	344	608	402	1183	0.011	1037	0.009	14.360	5.452
+IRF8	MA0652.1	Tryptophan cluster factors	Interferon-regulatory factors	vertebrates	22.505	0.465	49	961	26	984	50	0.001	26	0.000	17.578	5.382
+BSX	MA0876.1	Homeo domain factors	NK-related factors	vertebrates	8.513	0.311	889	121	849	161	3813	0.028	3862	0.028	-2.330	5.100
+KLF16	MA0741.1	C2H2 zinc finger factors	Three-zinc finger Krüppel-related factors	vertebrates	13.161	0.767	875	135	834	176	3673	0.037	3557	0.035	6.491	4.993
+FOXO4	MA0848.1	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	10.660	0.295	888	122	849	161	3597	0.023	3415	0.022	8.268	4.910
+FOXF2	MA0030.1	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	14.824	0.334	127	883	92	918	135	0.002	100	0.001	13.075	4.905
+POU3F4	MA0789.1	Homeo domain factors	POU domain factors	vertebrates	13.378	0.229	406	604	353	657	695	0.006	603	0.005	11.231	4.775
+POU5F1B	MA0792.1	Homeo domain factors	POU domain factors	vertebrates	10.558	0.254	517	493	463	547	1105	0.009	1036	0.008	6.417	4.695
+FOXI1	MA0042.2	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	11.617	0.289	761	249	713	297	1994	0.013	1858	0.012	8.349	4.683
+FOXH1	MA0479.1	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	13.762	0.401	586	424	533	477	956	0.010	941	0.009	1.587	4.610
+ZNF263	MA0528.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	16.073	0.597	742	268	694	316	1708	0.032	1563	0.030	16.989	4.555
+FOXL1	MA0033.2	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	10.626	0.221	924	86	892	118	4767	0.030	4818	0.031	-2.045	4.515
+EN2	MA0642.1	Homeo domain factors	NK-related factors	vertebrates	8.619	0.377	854	156	814	196	2345	0.021	2230	0.020	7.720	4.507
+MSC	MA0665.1	Basic helix-loop-helix factors (bHLH)	Tal-related factors	vertebrates	14.856	0.452	226	784	184	826	269	0.002	199	0.002	15.675	4.455
+EBF1	MA0154.3	Rel homology region (RHR) factors	Early B-Cell Factor-related factors	vertebrates	16.027	0.559	203	807	163	847	231	0.003	186	0.002	12.330	4.415
+IRF1	MA0050.2	Tryptophan cluster factors	Interferon-regulatory factors	vertebrates	17.950	0.357	131	879	98	912	156	0.003	105	0.002	22.799	4.400
+LBX1	MA0618.1	Homeo domain factors	NK-related factors	vertebrates	10.149	0.240	668	342	619	391	1576	0.011	1551	0.011	1.760	4.331
+NKX2-3	MA0672.1	Homeo domain factors	NK-related factors	vertebrates	10.899	0.485	949	61	922	88	2902	0.026	2986	0.027	-4.994	4.320
+Tcf7	MA0769.1	Basic helix-loop-helix factors (bHLH)	TCF-7-related factors	vertebrates	16.918	0.356	119	891	88	922	125	0.001	93	0.001	11.471	4.285
+NFAT5	MA0606.1	Rel homology region (RHR) factors	NFAT-related factors	vertebrates	10.151	0.333	896	114	862	148	3341	0.030	3112	0.028	13.097	4.244
+NFYA	MA0060.2	Heteromeric CCAAT-binding factors	Heteromeric CCAAT-binding factors	vertebrates	16.655	0.516	115	895	85	925	137	0.002	108	0.002	11.820	4.182
+ESR2	MA0258.2	Nuclear receptors with C4 zinc fingers	Steroid hormone receptors (NR3)	vertebrates	13.119	0.581	453	557	404	606	633	0.009	560	0.008	11.952	4.177
+Sox3	MA0514.1	High-mobility group (HMG) domain factors	SOX-related factors	vertebrates	13.042	0.401	923	87	893	117	3211	0.029	3083	0.028	7.324	4.134
+HOXA5	MA0158.1	Homeo domain factors	HOX-related factors	vertebrates	8.759	0.315	930	80	901	109	4148	0.030	4503	0.033	-15.284	4.129
+Rfx1	MA0509.1	Fork head / winged helix factors	RFX-related factors	vertebrates	15.161	0.557	177	833	141	869	197	0.002	156	0.002	12.265	4.123
+NRF1	MA0506.1	Basic leucine zipper factors (bZIP)	Jun-related factors	vertebrates	14.300	0.810	803	207	763	247	3984	0.040	3871	0.039	6.062	3.975
+RFX5	MA0510.2	Fork head / winged helix factors	RFX-related factors	vertebrates	20.460	0.515	31	979	16	994	33	0.000	17	0.000	15.485	3.971
+MYBL1	MA0776.1	Tryptophan cluster factors	Myb/SANT domain factors	vertebrates	15.281	0.526	66	944	44	966	71	0.001	45	0.000	13.397	3.936
+Atf3	MA0605.1	Basic leucine zipper factors (bZIP)	Fos-related factors	vertebrates	11.483	0.498	663	347	618	392	1203	0.009	1025	0.007	15.742	3.862
+ELF3	MA0640.1	Tryptophan cluster factors	Ets-related factors	vertebrates	17.342	0.584	134	876	104	906	144	0.002	116	0.001	9.351	3.790
+Nobox	MA0125.1	Homeo domain factors	Paired-related HD factors	vertebrates	9.573	0.260	595	415	550	460	1183	0.009	1188	0.009	-0.453	3.726
+ATF7	MA0834.1	Basic leucine zipper factors (bZIP)	Jun-related factors	vertebrates	17.313	0.456	110	900	83	927	125	0.002	93	0.001	12.394	3.712
+DLX6	MA0882.1	Homeo domain factors	NK-related factors	vertebrates	8.327	0.229	837	173	802	208	3360	0.024	3544	0.026	-8.920	3.630
+FOXO6	MA0849.1	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	11.992	0.294	849	161	815	195	2926	0.019	2890	0.018	1.732	3.614
+TCF7L2	MA0523.1	Basic helix-loop-helix factors (bHLH)	TCF-7-related factors	vertebrates	13.486	0.398	520	490	476	534	854	0.011	752	0.010	13.939	3.582
+HNF4G	MA0484.1	Nuclear receptors with C4 zinc fingers	RXR-related receptors (NR2)	vertebrates	13.379	0.492	634	376	591	419	1055	0.014	938	0.013	14.840	3.580
+LEF1	MA0768.1	High-mobility group (HMG) domain factors	TCF-7-related factors	vertebrates	17.861	0.425	57	953	38	972	60	0.001	39	0.001	12.995	3.540
+Gmeb1	MA0615.1	SAND domain factors	GMEB	vertebrates	8.363	0.521	298	712	259	751	386	0.006	318	0.005	15.724	3.533
+MEIS2	MA0774.1	Homeo domain factors	TALE-type homeo domain factors	vertebrates	10.958	0.494	786	224	749	261	1768	0.013	1577	0.011	13.634	3.495
+E2F4	MA0470.1	Fork head / winged helix factors	E2F-related factors	vertebrates	13.176	0.729	862	148	830	180	4930	0.049	4714	0.047	10.598	3.485
+CREB3L1	MA0839.1	Basic leucine zipper factors (bZIP)	CREB-related factors	vertebrates	17.262	0.560	32	978	18	992	32	0.000	18	0.000	12.309	3.480
+SP4	MA0685.1	C2H2 zinc finger factors	Three-zinc finger Krüppel-related factors	vertebrates	19.967	0.677	351	659	311	699	534	0.008	507	0.008	4.923	3.435
+CEBPE	MA0837.1	Basic leucine zipper factors (bZIP)	C/EBP-related	vertebrates	11.682	0.433	567	443	525	485	952	0.009	932	0.008	2.039	3.394
+TFCP2	MA0145.3	Grainyhead domain factors	CP2-related factors	vertebrates	11.701	0.441	313	697	275	735	377	0.003	331	0.003	7.976	3.354
+Rarg(var.2)	MA0860.1	Nuclear receptors with C4 zinc fingers	Thyroid hormone receptor-related factors (NR1)	vertebrates	25.520	0.537	12	998	4	1006	12	0.000	4	0.000	16.426	3.275
+NFATC3	MA0625.1	Rel homology region (RHR) factors	NFAT-related factors	vertebrates	8.847	0.381	821	189	788	222	2144	0.019	2013	0.018	9.261	3.259
+FOXC1	MA0032.2	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	11.875	0.201	665	345	626	384	1805	0.018	1979	0.020	-13.158	3.240
+NFIA	MA0670.1	SMAD/NF-1 DNA-binding domain factors	Nuclear factor 1	vertebrates	12.177	0.500	319	691	282	728	396	0.004	358	0.003	6.330	3.222
+NFKB1	MA0105.4	Rel homology region (RHR) factors	NF-kappaB-related factors	vertebrates	20.522	0.671	98	912	75	935	106	0.001	80	0.001	10.457	3.219
+FOXP2	MA0593.1	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	13.802	0.305	577	433	537	473	1098	0.011	1137	0.011	-3.903	3.206
+STAT1	MA0137.3	STAT domain factors	STAT factors	vertebrates	14.582	0.415	639	371	600	410	1104	0.011	1008	0.010	10.034	3.188
+RFX2	MA0600.2	Fork head / winged helix factors	RFX-related factors	vertebrates	20.246	0.536	47	963	31	979	49	0.001	32	0.000	11.991	3.187
+ZBTB33	MA0527.1	C2H2 zinc finger factors	Other factors with up to three adjacent zinc fingers	vertebrates	14.336	0.609	176	834	147	863	204	0.003	178	0.002	7.527	3.112
+RUNX2	MA0511.2	Runt domain factors	Runt-related factors	vertebrates	11.551	0.475	716	294	680	330	1313	0.011	1174	0.010	12.184	3.081
+STAT3	MA0144.2	STAT domain factors	STAT factors	vertebrates	13.049	0.436	925	85	902	108	3017	0.030	2832	0.028	11.625	3.040
+Bcl6	MA0463.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	13.663	0.433	261	749	228	782	302	0.004	266	0.003	8.241	3.032
+FOXP3	MA0850.1	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	8.594	0.299	956	54	937	73	5579	0.035	5387	0.034	6.966	3.010
+NKX6-1	MA0674.1	Homeo domain factors	NK-related factors	vertebrates	9.183	0.199	762	248	729	281	2565	0.019	2525	0.018	2.216	2.944
+Myog	MA0500.1	Basic helix-loop-helix factors (bHLH)	MyoD / ASC-related factors	vertebrates	13.109	0.621	960	50	942	68	3952	0.039	3495	0.035	26.015	2.933
+TFAP2B(var.3)	MA0813.1	Basic helix-span-helix factors (bHSH)	AP-2	vertebrates	14.355	0.726	582	428	545	465	1018	0.012	975	0.011	4.947	2.930
+Sox2	MA0143.3	High-mobility group (HMG) domain factors	SOX-related factors	vertebrates	13.532	0.436	925	85	903	107	2793	0.020	2710	0.020	4.496	2.892
+LIN54	MA0619.1	CRC domain	-	vertebrates	11.299	0.189	678	332	643	367	1785	0.015	1886	0.015	-7.082	2.885
+Tcf21	MA0832.1	Basic helix-loop-helix factors (bHLH)	Tal-related factors	vertebrates	18.108	0.461	48	962	33	977	50	0.001	35	0.000	9.457	2.884
+PROX1	MA0794.1	Homeo domain factors	HD-PROS factors	vertebrates	16.936	0.455	108	902	86	924	113	0.001	90	0.001	8.374	2.877
+TFAP2C(var.3)	MA0815.1	Basic helix-span-helix factors (bHSH)	AP-2	vertebrates	14.479	0.780	600	410	564	446	1129	0.013	1077	0.013	5.701	2.856
+MYF6	MA0667.1	Basic helix-loop-helix factors (bHLH)	MyoD / ASC-related factors	vertebrates	14.583	0.392	235	775	205	805	289	0.003	231	0.002	12.050	2.831
+JUN	MA0488.1	Basic leucine zipper factors (bZIP)	Jun-related factors	vertebrates	15.128	0.380	446	564	411	599	604	0.007	605	0.007	-0.185	2.766
+MNX1	MA0707.1	Homeo domain factors	HOX-related factors	vertebrates	8.729	0.228	713	297	681	329	2075	0.019	2417	0.022	-22.299	2.690
+Foxo1	MA0480.1	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	13.240	0.365	626	384	593	417	1256	0.012	1151	0.011	10.276	2.621
+HOXC10	MA0905.1	Homeo domain factors	HOX-related factors	vertebrates	11.056	0.327	626	384	593	417	1427	0.013	1498	0.014	-5.889	2.621
+Znf423	MA0116.1	C2H2 zinc finger factors	Factors with multiple dispersed zinc fingers	vertebrates	17.925	0.679	424	586	391	619	612	0.008	524	0.007	14.901	2.613
+GBX1	MA0889.1	Homeo domain factors	HOX-related factors	vertebrates	10.843	0.319	561	449	528	482	973	0.009	979	0.009	-0.650	2.569
+MGA	MA0801.1	T-Box factors	TBX6-related factors	vertebrates	10.832	0.509	942	68	924	86	2882	0.021	2948	0.021	-3.535	2.565
+TFAP2A(var.3)	MA0872.1	Basic helix-span-helix factors (bHSH)	AP-2	vertebrates	14.096	0.784	531	479	498	512	959	0.011	890	0.010	8.337	2.562
+Mafb	MA0117.2	Basic leucine zipper factors (bZIP)	Maf-related factors	vertebrates	11.336	0.444	417	593	385	625	578	0.006	549	0.006	4.264	2.534
+FOXG1	MA0613.1	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	13.341	0.225	681	329	650	360	1710	0.012	1887	0.014	-11.652	2.531
+FOXA1	MA0148.3	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	13.765	0.334	610	400	578	432	1300	0.018	1304	0.018	-0.488	2.519
+Arid3a	MA0151.1	ARID domain factors	ARID-related factors	vertebrates	9.896	0.062	746	264	717	293	2512	0.014	2742	0.015	-10.889	2.506
+MYBL2	MA0777.1	Tryptophan cluster factors	Myb/SANT domain factors	vertebrates	16.774	0.467	13	997	6	1004	13	0.000	6	0.000	11.010	2.495
+TBX1	MA0805.1	T-Box factors	TBX1-related factors	vertebrates	12.823	0.498	730	280	701	309	1372	0.010	1447	0.010	-5.649	2.463
+JUND(var.2)	MA0492.1	Basic leucine zipper factors (bZIP)	Jun-related factors	vertebrates	15.021	0.393	418	592	387	623	563	0.008	546	0.007	2.789	2.449
+SP2	MA0516.1	C2H2 zinc finger factors	Three-zinc finger Krüppel-related factors	vertebrates	13.721	0.768	897	113	876	134	4813	0.065	4652	0.063	9.341	2.440
+CEBPB	MA0466.2	Basic leucine zipper factors (bZIP)	C/EBP-related	vertebrates	12.768	0.434	573	437	542	468	975	0.009	986	0.009	-1.154	2.411
+ZIC1	MA0696.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	18.774	0.762	332	678	303	707	416	0.005	411	0.005	0.891	2.410
+Dux	MA0611.1	Homeo domain factors	Paired-related HD factors	vertebrates	11.804	0.338	400	610	370	640	573	0.004	556	0.004	2.011	2.386
+SPDEF	MA0686.1	Tryptophan cluster factors	Ets-related factors	vertebrates	14.474	0.536	390	620	361	649	505	0.005	463	0.005	6.454	2.316
+TGIF2	MA0797.1	Homeo domain factors	TALE-type homeo domain factors	vertebrates	18.378	0.488	61	949	47	963	62	0.001	49	0.001	6.404	2.311
+POU2F1	MA0785.1	Homeo domain factors	POU domain factors	vertebrates	12.044	0.265	347	663	319	691	535	0.006	518	0.006	2.559	2.296
+EGR4	MA0733.1	C2H2 zinc finger factors	Three-zinc finger Krüppel-related factors	vertebrates	13.890	0.635	226	784	202	808	267	0.004	249	0.004	4.539	2.252
+EWSR1-FLI1	MA0149.1	Tryptophan cluster factors	Ets-related factors	vertebrates	32.871	0.554	26	984	17	993	31	0.001	24	0.000	6.031	2.221
+CREB3	MA0638.1	Basic leucine zipper factors (bZIP)	CREB-related factors	vertebrates	15.483	0.552	77	933	62	948	82	0.001	65	0.001	7.864	2.215
+BARX1	MA0875.1	Homeo domain factors	NK-related factors	vertebrates	8.892	0.306	878	132	858	152	3673	0.027	4161	0.030	-21.794	2.190
+CEBPD	MA0836.1	Basic leucine zipper factors (bZIP)	C/EBP-related	vertebrates	13.212	0.426	484	526	456	554	721	0.007	747	0.007	-3.055	2.170
+XBP1	MA0844.1	Basic leucine zipper factors (bZIP)	XBP-1-related factors	vertebrates	15.475	0.537	94	916	78	932	100	0.001	83	0.001	6.957	2.155
+HSF4	MA0771.1	Heat shock factors	HSF factors	vertebrates	13.629	0.398	232	778	209	801	259	0.003	241	0.003	4.156	2.137
+Pou2f3	MA0627.1	Homeo domain factors	POU domain factors	vertebrates	15.067	0.318	85	925	70	940	90	0.001	78	0.001	5.410	2.113
+GATA3	MA0037.2	Other C4 zinc finger-type factors	GATA-type zinc fingers	vertebrates	13.796	0.265	786	224	763	247	2314	0.017	2196	0.016	7.125	2.091
+Nkx2-5	MA0063.1	Homeo domain factors	NK-related factors	vertebrates	8.270	0.218	833	177	812	198	3320	0.021	3389	0.021	-3.230	2.070
+NRL	MA0842.1	Basic leucine zipper factors (bZIP)	Maf-related factors	vertebrates	8.257	0.452	849	161	829	181	2088	0.021	1921	0.019	12.700	2.042
+BATF3	MA0835.1	Basic leucine zipper factors (bZIP)	B-ATF-related factors	vertebrates	23.217	0.484	13	997	7	1003	13	0.000	8	0.000	6.562	2.037
+SNAI2	MA0745.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	9.486	0.570	1006	4	1001	9	5664	0.046	5691	0.046	-1.186	2.020
+EGR2	MA0472.2	C2H2 zinc finger factors	Three-zinc finger Krüppel-related factors	vertebrates	15.289	0.730	505	505	479	531	886	0.009	853	0.008	3.722	2.018
+HOXC11	MA0651.1	Homeo domain factors	HOX-related factors	vertebrates	12.647	0.358	319	691	295	715	436	0.004	395	0.004	6.822	2.018
+POU3F2	MA0787.1	Homeo domain factors	POU domain factors	vertebrates	13.773	0.240	242	768	220	790	330	0.004	296	0.003	6.825	2.018
+POU2F2	MA0507.1	Homeo domain factors	POU domain factors	vertebrates	15.114	0.289	321	689	297	713	475	0.006	459	0.005	2.665	2.015
+SMAD3	MA0795.1	SMAD/NF-1 DNA-binding domain factors	SMAD factors	vertebrates	15.611	0.453	114	896	98	912	123	0.001	104	0.001	5.866	1.980
+Esrra	MA0592.2	Nuclear receptors with C4 zinc fingers	Steroid hormone receptors (NR3)	vertebrates	17.764	0.409	132	878	115	895	142	0.001	124	0.001	5.336	1.976
+TBX5	MA0807.1	T-Box factors	TBX2-related factors	vertebrates	8.477	0.507	950	60	937	73	3130	0.023	3231	0.023	-5.147	1.960
+INSM1	MA0155.1	C2H2 zinc finger factors	Factors with multiple dispersed zinc fingers	vertebrates	14.862	0.667	579	431	554	456	956	0.010	911	0.010	5.146	1.959
+FOS::JUN	MA0099.2	Basic leucine zipper factors (bZIP)::Basic leucine zipper factors (bZIP)	Fos-related factors::Jun-related factors	vertebrates	9.193	0.405	924	86	909	101	3143	0.020	3301	0.021	-7.411	1.957
+ZIC4	MA0751.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	13.598	0.697	464	546	439	571	725	0.010	719	0.010	0.828	1.956
+CDX2	MA0465.1	Homeo domain factors	HOX-related factors	vertebrates	13.813	0.281	545	465	520	490	1010	0.010	1085	0.011	-7.636	1.949
+HOXC12	MA0906.1	Homeo domain factors	HOX-related factors	vertebrates	14.403	0.356	238	772	217	793	295	0.003	279	0.003	3.151	1.942
+SRY	MA0084.1	High-mobility group (HMG) domain factors	SOX-related factors	vertebrates	9.193	0.238	688	322	665	345	1738	0.014	1902	0.015	-11.420	1.904
+HMBOX1	MA0895.1	Homeo domain factors	POU domain factors	vertebrates	9.583	0.347	585	425	561	449	1112	0.010	1022	0.009	8.900	1.892
+NHLH1	MA0048.2	Basic helix-loop-helix factors (bHLH)	Tal-related factors	vertebrates	13.190	0.691	670	340	647	363	1319	0.012	1194	0.011	11.455	1.883
+CDX1	MA0878.1	Homeo domain factors	HOX-related factors	vertebrates	9.270	0.234	723	287	701	309	2261	0.018	2469	0.020	-12.742	1.879
+PKNOX2	MA0783.1	Homeo domain factors	TALE-type homeo domain factors	vertebrates	21.223	0.512	36	974	27	983	37	0.000	29	0.000	5.112	1.878
+Gata4	MA0482.1	Other C4 zinc finger-type factors	GATA-type zinc fingers	vertebrates	13.320	0.388	765	245	744	266	1829	0.018	1657	0.016	14.075	1.877
+SPIB	MA0081.1	Tryptophan cluster factors	Ets-related factors	vertebrates	9.060	0.466	996	14	989	21	6016	0.038	5032	0.032	37.220	1.876
+MZF1(var.2)	MA0057.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	9.400	0.588	954	56	942	68	4056	0.037	3562	0.032	26.529	1.871
+Dlx2	MA0885.1	Homeo domain factors	NK-related factors	vertebrates	9.033	0.215	850	160	832	178	3659	0.026	3956	0.029	-13.618	1.861
+Bhlha15	MA0607.1	Basic helix-loop-helix factors (bHLH)	Tal-related factors	vertebrates	11.820	0.455	754	256	733	277	1518	0.011	1532	0.011	-1.062	1.856
+NOTO	MA0710.1	Homeo domain factors	NK-related factors	vertebrates	9.584	0.280	842	168	824	186	2995	0.027	3270	0.030	-15.505	1.833
+FOXC2	MA0846.1	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	11.607	0.229	603	407	580	430	1380	0.015	1543	0.017	-14.548	1.831
+NFE2	MA0841.1	Basic leucine zipper factors (bZIP)	Jun-related factors	vertebrates	16.895	0.417	164	846	147	863	180	0.002	169	0.002	2.781	1.820
+JDP2	MA0655.1	Basic leucine zipper factors (bZIP)	Fos-related factors	vertebrates	15.102	0.355	235	775	216	794	286	0.002	269	0.002	3.084	1.783
+Myod1	MA0499.1	Basic helix-loop-helix factors (bHLH)	MyoD / ASC-related factors	vertebrates	13.102	0.600	944	66	932	78	3288	0.039	2938	0.035	23.615	1.767
+Hand1::Tcf3	MA0092.1	Basic helix-loop-helix factors (bHLH)::Basic helix-loop-helix factors (bHLH)	Tal-related factors::E2A-related factors	vertebrates	10.144	0.507	783	227	764	246	1648	0.015	1618	0.015	2.325	1.759
+Myb	MA0100.2	Tryptophan cluster factors	Myb/SANT domain factors	vertebrates	13.365	0.452	768	242	749	261	1714	0.015	1489	0.013	18.512	1.731
+SP8	MA0747.1	C2H2 zinc finger factors	Three-zinc finger Krüppel-related factors	vertebrates	12.140	0.714	826	184	809	201	2472	0.027	2553	0.028	-5.699	1.702
+IRF9	MA0653.1	Tryptophan cluster factors	Interferon-regulatory factors	vertebrates	24.834	0.425	19	991	13	997	19	0.000	13	0.000	6.404	1.679
+Pparg::Rxra	MA0065.2	Nuclear receptors with C4 zinc fingers::Nuclear receptors with C4 zinc fingers	Thyroid hormone receptor-related factors (NR1)::RXR-related receptors (NR2)	vertebrates	11.663	0.547	315	695	296	714	381	0.005	375	0.005	1.169	1.652
+Hoxa11	MA0911.1	Homeo domain factors	HOX-related factors	vertebrates	11.443	0.370	268	742	250	760	344	0.004	330	0.004	2.643	1.644
+Tcf12	MA0521.1	Basic helix-loop-helix factors (bHLH)	E2A-related factors	vertebrates	13.159	0.597	907	103	894	116	2788	0.028	2455	0.024	22.499	1.633
+Lhx4	MA0704.1	Homeo domain factors	HD-LIM factors	vertebrates	8.328	0.194	771	239	754	256	2667	0.019	2908	0.021	-12.833	1.590
+HOXD12	MA0873.1	Homeo domain factors	HOX-related factors	vertebrates	14.187	0.355	218	792	202	808	267	0.003	231	0.002	7.835	1.583
+Klf12	MA0742.1	C2H2 zinc finger factors	Three-zinc finger Krüppel-related factors	vertebrates	16.798	0.612	360	650	342	668	522	0.007	499	0.007	3.963	1.544
+NR2C2	MA0504.1	Nuclear receptors with C4 zinc fingers	RXR-related receptors (NR2)	vertebrates	16.248	0.589	395	615	377	633	532	0.007	522	0.007	1.663	1.522
+HLF	MA0043.2	Basic leucine zipper factors (bZIP)	C/EBP-related	vertebrates	11.834	0.365	443	567	425	585	673	0.007	662	0.007	1.448	1.503
+TBR1	MA0802.1	T-Box factors	TBrain-related factors	vertebrates	12.472	0.439	472	538	454	556	692	0.006	663	0.006	3.536	1.497
+Arid3b	MA0601.1	ARID domain factors	ARID-related factors	vertebrates	10.307	0.153	485	525	467	543	1004	0.010	1117	0.011	-11.320	1.495
+Klf1	MA0493.1	C2H2 zinc finger factors	Three-zinc finger Krüppel-related factors	vertebrates	13.595	0.665	836	174	822	188	2422	0.024	2311	0.023	7.684	1.490
+RAX	MA0718.1	Homeo domain factors	Paired-related HD factors	vertebrates	9.540	0.256	661	349	644	366	1618	0.015	1890	0.017	-20.007	1.477
+NKX3-2	MA0122.2	Homeo domain factors	NK-related factors	vertebrates	10.208	0.421	788	222	773	237	1784	0.015	1672	0.014	8.223	1.476
+PAX4	MA0068.2	Paired box factors	Paired plus homeo domain	vertebrates	9.469	0.309	435	575	418	592	675	0.005	677	0.005	-0.252	1.446
+NR4A2	MA0160.1	Nuclear receptors with C4 zinc fingers	NGFI-B-related receptors (NR4)	vertebrates	10.165	0.491	845	165	832	178	1951	0.014	1975	0.014	-1.589	1.433
+Hmx1	MA0896.1	Homeo domain factors	NK-related factors	vertebrates	13.599	0.383	41	969	34	976	42	0.001	36	0.001	4.094	1.426
+POU3F1	MA0786.1	Homeo domain factors	POU domain factors	vertebrates	11.957	0.245	307	703	292	718	462	0.005	458	0.005	0.615	1.396
+SP3	MA0746.1	C2H2 zinc finger factors	Three-zinc finger Krüppel-related factors	vertebrates	10.325	0.709	918	92	908	102	4857	0.048	4689	0.047	8.245	1.393
+TBP	MA0108.2	TATA-binding proteins	TBP-related factors	vertebrates	10.086	0.377	442	568	426	584	646	0.009	677	0.009	-4.677	1.386
+NEUROD2	MA0668.1	Basic helix-loop-helix factors (bHLH)	Tal-related factors	vertebrates	10.701	0.465	858	152	846	164	1929	0.017	2045	0.018	-8.243	1.385
+RREB1	MA0073.1	C2H2 zinc finger factors	Factors with multiple dispersed zinc fingers	vertebrates	22.278	0.623	134	876	123	887	142	0.003	137	0.002	1.884	1.378
+JUN(var.2)	MA0489.1	Basic leucine zipper factors (bZIP)	Jun-related factors	vertebrates	13.941	0.426	380	630	365	645	520	0.007	496	0.006	4.007	1.350
+TAL1::TCF3	MA0091.1	Basic helix-loop-helix factors (bHLH)::Basic helix-loop-helix factors (bHLH)	Tal-related factors::E2A-related factors	vertebrates	14.070	0.453	231	779	218	792	277	0.003	254	0.003	4.976	1.346
+OTX1	MA0711.1	Homeo domain factors	Paired-related HD factors	vertebrates	9.437	0.416	869	141	858	152	2666	0.019	2803	0.020	-7.452	1.333
+RXRA::VDR	MA0074.1	Nuclear receptors with C4 zinc fingers::Nuclear receptors with C4 zinc fingers	RXR-related receptors (NR2)::Thyroid hormone receptor-related factors (NR1)	vertebrates	20.451	0.527	23	987	18	992	23	0.000	18	0.000	4.528	1.331
+Id2	MA0617.1	Basic helix-loop-helix factors (bHLH)	HLH domain only	vertebrates	12.659	0.623	460	550	445	565	641	0.005	643	0.005	-0.257	1.326
+RXRG	MA0856.1	Nuclear receptors with C4 zinc fingers	RXR-related receptors (NR2)	vertebrates	22.332	0.505	53	957	46	964	53	0.001	48	0.001	2.672	1.316
+MAFG	MA0659.1	Basic leucine zipper factors (bZIP)	Maf-related factors	vertebrates	16.353	0.463	7	1003	4	1006	8	0.000	4	0.000	9.106	1.295
+POU1F1	MA0784.1	Homeo domain factors	POU domain factors	vertebrates	14.958	0.281	104	906	95	915	116	0.001	105	0.001	3.991	1.290
+NR3C1	MA0113.3	Nuclear receptors with C4 zinc fingers	Steroid hormone receptors (NR3)	vertebrates	19.181	0.483	41	969	35	975	42	0.001	38	0.001	2.647	1.275
+Ar	MA0007.3	Nuclear receptors with C4 zinc fingers	Steroid hormone receptors (NR3)	vertebrates	18.664	0.539	28	982	23	987	28	0.000	24	0.000	3.334	1.254
+E2F6	MA0471.1	Fork head / winged helix factors	E2F-related factors	vertebrates	13.338	0.693	971	39	965	45	5699	0.057	5541	0.055	7.146	1.242
+E2F3	MA0469.2	Fork head / winged helix factors	E2F-related factors	vertebrates	21.784	0.442	8	1002	5	1005	8	0.000	5	0.000	5.635	1.238
+MEOX1	MA0661.1	Homeo domain factors	HOX-related factors	vertebrates	9.622	0.316	622	388	609	401	1310	0.012	1329	0.012	-1.705	1.231
+MEIS3	MA0775.1	Homeo domain factors	TALE-type homeo domain factors	vertebrates	9.016	0.490	985	25	980	30	4233	0.031	4185	0.030	2.060	1.230
+ZBTB7B	MA0694.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	13.963	0.628	411	599	398	612	548	0.006	553	0.006	-0.775	1.228
+PKNOX1	MA0782.1	Homeo domain factors	TALE-type homeo domain factors	vertebrates	21.435	0.506	48	962	42	968	49	0.001	44	0.000	2.581	1.221
+LHX6	MA0658.1	Homeo domain factors	HD-LIM factors	vertebrates	10.963	0.288	444	566	431	579	691	0.006	731	0.007	-4.730	1.221
+DUXA	MA0884.1	Homeo domain factors	Paired-related HD factors	vertebrates	12.572	0.301	227	783	216	794	275	0.003	270	0.003	1.068	1.219
+Gata1	MA0035.3	Other C4 zinc finger-type factors	GATA-type zinc fingers	vertebrates	13.597	0.352	476	534	463	547	786	0.008	723	0.007	7.759	1.217
+T	MA0009.2	T-Box factors	Brachyury-related factors	vertebrates	18.965	0.510	9	1001	6	1004	9	0.000	6	0.000	4.844	1.194
+HOXA10	MA0899.1	Homeo domain factors	HOX-related factors	vertebrates	9.141	0.292	586	424	574	436	1382	0.014	1453	0.014	-6.272	1.170
+MZF1	MA0056.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	8.586	0.725	1009	1	1007	3	11626	0.063	11326	0.061	7.026	1.164
+SP1	MA0079.3	C2H2 zinc finger factors	Three-zinc finger Krüppel-related factors	vertebrates	13.323	0.810	976	34	971	39	8987	0.089	8564	0.085	15.728	1.149
+GATA2	MA0036.2	Other C4 zinc finger-type factors	GATA-type zinc fingers	vertebrates	13.428	0.361	373	637	362	648	541	0.007	522	0.007	3.084	1.134
+GCM2	MA0767.1	GCM domain factors	GCM factors	vertebrates	11.005	0.594	720	290	710	300	1383	0.013	1359	0.012	2.024	1.109
+DBP	MA0639.1	Basic leucine zipper factors (bZIP)	C/EBP-related	vertebrates	13.741	0.344	309	701	299	711	410	0.004	396	0.004	2.409	1.105
+HSF1	MA0486.2	Heat shock factors	HSF factors	vertebrates	18.738	0.366	74	936	68	942	77	0.001	74	0.001	1.230	1.103
+ZIC3	MA0697.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	17.252	0.750	162	848	154	856	184	0.002	185	0.003	-0.314	1.096
+NFATC2	MA0152.1	Rel homology region (RHR) factors	NFAT-related factors	vertebrates	9.859	0.346	845	165	837	173	2418	0.015	2330	0.015	4.807	1.084
+Hoxd9	MA0913.1	Homeo domain factors	HOX-related factors	vertebrates	9.118	0.300	648	362	638	372	1862	0.017	2025	0.018	-11.615	1.083
+Creb3l2	MA0608.1	Basic leucine zipper factors (bZIP)	CREB-related factors	vertebrates	12.997	0.624	603	407	593	417	984	0.008	1011	0.008	-2.598	1.073
+Spz1	MA0111.1	Basic helix-loop-helix factors (bHLH)	-	vertebrates	11.907	0.538	423	587	413	597	538	0.005	547	0.005	-1.314	1.072
+Foxa2	MA0047.2	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	13.268	0.315	461	549	451	559	753	0.008	787	0.009	-4.257	1.068
+BATF::JUN	MA0462.1	Basic leucine zipper factors (bZIP)::Basic leucine zipper factors (bZIP)	B-ATF-related factors::Jun-related factors	vertebrates	13.645	0.367	551	459	541	469	962	0.010	947	0.009	1.582	1.067
+ZEB1	MA0103.2	Homeo domain factors	HD-ZF factors	vertebrates	13.264	0.621	876	134	869	141	2176	0.018	2246	0.018	-4.527	1.054
+TEAD4	MA0809.1	TEA domain factors	TEF-1-related factors	vertebrates	9.386	0.418	868	142	861	149	2636	0.024	2803	0.025	-10.167	1.044
+CEBPA	MA0102.3	Basic leucine zipper factors (bZIP)	C/EBP-related	vertebrates	13.338	0.344	670	340	661	349	1383	0.014	1490	0.015	-9.312	1.039
+TGIF1	MA0796.1	Homeo domain factors	TALE-type homeo domain factors	vertebrates	22.281	0.543	16	994	13	997	16	0.000	13	0.000	2.837	1.037
+TBX2	MA0688.1	T-Box factors	TBX2-related factors	vertebrates	10.262	0.450	524	486	515	495	822	0.008	838	0.008	-1.881	1.019
+RARA	MA0729.1	Nuclear receptors with C4 zinc fingers	Thyroid hormone receptor-related factors (NR1)	vertebrates	28.136	0.482	5	1005	3	1007	5	0.000	3	0.000	4.827	1.013
+Sox6	MA0515.1	High-mobility group (HMG) domain factors	SOX-related factors	vertebrates	13.201	0.401	815	195	808	202	1926	0.017	1986	0.018	-4.351	0.998
+PDX1	MA0132.2	Homeo domain factors	HOX-related factors	vertebrates	9.911	0.238	698	312	690	320	2042	0.015	2370	0.017	-19.273	0.998
+MSX1	MA0666.1	Homeo domain factors	NK-related factors	vertebrates	8.661	0.279	804	206	797	213	2444	0.018	2612	0.019	-9.442	0.992
+TBX21	MA0690.1	T-Box factors	TBrain-related factors	vertebrates	13.531	0.425	360	650	352	658	458	0.004	473	0.004	-2.218	0.988
+TBX20	MA0689.1	T-Box factors	TBX1-related factors	vertebrates	13.845	0.429	264	746	257	753	336	0.003	317	0.003	3.514	0.967
+Msx3	MA0709.1	Homeo domain factors	NK-related factors	vertebrates	9.864	0.246	743	267	736	274	2051	0.015	2218	0.016	-10.162	0.964
+EOMES	MA0800.1	T-Box factors	TBrain-related factors	vertebrates	12.412	0.416	279	731	272	738	331	0.004	350	0.004	-3.701	0.962
+EGR3	MA0732.1	C2H2 zinc finger factors	Three-zinc finger Krüppel-related factors	vertebrates	18.153	0.721	299	711	292	718	405	0.005	404	0.005	0.158	0.956
+POU3F3	MA0788.1	Homeo domain factors	POU domain factors	vertebrates	13.499	0.222	199	811	193	817	260	0.003	264	0.003	-0.919	0.944
+Pou5f1::Sox2	MA0142.1	Homeo domain factors::High-mobility group (HMG) domain factors	POU domain factors::SOX-related factors	vertebrates	14.808	0.308	67	943	63	947	73	0.001	64	0.001	4.331	0.934
+Lhx8	MA0705.1	Homeo domain factors	HD-LIM factors	vertebrates	8.840	0.303	781	229	775	235	2001	0.014	1987	0.014	0.844	0.927
+Rxra	MA0512.2	Nuclear receptors with C4 zinc fingers	RXR-related receptors (NR2)	vertebrates	22.648	0.503	39	971	36	974	39	0.000	38	0.000	0.577	0.899
+PBX1	MA0070.1	Homeo domain factors	TALE-type homeo domain factors	vertebrates	14.641	0.310	96	914	92	918	106	0.001	104	0.001	0.653	0.894
+CREB1	MA0018.2	Basic leucine zipper factors (bZIP)	CREB-related factors	vertebrates	10.139	0.523	580	430	574	436	889	0.006	896	0.006	-0.700	0.889
+ZBED1	MA0749.1	C2H2 zinc finger factors	BED zinc finger factors	vertebrates	19.052	0.485	11	999	9	1001	11	0.000	9	0.000	2.353	0.888
+KLF14	MA0740.1	C2H2 zinc finger factors	Three-zinc finger Krüppel-related factors	vertebrates	16.072	0.661	498	512	492	518	892	0.011	892	0.011	-0.046	0.887
+TEAD3	MA0808.1	TEA domain factors	TEF-1-related factors	vertebrates	11.506	0.415	888	122	884	126	2548	0.018	2897	0.021	-18.591	0.869
+ESR1	MA0112.3	Nuclear receptors with C4 zinc fingers	Steroid hormone receptors (NR3)	vertebrates	22.540	0.570	14	996	12	998	14	0.000	13	0.000	1.104	0.863
+Hes2	MA0616.1	Basic helix-loop-helix factors (bHLH)	Hairy-related factors	vertebrates	8.309	0.532	389	621	384	626	511	0.006	486	0.006	4.064	0.850
+JUNB	MA0490.1	Basic leucine zipper factors (bZIP)	Jun-related factors	vertebrates	13.910	0.457	600	410	595	415	1015	0.010	996	0.010	1.963	0.848
+FOXB1	MA0845.1	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	12.241	0.200	429	581	424	586	797	0.008	879	0.009	-9.253	0.847
+Hoxc9	MA0485.1	Homeo domain factors	HOX-related factors	vertebrates	13.615	0.344	175	835	171	839	203	0.002	203	0.002	-0.029	0.845
+ID4	MA0824.1	Basic helix-loop-helix factors (bHLH)	HLH domain only	vertebrates	11.591	0.601	904	106	901	109	2668	0.024	2769	0.025	-6.211	0.815
+NR3C2	MA0727.1	Nuclear receptors with C4 zinc fingers	Steroid hormone receptors (NR3)	vertebrates	18.985	0.510	40	970	38	972	41	0.001	41	0.001	-0.029	0.789
+Vdr	MA0693.1	Nuclear receptors with C4 zinc fingers	Thyroid hormone receptor-related factors (NR1)	vertebrates	21.487	0.479	46	964	44	966	47	0.001	49	0.001	-1.171	0.783
+HOXB13	MA0901.1	Homeo domain factors	HOX-related factors	vertebrates	12.254	0.281	554	456	551	459	1041	0.009	1294	0.012	-22.414	0.767
+Hoxa9	MA0594.1	Homeo domain factors	HOX-related factors	vertebrates	13.740	0.326	215	795	213	797	251	0.002	277	0.003	-5.217	0.738
+PITX3	MA0714.1	Homeo domain factors	Paired-related HD factors	vertebrates	8.973	0.406	791	219	789	221	1865	0.015	2118	0.017	-16.688	0.737
+Shox2	MA0720.1	Homeo domain factors	Paired-related HD factors	vertebrates	9.249	0.214	789	221	787	223	2754	0.020	3086	0.022	-17.154	0.737
+PRRX1	MA0716.1	Homeo domain factors	Paired-related HD factors	vertebrates	8.226	0.213	754	256	752	258	2457	0.018	2707	0.020	-13.781	0.735
+Rhox11	MA0629.1	Homeo domain factors	Paired-related HD factors	vertebrates	12.000	0.431	102	908	101	909	111	0.002	109	0.002	0.763	0.693
+KLF5	MA0599.1	C2H2 zinc finger factors	Three-zinc finger Krüppel-related factors	vertebrates	12.860	0.792	998	12	997	13	11799	0.107	11357	0.103	13.712	0.693
+TBX19	MA0804.1	T-Box factors	Brachyury-related factors	vertebrates	17.480	0.448	2	1008	1	1009	2	0.000	1	0.000	4.358	0.693
+SOX8	MA0868.1	High-mobility group (HMG) domain factors	SOX-related factors	vertebrates	28.805	0.342	3	1007	2	1008	3	0.000	2	0.000	2.738	0.693
+ZNF354C	MA0130.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	8.958	0.615	1009	1	1008	2	9325	0.051	9623	0.052	-7.734	0.693
+NKX2-8	MA0673.1	Homeo domain factors	NK-related factors	vertebrates	9.033	0.458	1010	0	1009	1	7907	0.064	7691	0.063	7.529	0.693
+Mecom	MA0029.1	C2H2 zinc finger factors	Factors with multiple dispersed zinc fingers	vertebrates	17.909	0.280	43	967	42	968	45	0.001	44	0.001	0.535	0.693
+Stat5a::Stat5b	MA0519.1	STAT domain factors::STAT domain factors	STAT factors::STAT factors	vertebrates	13.332	0.399	865	145	864	146	2448	0.024	2266	0.023	12.762	0.693
+RHOXF1	MA0719.1	Homeo domain factors	Paired-related HD factors	vertebrates	8.182	0.438	1010	0	1009	1	12982	0.094	13288	0.096	-8.023	0.693
+Atoh1	MA0461.2	Basic helix-loop-helix factors (bHLH)	Tal-related factors	vertebrates	11.381	0.409	496	514	496	514	757	0.007	784	0.007	-3.098	0.658
+HINFP	MA0131.2	C2H2 zinc finger factors	Factors with multiple dispersed zinc fingers	vertebrates	13.024	0.717	566	444	566	444	1167	0.013	1131	0.012	3.683	0.658
+EMX2	MA0886.1	Homeo domain factors	NK-related factors	vertebrates	10.283	0.288	713	297	713	297	1883	0.017	2212	0.020	-22.400	0.655
+E2F1	MA0024.3	Fork head / winged helix factors	E2F-related factors	vertebrates	13.048	0.553	105	905	105	905	119	0.001	116	0.001	0.938	0.637
+ATF4	MA0833.1	Basic leucine zipper factors (bZIP)	ATF-4-related factors	vertebrates	15.609	0.443	101	909	101	909	116	0.001	106	0.001	3.476	0.636
+GRHL1	MA0647.1	Grainyhead domain factors	Grainyhead-related factors	vertebrates	14.286	0.390	91	919	91	919	98	0.001	98	0.001	-0.027	0.633
+Klf4	MA0039.2	C2H2 zinc finger factors	Three-zinc finger Krüppel-related factors	vertebrates	12.618	0.771	951	59	951	59	6425	0.058	6206	0.056	8.951	0.620
+GBX2	MA0890.1	Homeo domain factors	HOX-related factors	vertebrates	10.020	0.296	698	312	699	311	1651	0.015	1830	0.017	-13.394	0.619
+MAF::NFE2	MA0501.1	Basic leucine zipper factors (bZIP)::Basic leucine zipper factors (bZIP)	Maf-related factors::Jun-related factors	vertebrates	17.621	0.429	50	960	50	960	51	0.001	52	0.001	-0.565	0.615
+GLIS2	MA0736.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	16.871	0.758	236	774	237	773	317	0.004	327	0.004	-2.105	0.613
+MAX::MYC	MA0059.1	Basic helix-loop-helix factors (bHLH)::Basic helix-loop-helix factors (bHLH)	bHLH-ZIP factors::bHLH-ZIP factors	vertebrates	14.237	0.602	178	832	179	831	195	0.002	198	0.002	-0.736	0.604
+Esrrg	MA0643.1	Nuclear receptors with C4 zinc fingers	Steroid hormone receptors (NR3)	vertebrates	13.141	0.453	626	384	628	382	1029	0.009	1003	0.009	2.566	0.589
+HSF2	MA0770.1	Heat shock factors	HSF factors	vertebrates	17.218	0.359	107	903	108	902	111	0.001	117	0.001	-2.028	0.585
+ZBTB7A	MA0750.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	12.788	0.684	311	699	313	697	377	0.004	409	0.004	-5.525	0.584
+Nkx3-1	MA0124.2	Homeo domain factors	NK-related factors	vertebrates	11.264	0.422	734	276	736	274	1512	0.012	1453	0.012	4.624	0.581
+TFAP2C(var.2)	MA0814.1	Basic helix-span-helix factors (bHSH)	AP-2	vertebrates	11.387	0.715	933	77	934	76	4223	0.042	4371	0.043	-7.674	0.568
+VSX1	MA0725.1	Homeo domain factors	Paired-related HD factors	vertebrates	8.078	0.217	618	392	621	389	1517	0.011	1798	0.013	-18.912	0.558
+EGR1	MA0162.2	C2H2 zinc finger factors	Three-zinc finger Krüppel-related factors	vertebrates	13.889	0.785	947	63	948	62	6871	0.087	6658	0.084	10.087	0.556
+OTX2	MA0712.1	Homeo domain factors	Paired-related HD factors	vertebrates	9.434	0.355	854	156	856	154	2994	0.022	3517	0.025	-25.328	0.556
+MSX2	MA0708.1	Homeo domain factors	NK-related factors	vertebrates	9.959	0.264	652	358	655	355	1392	0.010	1442	0.010	-3.787	0.555
+POU4F2	MA0683.1	Homeo domain factors	POU domain factors	vertebrates	20.936	0.268	13	997	13	997	13	0.000	13	0.000	-0.040	0.548
+EN1	MA0027.2	Homeo domain factors	NK-related factors	vertebrates	9.349	0.249	794	216	797	213	2636	0.019	2878	0.021	-12.951	0.534
+HESX1	MA0894.1	Homeo domain factors	Paired-related HD factors	vertebrates	10.744	0.273	587	423	591	419	1204	0.011	1437	0.013	-19.609	0.529
+Pitx1	MA0682.1	Homeo domain factors	Paired-related HD factors	vertebrates	8.584	0.371	829	181	832	178	2173	0.016	2531	0.018	-20.366	0.524
+GATA5	MA0766.1	Other C4 zinc finger-type factors	GATA-type zinc fingers	vertebrates	8.347	0.307	840	170	843	167	2852	0.021	3031	0.022	-9.358	0.520
+RARA(var.2)	MA0730.1	Nuclear receptors with C4 zinc fingers	Thyroid hormone receptor-related factors (NR1)	vertebrates	22.768	0.535	7	1003	7	1003	7	0.000	8	0.000	-1.505	0.502
+Arx	MA0874.1	Homeo domain factors	Paired-related HD factors	vertebrates	14.279	0.327	28	982	29	981	29	0.000	31	0.000	-1.511	0.501
+Sox5	MA0087.1	High-mobility group (HMG) domain factors	SOX-related factors	vertebrates	10.831	0.199	555	455	560	450	1187	0.008	1356	0.009	-12.234	0.501
+FOSL1	MA0477.1	Basic leucine zipper factors (bZIP)	Fos-related factors	vertebrates	14.281	0.477	560	450	565	445	930	0.009	930	0.009	-0.042	0.501
+Pax6	MA0069.1	Paired box factors	Paired plus homeo domain	vertebrates	13.798	0.432	27	983	28	982	28	0.000	28	0.000	-0.033	0.498
+Nr2e3	MA0164.1	Nuclear receptors with C4 zinc fingers	RXR-related receptors (NR2)	vertebrates	12.028	0.373	208	802	212	798	249	0.002	239	0.002	1.685	0.498
+FIGLA	MA0820.1	Basic helix-loop-helix factors (bHLH)	Tal-related factors	vertebrates	10.386	0.566	893	117	896	114	2491	0.023	2528	0.023	-2.416	0.494
+USF2	MA0526.1	Basic helix-loop-helix factors (bHLH)	bHLH-ZIP factors	vertebrates	13.559	0.555	663	347	668	342	1178	0.012	1206	0.012	-2.737	0.493
+HOXC13	MA0907.1	Homeo domain factors	HOX-related factors	vertebrates	14.190	0.361	193	817	197	813	222	0.002	230	0.002	-1.780	0.493
+GLIS3	MA0737.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	21.032	0.585	24	986	25	985	24	0.000	25	0.000	-0.782	0.488
+Bach1::Mafk	MA0591.1	Basic leucine zipper factors (bZIP)::Basic leucine zipper factors (bZIP)	Jun-related factors::Maf-related factors	vertebrates	18.324	0.548	56	954	58	952	58	0.001	60	0.001	-1.028	0.488
+Sox17	MA0078.1	High-mobility group (HMG) domain factors	SOX-related factors	vertebrates	10.502	0.384	703	307	708	302	1452	0.012	1547	0.013	-7.338	0.487
+PLAG1	MA0163.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	19.352	0.798	173	837	177	833	219	0.003	202	0.003	4.451	0.485
+VENTX	MA0724.1	Homeo domain factors	NK-related factors	vertebrates	11.046	0.353	608	402	614	396	1239	0.010	1525	0.012	-22.152	0.470
+GATA1::TAL1	MA0140.2	Other C4 zinc finger-type factors::Basic helix-loop-helix factors (bHLH)	GATA-type zinc fingers::Tal-related factors	vertebrates	14.296	0.444	123	887	127	883	138	0.002	141	0.002	-1.101	0.459
+Nr2f6	MA0677.1	Nuclear receptors with C4 zinc fingers	RXR-related receptors (NR2)	vertebrates	18.175	0.483	38	972	40	970	38	0.000	43	0.001	-2.883	0.454
+RORA(var.2)	MA0072.1	Nuclear receptors with C4 zinc fingers	Thyroid hormone receptor-related factors (NR1)	vertebrates	17.425	0.369	69	941	72	938	72	0.001	79	0.001	-2.975	0.452
+ESRRB	MA0141.3	Nuclear receptors with C4 zinc fingers	Steroid hormone receptors (NR3)	vertebrates	16.338	0.420	176	834	181	829	197	0.002	203	0.002	-1.426	0.451
+Rarb(var.2)	MA0858.1	Nuclear receptors with C4 zinc fingers	Thyroid hormone receptor-related factors (NR1)	vertebrates	24.795	0.471	4	1006	4	1006	4	0.000	4	0.000	-0.064	0.451
+HOXD13	MA0909.1	Homeo domain factors	HOX-related factors	vertebrates	12.209	0.267	612	398	619	391	1349	0.012	1719	0.016	-28.489	0.443
+HOXD11	MA0908.1	Homeo domain factors	HOX-related factors	vertebrates	12.370	0.321	346	664	353	657	508	0.005	543	0.005	-4.794	0.437
+Alx4	MA0853.1	Homeo domain factors	Paired-related HD factors	vertebrates	13.490	0.348	31	979	33	977	32	0.000	34	0.001	-1.444	0.433
+Gfi1	MA0038.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	9.470	0.391	691	319	698	312	1431	0.013	1470	0.013	-3.287	0.432
+Nkx2-5(var.2)	MA0503.1	Homeo domain factors	NK-related factors	vertebrates	12.615	0.534	870	140	875	135	2077	0.021	2095	0.021	-1.377	0.429
+HEY1	MA0823.1	Basic helix-loop-helix factors (bHLH)	Hairy-related factors	vertebrates	12.269	0.677	482	528	490	520	769	0.007	785	0.007	-1.850	0.422
+FOS	MA0476.1	Basic leucine zipper factors (bZIP)	Fos-related factors	vertebrates	13.637	0.423	458	552	466	544	712	0.007	721	0.007	-1.154	0.421
+ZNF410	MA0752.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	24.530	0.381	3	1007	3	1007	3	0.000	3	0.000	-0.073	0.421
+Crx	MA0467.1	Homeo domain factors	Paired-related HD factors	vertebrates	12.929	0.404	435	575	443	567	623	0.006	662	0.007	-5.080	0.420
+RARA::RXRA	MA0159.1	Nuclear receptors with C4 zinc fingers::Nuclear receptors with C4 zinc fingers	Thyroid hormone receptor-related factors (NR1)::RXR-related receptors (NR2)	vertebrates	16.004	0.535	40	970	43	967	42	0.001	44	0.001	-1.272	0.396
+ZBTB7C	MA0695.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	10.450	0.618	578	432	587	423	948	0.010	951	0.010	-0.383	0.395
+POU6F2	MA0793.1	Homeo domain factors	POU domain factors	vertebrates	11.693	0.311	391	619	400	610	581	0.005	641	0.006	-7.550	0.392
+SOX21	MA0866.1	High-mobility group (HMG) domain factors	SOX-related factors	vertebrates	23.365	0.300	21	989	23	987	21	0.000	23	0.000	-1.649	0.392
+ISX	MA0654.1	Homeo domain factors	Paired-related HD factors	vertebrates	10.591	0.200	653	357	662	348	1575	0.011	1812	0.013	-15.898	0.386
+TP53	MA0106.3	p53 domain factors	p53-related factors	vertebrates	20.661	0.551	8	1002	9	1001	8	0.000	9	0.000	-1.458	0.377
+HIC2	MA0738.1	C2H2 zinc finger factors	Factors with multiple dispersed zinc fingers	vertebrates	8.457	0.634	1008	2	1008	2	8594	0.070	8917	0.073	-10.763	0.374
+SOX4	MA0867.1	High-mobility group (HMG) domain factors	SOX-related factors	vertebrates	27.967	0.335	2	1008	2	1008	2	0.000	2	0.000	-0.090	0.374
+OLIG3	MA0827.1	Basic helix-loop-helix factors (bHLH)	Tal-related factors	vertebrates	11.442	0.387	478	532	488	522	739	0.007	799	0.007	-6.774	0.374
+NFKB2	MA0778.1	Rel homology region (RHR) factors	NF-kappaB-related factors	vertebrates	16.488	0.698	285	725	294	716	358	0.004	398	0.005	-7.278	0.373
+FOSL2	MA0478.1	Basic leucine zipper factors (bZIP)	Fos-related factors	vertebrates	14.013	0.477	615	395	625	385	1052	0.010	1078	0.011	-2.685	0.368
+CEBPG	MA0838.1	Basic leucine zipper factors (bZIP)	C/EBP-related	vertebrates	14.660	0.434	249	761	258	752	297	0.003	331	0.003	-5.947	0.362
+RORA	MA0071.1	Nuclear receptors with C4 zinc fingers	Thyroid hormone receptor-related factors (NR1)	vertebrates	13.190	0.424	356	654	367	643	440	0.004	458	0.004	-2.697	0.341
+TEF	MA0843.1	TEA domain factors	TEF-1-related factors	vertebrates	14.579	0.317	190	820	199	811	232	0.003	249	0.003	-3.766	0.337
+Ahr::Arnt	MA0006.1	Basic helix-loop-helix factors (bHLH)::Basic helix-loop-helix factors (bHLH)	PAS domain factors::PAS domain factors	vertebrates	9.532	0.715	950	60	955	55	3662	0.020	3857	0.021	-7.831	0.332
+TEAD1	MA0090.2	TEA domain factors	TEF-1-related factors	vertebrates	9.508	0.424	902	108	909	101	2815	0.025	2930	0.026	-6.874	0.328
+MAFK	MA0496.1	Basic leucine zipper factors (bZIP)	Maf-related factors	vertebrates	13.869	0.395	403	607	415	595	585	0.008	612	0.008	-4.284	0.326
+RXRB	MA0855.1	Nuclear receptors with C4 zinc fingers	RXR-related receptors (NR2)	vertebrates	23.110	0.505	22	988	25	985	22	0.000	27	0.000	-3.633	0.325
+TP63	MA0525.2	p53 domain factors	p53-related factors	vertebrates	24.335	0.468	5	1005	6	1004	5	0.000	6	0.000	-1.784	0.320
+Mlxip	MA0622.1	Basic helix-loop-helix factors (bHLH)	bHLH-ZIP factors	vertebrates	12.531	0.625	476	534	489	521	683	0.005	721	0.005	-4.047	0.310
+TFAP2A	MA0003.3	Basic helix-span-helix factors (bHSH)	AP-2	vertebrates	11.101	0.742	960	50	965	45	7035	0.070	7078	0.070	-1.866	0.307
+DMRT3	MA0610.1	DM-type intertwined zinc finger factors	DMRT	vertebrates	11.236	0.344	289	721	301	709	380	0.004	438	0.004	-9.243	0.304
+Alx1	MA0854.1	Homeo domain factors	Paired-related HD factors	vertebrates	13.599	0.333	44	966	49	961	44	0.001	52	0.001	-4.603	0.304
+CTCF	MA0139.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	17.205	0.645	106	904	114	896	113	0.002	129	0.002	-6.174	0.301
+Sox11	MA0869.1	High-mobility group (HMG) domain factors	SOX-related factors	vertebrates	27.229	0.305	4	1006	5	1005	4	0.000	5	0.000	-1.793	0.292
+MEF2C	MA0497.1	MADS box factors	Regulators of differentiation	vertebrates	14.023	0.282	453	557	467	543	812	0.011	1015	0.014	-24.895	0.290
+BCL6B	MA0731.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	29.809	0.401	1	1009	1	1009	1	0.000	1	0.000	-0.123	0.288
+MLXIPL	MA0664.1	Basic helix-loop-helix factors (bHLH)	bHLH-ZIP factors	vertebrates	12.730	0.511	232	778	244	766	276	0.002	284	0.003	-1.532	0.285
+TBX15	MA0803.1	T-Box factors	TBX1-related factors	vertebrates	13.306	0.505	659	351	673	337	1154	0.008	1275	0.009	-9.670	0.275
+ZNF143	MA0088.2	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	22.060	0.491	33	977	38	972	34	0.000	38	0.001	-2.625	0.267
+Hnf4a	MA0114.3	Nuclear receptors with C4 zinc fingers	RXR-related receptors (NR2)	vertebrates	21.667	0.508	22	988	26	984	22	0.000	27	0.000	-3.881	0.265
+HOXA13	MA0650.1	Homeo domain factors	HOX-related factors	vertebrates	11.356	0.282	502	508	518	492	900	0.008	1139	0.010	-22.550	0.254
+GLI2	MA0734.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	14.004	0.616	156	854	168	842	167	0.002	184	0.002	-4.373	0.242
+SOX9	MA0077.1	High-mobility group (HMG) domain factors	SOX-related factors	vertebrates	9.079	0.358	503	507	521	489	817	0.007	865	0.007	-4.951	0.222
+E2F8	MA0865.1	Fork head / winged helix factors	E2F-related factors	vertebrates	20.970	0.542	31	979	37	973	31	0.000	37	0.000	-3.448	0.216
+Npas2	MA0626.1	Basic helix-loop-helix factors (bHLH)	PAS domain factors	vertebrates	11.517	0.589	686	324	703	307	1164	0.011	1243	0.011	-7.170	0.215
+Sox1	MA0870.1	High-mobility group (HMG) domain factors	SOX-related factors	vertebrates	20.927	0.295	9	1001	12	998	9	0.000	12	0.000	-3.396	0.211
+GCM1	MA0646.1	GCM domain factors	GCM factors	vertebrates	13.024	0.596	519	491	538	472	778	0.008	848	0.008	-8.046	0.206
+TFAP4	MA0691.1	Basic helix-loop-helix factors (bHLH)	bHLH-ZIP factors	vertebrates	14.151	0.444	365	645	384	626	456	0.004	490	0.004	-4.900	0.197
+Hmx2	MA0897.1	Homeo domain factors	NK-related factors	vertebrates	14.390	0.335	19	991	24	986	20	0.000	26	0.000	-4.883	0.196
+POU4F3	MA0791.1	Homeo domain factors	POU domain factors	vertebrates	13.812	0.287	45	965	53	957	47	0.001	54	0.001	-3.839	0.193
+TCF4	MA0830.1	Basic helix-loop-helix factors (bHLH)	E2A-related factors	vertebrates	11.920	0.625	979	31	985	25	4309	0.039	4242	0.038	3.237	0.188
+FOXP1	MA0481.1	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	14.261	0.301	397	613	417	593	640	0.009	733	0.010	-13.411	0.187
+PAX1	MA0779.1	Paired box factors	Paired domain only	vertebrates	19.655	0.599	33	977	40	970	34	0.001	41	0.001	-4.537	0.186
+TBX4	MA0806.1	T-Box factors	TBX2-related factors	vertebrates	9.891	0.500	937	73	947	63	3119	0.023	3316	0.024	-9.856	0.180
+HNF1B	MA0153.2	Homeo domain factors	POU domain factors	vertebrates	16.242	0.207	89	921	101	909	101	0.001	115	0.001	-4.737	0.175
+CLOCK	MA0819.1	Basic helix-loop-helix factors (bHLH)	PAS domain factors	vertebrates	11.902	0.508	313	697	333	677	393	0.004	429	0.004	-5.538	0.172
+Dmbx1	MA0883.1	Homeo domain factors	Paired-related HD factors	vertebrates	12.989	0.393	97	913	110	900	104	0.002	121	0.002	-6.404	0.165
+LHX2	MA0700.1	Homeo domain factors	HD-LIM factors	vertebrates	10.311	0.309	655	355	676	334	1409	0.013	1633	0.015	-17.708	0.164
+Foxk1	MA0852.1	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	15.268	0.300	78	932	90	920	82	0.001	94	0.001	-5.133	0.160
+BHLHE40	MA0464.2	Basic helix-loop-helix factors (bHLH)	Hairy-related factors	vertebrates	12.695	0.599	490	520	513	497	751	0.007	789	0.007	-4.331	0.154
+PAX9	MA0781.1	Paired box factors	Paired domain only	vertebrates	22.261	0.612	9	1001	13	997	9	0.000	13	0.000	-4.613	0.153
+Arnt	MA0004.1	Basic helix-loop-helix factors (bHLH)	PAS domain factors	vertebrates	10.992	0.642	542	468	565	445	926	0.005	958	0.005	-2.573	0.153
+Myc	MA0147.2	Basic helix-loop-helix factors (bHLH)	bHLH-ZIP factors	vertebrates	13.032	0.584	726	284	747	263	1363	0.012	1532	0.014	-13.797	0.145
+SMAD2::SMAD3::SMAD4	MA0513.1	SMAD/NF-1 DNA-binding domain factors::SMAD/NF-1 DNA-binding domain factors::SMAD/NF-1 DNA-binding domain factors	SMAD factors::SMAD factors::SMAD factors	vertebrates	13.704	0.556	345	665	368	642	438	0.005	482	0.006	-7.281	0.141
+TFAP2B(var.2)	MA0812.1	Basic helix-span-helix factors (bHSH)	AP-2	vertebrates	12.568	0.731	877	133	893	117	3433	0.034	3520	0.035	-5.026	0.134
+MNT	MA0825.1	Basic helix-loop-helix factors (bHLH)	bHLH-ZIP factors	vertebrates	11.166	0.600	644	366	668	342	1036	0.009	1164	0.011	-11.969	0.130
+POU4F1	MA0790.1	Homeo domain factors	POU domain factors	vertebrates	13.126	0.257	95	915	110	900	108	0.001	126	0.002	-6.031	0.127
+GLIS1	MA0735.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	25.361	0.673	7	1003	11	999	7	0.000	11	0.000	-4.866	0.125
+Hoxd3	MA0912.1	Homeo domain factors	HOX-related factors	vertebrates	11.598	0.341	108	902	124	886	125	0.002	143	0.002	-6.054	0.125
+CUX2	MA0755.1	Homeo domain factors	HD-CUT factors	vertebrates	11.691	0.277	182	828	202	808	214	0.002	277	0.003	-12.012	0.124
+JUND	MA0491.1	Basic leucine zipper factors (bZIP)	Jun-related factors	vertebrates	14.728	0.436	510	500	536	474	793	0.008	852	0.008	-6.772	0.122
+MAFF	MA0495.1	Basic leucine zipper factors (bZIP)	Maf-related factors	vertebrates	13.864	0.411	130	880	148	862	150	0.002	165	0.003	-4.989	0.116
+E2F2	MA0864.1	Fork head / winged helix factors	E2F-related factors	vertebrates	23.763	0.395	2	1008	4	1006	2	0.000	4	0.000	-4.065	0.115
+NFIL3	MA0025.1	Basic leucine zipper factors (bZIP)	C/EBP-related	vertebrates	14.139	0.265	186	824	207	803	225	0.002	253	0.003	-5.874	0.114
+HEY2	MA0649.1	Basic helix-loop-helix factors (bHLH)	Hairy-related factors	vertebrates	11.968	0.672	522	488	549	461	830	0.008	842	0.008	-1.352	0.112
+VSX2	MA0726.1	Homeo domain factors	Paired-related HD factors	vertebrates	9.179	0.207	539	471	566	444	1066	0.008	1376	0.010	-23.795	0.111
+BHLHE41	MA0636.1	Basic helix-loop-helix factors (bHLH)	Hairy-related factors	vertebrates	15.486	0.585	216	794	239	771	258	0.002	282	0.003	-4.553	0.106
+ZBTB18	MA0698.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	15.425	0.459	368	642	395	615	485	0.006	535	0.006	-7.854	0.105
+Phox2b	MA0681.1	Homeo domain factors	Paired-related HD factors	vertebrates	13.021	0.174	298	712	324	686	450	0.004	542	0.005	-13.174	0.102
+REST	MA0138.2	C2H2 zinc finger factors	Factors with multiple dispersed zinc fingers	vertebrates	23.134	0.596	5	1005	9	1001	5	0.000	9	0.000	-6.151	0.093
+Gfi1b	MA0483.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	13.514	0.415	638	372	668	342	1203	0.012	1404	0.014	-17.964	0.077
+Foxj3	MA0851.1	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	13.311	0.330	188	822	213	797	223	0.003	261	0.004	-9.748	0.076
+SRF	MA0083.3	MADS box factors	Responders to external signals (SRF/RLM1)	vertebrates	20.984	0.467	6	1004	11	999	7	0.000	11	0.000	-4.866	0.074
+PHOX2A	MA0713.1	Homeo domain factors	Paired-related HD factors	vertebrates	12.067	0.175	271	739	300	710	397	0.004	485	0.005	-13.316	0.072
+Hmx3	MA0898.1	Homeo domain factors	NK-related factors	vertebrates	13.950	0.330	11	999	18	992	11	0.000	20	0.000	-8.331	0.069
+Hoxd8	MA0910.1	Homeo domain factors	HOX-related factors	vertebrates	12.824	0.247	25	985	36	974	25	0.000	38	0.001	-8.725	0.061
+KLF13	MA0657.1	C2H2 zinc finger factors	Three-zinc finger Krüppel-related factors	vertebrates	20.517	0.517	20	990	30	980	28	0.000	32	0.001	-3.030	0.059
+HNF1A	MA0046.2	Homeo domain factors	POU domain factors	vertebrates	15.880	0.226	132	878	156	854	152	0.002	203	0.003	-13.909	0.057
+YY2	MA0748.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	11.703	0.548	289	721	322	688	353	0.004	414	0.004	-9.994	0.051
+OLIG1	MA0826.1	Basic helix-loop-helix factors (bHLH)	Tal-related factors	vertebrates	14.663	0.334	212	798	242	768	255	0.002	310	0.003	-9.920	0.050
+TCF3	MA0522.2	Basic helix-loop-helix factors (bHLH)	E2A-related factors	vertebrates	11.473	0.608	967	43	980	30	3770	0.034	3756	0.034	0.660	0.048
+ARNT::HIF1A	MA0259.1	Basic helix-loop-helix factors (bHLH)::Basic helix-loop-helix factors (bHLH)	PAS domain factors::PAS domain factors	vertebrates	9.740	0.657	860	150	885	125	2761	0.020	2958	0.021	-10.415	0.047
+Twist2	MA0633.1	Basic helix-loop-helix factors (bHLH)	Tal-related factors	vertebrates	11.928	0.423	359	651	395	615	498	0.005	629	0.006	-16.597	0.045
+MAX	MA0058.3	Basic helix-loop-helix factors (bHLH)	bHLH-ZIP factors	vertebrates	11.435	0.606	636	374	672	338	1119	0.010	1204	0.011	-7.833	0.043
+Nfe2l2	MA0150.2	Basic leucine zipper factors (bZIP)	Jun-related factors	vertebrates	15.876	0.496	43	967	59	951	45	0.001	63	0.001	-8.813	0.043
+HES5	MA0821.1	Basic helix-loop-helix factors (bHLH)	Hairy-related factors	vertebrates	18.532	0.704	87	923	109	901	91	0.001	118	0.001	-8.641	0.043
+OLIG2	MA0678.1	Basic helix-loop-helix factors (bHLH)	Tal-related factors	vertebrates	12.953	0.374	243	767	276	734	311	0.003	364	0.003	-8.828	0.043
+POU6F1	MA0628.1	Homeo domain factors	POU domain factors	vertebrates	10.097	0.209	223	787	256	754	293	0.003	367	0.003	-12.264	0.038
+GSC	MA0648.1	Homeo domain factors	Paired-related HD factors	vertebrates	9.643	0.433	643	367	681	329	1239	0.011	1753	0.016	-39.178	0.034
+PPARG	MA0066.1	Nuclear receptors with C4 zinc fingers	Thyroid hormone receptor-related factors (NR1)	vertebrates	20.365	0.523	1	1009	4	1006	1	0.000	4	0.000	-6.766	0.032
+NR1H2::RXRA	MA0115.1	Nuclear receptors with C4 zinc fingers::Nuclear receptors with C4 zinc fingers	Thyroid hormone receptor-related factors (NR1)::RXR-related receptors (NR2)	vertebrates	27.878	0.445	1	1009	4	1006	1	0.000	4	0.000	-6.247	0.032
+Srebf1(var.2)	MA0829.1	Basic helix-loop-helix factors (bHLH)	bHLH-ZIP factors	vertebrates	14.940	0.492	246	764	282	728	283	0.003	347	0.003	-10.910	0.031
+CENPB	MA0637.1	Psq-type HTH domain	-	vertebrates	13.999	0.562	211	799	246	764	248	0.003	292	0.004	-10.022	0.028
+Foxq1	MA0040.1	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	14.070	0.202	228	782	264	746	304	0.003	370	0.004	-11.430	0.028
+mix-a	MA0621.1	Homeo domain factors	Paired-related HD factors	vertebrates	12.512	0.199	187	823	221	789	237	0.002	298	0.003	-11.765	0.027
+TFEB	MA0692.1	Basic helix-loop-helix factors (bHLH)	bHLH-ZIP factors	vertebrates	11.336	0.533	595	415	637	373	927	0.008	1041	0.009	-11.267	0.025
+Zfx	MA0146.2	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	13.122	0.749	800	210	834	176	2637	0.033	2839	0.036	-14.521	0.024
+Rarg	MA0859.1	Nuclear receptors with C4 zinc fingers	Thyroid hormone receptor-related factors (NR1)	vertebrates	24.722	0.472	26	984	41	969	26	0.000	45	0.001	-11.359	0.023
+Rarb	MA0857.1	Nuclear receptors with C4 zinc fingers	Thyroid hormone receptor-related factors (NR1)	vertebrates	26.391	0.422	6	1004	14	996	6	0.000	14	0.000	-8.591	0.020
+E2F7	MA0758.1	Fork head / winged helix factors	E2F-related factors	vertebrates	24.200	0.458	3	1007	9	1001	3	0.000	9	0.000	-7.531	0.019
+MTF1	MA0863.1	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	20.407	0.620	4	1006	11	999	4	0.000	12	0.000	-8.683	0.017
+Arntl	MA0603.1	Basic helix-loop-helix factors (bHLH)	PAS domain factors	vertebrates	11.029	0.583	465	545	512	498	671	0.006	762	0.007	-10.497	0.016
+PAX3	MA0780.1	Paired box factors	Paired plus homeo domain	vertebrates	15.425	0.145	110	900	141	869	122	0.001	183	0.002	-14.296	0.015
+Foxd3	MA0041.1	Fork head / winged helix factors	Forkhead box (FOX) factors	vertebrates	12.945	0.223	474	536	522	488	1023	0.011	1315	0.014	-28.140	0.015
+NEUROG2	MA0669.1	Basic helix-loop-helix factors (bHLH)	Tal-related factors	vertebrates	14.502	0.395	222	788	264	746	273	0.002	328	0.003	-9.646	0.013
+BHLHE22	MA0818.1	Basic helix-loop-helix factors (bHLH)	Tal-related factors	vertebrates	13.037	0.384	233	777	276	734	294	0.003	346	0.003	-8.883	0.012
+TFE3	MA0831.1	Basic helix-loop-helix factors (bHLH)	bHLH-ZIP factors	vertebrates	9.435	0.570	814	196	852	158	1794	0.016	1961	0.018	-12.086	0.011
+SREBF2(var.2)	MA0828.1	Basic helix-loop-helix factors (bHLH)	bHLH-ZIP factors	vertebrates	15.418	0.490	255	755	301	709	300	0.003	376	0.003	-12.444	0.010
+DUX4	MA0468.1	Homeo domain factors	Paired-related HD factors	vertebrates	15.012	0.238	483	527	535	475	843	0.008	1103	0.011	-26.149	0.009
+NFIC::TLX1	MA0119.1	SMAD/NF-1 DNA-binding domain factors::Homeo domain factors	Nuclear factor 1::NK-related factors	vertebrates	19.665	0.598	19	991	35	975	20	0.000	35	0.000	-9.518	0.009
+CUX1	MA0754.1	Homeo domain factors	HD-CUT factors	vertebrates	11.472	0.304	215	795	259	751	275	0.002	368	0.003	-15.384	0.009
+MEF2A	MA0052.3	MADS box factors	Regulators of differentiation	vertebrates	17.141	0.234	241	769	288	722	308	0.003	449	0.005	-23.137	0.008
+SREBF1	MA0595.1	Basic helix-loop-helix factors (bHLH)	bHLH-ZIP factors	vertebrates	13.517	0.569	646	364	697	313	1099	0.010	1226	0.011	-11.577	0.007
+BHLHE23	MA0817.1	Basic helix-loop-helix factors (bHLH)	Tal-related factors	vertebrates	14.991	0.338	126	884	164	846	146	0.002	193	0.002	-11.758	0.007
+Nr5a2	MA0505.1	Nuclear receptors with C4 zinc fingers	FTZ-F1-related receptors (NR5)	vertebrates	14.913	0.522	163	847	205	805	179	0.002	246	0.003	-16.600	0.007
+Arid5a	MA0602.1	ARID domain factors	ARID-related factors	vertebrates	10.369	0.277	239	771	287	723	330	0.004	471	0.006	-24.414	0.006
+USF1	MA0093.2	Basic helix-loop-helix factors (bHLH)	bHLH-ZIP factors	vertebrates	13.398	0.578	653	357	705	305	1099	0.011	1219	0.012	-11.514	0.006
+TFEC	MA0871.1	Basic helix-loop-helix factors (bHLH)	bHLH-ZIP factors	vertebrates	10.541	0.520	627	383	680	330	1022	0.009	1189	0.011	-15.440	0.006
+Lhx3	MA0135.1	Homeo domain factors	HD-LIM factors	vertebrates	16.354	0.131	105	905	141	869	124	0.001	184	0.002	-15.991	0.006
+YY1	MA0095.2	C2H2 zinc finger factors	More than 3 adjacent zinc finger factors	vertebrates	14.365	0.526	370	640	426	584	463	0.005	597	0.006	-19.093	0.005
+MLX	MA0663.1	Basic helix-loop-helix factors (bHLH)	bHLH-ZIP factors	vertebrates	14.721	0.547	161	849	205	805	190	0.002	242	0.002	-10.608	0.005
+Six3	MA0631.1	Homeo domain factors	HD-SINE factors	vertebrates	15.078	0.407	18	992	36	974	19	0.000	38	0.001	-12.739	0.004
+Nr1h3::Rxra	MA0494.1	Nuclear receptors with C4 zinc fingers::Nuclear receptors with C4 zinc fingers	Thyroid hormone receptor-related factors (NR1)::RXR-related receptors (NR2)	vertebrates	13.598	0.497	173	837	219	791	190	0.003	261	0.004	-19.229	0.004
+PAX5	MA0014.2	Paired box factors	Paired domain only	vertebrates	13.609	0.583	304	706	359	651	381	0.007	520	0.009	-26.726	0.004
+PROP1	MA0715.1	Homeo domain factors	Paired-related HD factors	vertebrates	15.122	0.084	125	885	170	840	151	0.002	214	0.002	-14.324	0.002
+Mycn	MA0104.3	Basic helix-loop-helix factors (bHLH)	bHLH-ZIP factors	vertebrates	13.008	0.673	723	287	780	230	1375	0.010	1573	0.011	-14.245	0.002
+Hic1	MA0739.1	C2H2 zinc finger factors	Factors with multiple dispersed zinc fingers	vertebrates	9.519	0.606	951	59	978	32	3377	0.027	3912	0.032	-26.147	0.001
+ONECUT2	MA0756.1	Homeo domain factors	HD-CUT factors	vertebrates	15.765	0.228	74	936	113	897	81	0.001	137	0.002	-17.941	0.001
+HES7	MA0822.1	Basic helix-loop-helix factors (bHLH)	Hairy-related factors	vertebrates	19.784	0.730	42	968	73	937	43	0.000	77	0.001	-13.453	0.001
+PAX7	MA0680.1	Paired box factors	Paired plus homeo domain	vertebrates	16.430	0.154	68	942	106	904	76	0.001	125	0.001	-13.892	0.001
+Nr2f6(var.2)	MA0728.1	Nuclear receptors with C4 zinc fingers	RXR-related receptors (NR2)	vertebrates	25.042	0.463	20	990	43	967	20	0.000	46	0.001	-14.878	0.001
+TP73	MA0861.1	p53 domain factors	p53-related factors	vertebrates	17.517	0.483	32	978	60	950	35	0.001	60	0.001	-13.725	0.001
+ONECUT3	MA0757.1	Homeo domain factors	HD-CUT factors	vertebrates	17.036	0.190	78	932	119	891	86	0.001	139	0.002	-16.860	0.001
+MEF2B	MA0660.1	MADS box factors	Regulators of differentiation	vertebrates	18.372	0.260	158	852	216	794	174	0.002	283	0.003	-22.506	0.000
+SREBF2	MA0596.1	Basic helix-loop-helix factors (bHLH)	bHLH-ZIP factors	vertebrates	13.554	0.540	450	560	525	485	631	0.006	754	0.007	-14.249	0.000
+Hoxb5	MA0904.1	Homeo domain factors	HOX-related factors	vertebrates	12.676	0.334	17	993	42	968	17	0.000	45	0.001	-16.727	0.000
+ONECUT1	MA0679.1	Homeo domain factors	HD-CUT factors	vertebrates	16.237	0.243	78	932	124	886	85	0.001	150	0.002	-19.901	0.000
+NR2F1	MA0017.2	Nuclear receptors with C4 zinc fingers	RXR-related receptors (NR2)	vertebrates	13.343	0.589	489	521	567	443	712	0.008	818	0.010	-13.468	0.000
+MEF2D	MA0773.1	MADS box factors	Regulators of differentiation	vertebrates	18.499	0.228	205	805	272	738	253	0.003	409	0.004	-26.809	0.000
+Ddit3::Cebpa	MA0019.1	Basic leucine zipper factors (bZIP)::Basic leucine zipper factors (bZIP)	C/EBP-related::C/EBP-related	vertebrates	11.652	0.483	228	782	307	703	262	0.003	398	0.004	-23.694	0.000
