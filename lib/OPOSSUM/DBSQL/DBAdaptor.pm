@@ -279,6 +279,74 @@ sub get_ThresholdLevelAdaptor
     return $self->_get_adaptor("OPOSSUM::DBSQL::ThresholdLevelAdaptor");
 }
 
+=head2 get_GeneAdaptor
+
+ Title    : get_GeneAdaptor
+ Usage    : $gpa = $db_adaptor->get_GeneAdaptor();
+ Function : Construct a new OPOSSUM::DBSQL::GeneAdaptor object.
+ Returns  : A new OPOSSUM::DBSQL::GeneAdaptor object
+ Args     : None.
+
+=cut
+
+sub get_GeneAdaptor
+{
+    my ($self) = @_;
+
+    return $self->_get_adaptor("OPOSSUM::DBSQL::GeneAdaptor");
+}
+
+=head2 get_PromoterAdaptor
+
+ Title    : get_PromoterAdaptor
+ Usage    : $ppa = $db_adaptor->get_PromoterAdaptor();
+ Function : Construct a new OPOSSUM::DBSQL::PromoterAdaptor object.
+ Returns  : A new OPOSSUM::DBSQL::PromoterAdaptor object
+ Args     : None.
+
+=cut
+
+sub get_PromoterAdaptor
+{
+    my ($self) = @_;
+
+    return $self->_get_adaptor("OPOSSUM::DBSQL::PromoterAdaptor");
+}
+
+=head2 get_ExternalGeneIDAdaptor
+
+ Title    : get_ExternalGeneIDAdaptor
+ Usage    : $xgia = $db_adaptor->get_ExternalGeneIDAdaptor();
+ Function : Construct a new OPOSSUM::DBSQL::ExternalGeneIDAdaptor object.
+ Returns  : A new OPOSSUM::DBSQL::ExternalGeneIDAdaptor object
+ Args     : None.
+
+=cut
+
+sub get_ExternalGeneIDAdaptor
+{
+    my ($self) = @_;
+
+    return $self->_get_adaptor("OPOSSUM::DBSQL::ExternalGeneIDAdaptor");
+}
+
+=head2 get_ExternalGeneIDTypeAdaptor
+
+ Title    : get_ExternalGeneIDTypeAdaptor
+ Usage    : $xgita = $db_adaptor->get_ExternalGeneIDTypeAdaptor
+ Function : Construct a new OPOSSUM::DBSQL::ExternalGeneIDTypeAdaptor
+ Returns  : A new OPOSSUM::DBSQL::ExternalGeneIDTypeAdaptor
+ Args     : None.
+
+=cut
+
+sub get_ExternalGeneIDTypeAdaptor
+{
+    my ($self) = @_;
+
+    return $self->_get_adaptor("OPOSSUM::DBSQL::ExternalGeneIDTypeAdaptor");
+}
+
 =head2 _get_adaptor
 
  Title    : _get_adaptor

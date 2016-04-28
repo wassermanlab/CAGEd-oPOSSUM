@@ -73,9 +73,18 @@ use constant MAX_TARGET_TSS     => 20000;
 use constant MAX_BACKGROUND_TSS => 20000;
 
 #
+# Use when user-defined CAGE peaks and filtering genes are entered. Only the
+# CAGE peaks which fall within (intersect?) the regions around the TSSs of
+# defined by this amount of upstream / downstream bp are retained.
+#
+use constant FILTER_TSS_UPSTREAM_BP     => 500;
+use constant FILTER_TSS_DOWNSTREAM_BP   => 500;
+
+#
 # For random background generation set the number of background CAGE peaks
 # selected is equal to the number target CAGE peaks multiplied by this number.
 # Currently this is not used
+#
 use constant RAND_BG_TSS_FOLD    => 10;
 
 #

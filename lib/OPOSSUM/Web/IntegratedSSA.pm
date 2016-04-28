@@ -934,43 +934,47 @@ sub target_filters_selected
             $state->t_use_tss_only(1);
             printf STDERR "Target using TSS only\n";
         }
+    }
 
-        if (my $gene_ids
-                = $self->parse_textbox_as_list('filter_gene_ids_text')
-        ) {
-            my $filename = "$results_dir/t_gene_ids.txt";
+    #
+    # This now applies to custom as well as FANTOM5 CAGE peaks.
+    # DJA 2016/4/27
+    #
+    if (my $gene_ids
+            = $self->parse_textbox_as_list('filter_gene_ids_text')
+    ) {
+        my $filename = "$results_dir/t_gene_ids.txt";
 
-            unless ($self->create_local_file_from_list($filename, $gene_ids)) {
-                $self->_error(
-                    "Could not create local target genes IDs filter file"
-                    . " $filename"
-                );
-                return;
-            }
-
-            $state->t_gene_ids_input_method("paste");
-            #$state->t_gene_ids($gene_ids);
-            $state->t_gene_ids_file($filename);
-        } elsif (
-            my $upload_filename
-                = $self->parse_upload_filename('filter_gene_ids_file')
-        ) {
-            my $filename = "$results_dir/t_gene_ids.txt";
-
-            unless($self->create_local_file_from_upload(
-                $filename, 'filter_gene_ids_file')
-            ) {
-                $self->_error(
-                    "Could not create local target gene IDs filter file"
-                    . " $filename"
-                );
-                return 0;
-            }
-
-            $state->t_gene_ids_input_method("upload");
-            $state->t_gene_ids_file($filename);
-            $state->t_user_gene_ids_file($upload_filename);
+        unless ($self->create_local_file_from_list($filename, $gene_ids)) {
+            $self->_error(
+                "Could not create local target genes IDs filter file"
+                . " $filename"
+            );
+            return;
         }
+
+        $state->t_gene_ids_input_method("paste");
+        #$state->t_gene_ids($gene_ids);
+        $state->t_gene_ids_file($filename);
+    } elsif (
+        my $upload_filename
+            = $self->parse_upload_filename('filter_gene_ids_file')
+    ) {
+        my $filename = "$results_dir/t_gene_ids.txt";
+
+        unless($self->create_local_file_from_upload(
+            $filename, 'filter_gene_ids_file')
+        ) {
+            $self->_error(
+                "Could not create local target gene IDs filter file"
+                . " $filename"
+            );
+            return 0;
+        }
+
+        $state->t_gene_ids_input_method("upload");
+        $state->t_gene_ids_file($filename);
+        $state->t_user_gene_ids_file($upload_filename);
     }
 
     #
@@ -1060,43 +1064,47 @@ sub background_filters_selected
             $state->b_use_tss_only(1);
             printf STDERR "Target using TSS only\n";
         }
+    }
 
-        if (my $gene_ids
-                = $self->parse_textbox_as_list('filter_gene_ids_text')
-        ) {
-            my $filename = "$results_dir/b_gene_ids.txt";
+    #
+    # This now applies to custom as well as FANTOM5 CAGE peaks.
+    # DJA 2016/4/27
+    #
+    if (my $gene_ids
+            = $self->parse_textbox_as_list('filter_gene_ids_text')
+    ) {
+        my $filename = "$results_dir/b_gene_ids.txt";
 
-            unless ($self->create_local_file_from_list($filename, $gene_ids)) {
-                $self->_error(
-                    "Could not create local background gene IDs filter file"
-                    . " $filename"
-                );
-                return;
-            }
-
-            $state->b_gene_ids_input_method("paste");
-            #$state->b_gene_ids($gene_ids);
-            $state->b_gene_ids_file($filename);
-        } elsif (
-            my $upload_filename
-                = $self->parse_upload_filename('filter_gene_ids_file')
-        ) {
-            my $filename = "$results_dir/b_gene_ids.txt";
-
-            unless($self->create_local_file_from_upload(
-                    $filename, 'filter_gene_ids_file')
-            ) {
-                $self->_error(
-                    "Could not create local background gene IDs filter file"
-                    . " $filename"
-                );
-                return 0;
-            }
-
-            $state->b_gene_ids_input_method("upload");
-            $state->b_gene_ids_file($filename);
-            $state->b_user_gene_ids_file($upload_filename);
+        unless ($self->create_local_file_from_list($filename, $gene_ids)) {
+            $self->_error(
+                "Could not create local background gene IDs filter file"
+                . " $filename"
+            );
+            return;
         }
+
+        $state->b_gene_ids_input_method("paste");
+        #$state->b_gene_ids($gene_ids);
+        $state->b_gene_ids_file($filename);
+    } elsif (
+        my $upload_filename
+            = $self->parse_upload_filename('filter_gene_ids_file')
+    ) {
+        my $filename = "$results_dir/b_gene_ids.txt";
+
+        unless($self->create_local_file_from_upload(
+                $filename, 'filter_gene_ids_file')
+        ) {
+            $self->_error(
+                "Could not create local background gene IDs filter file"
+                . " $filename"
+            );
+            return 0;
+        }
+
+        $state->b_gene_ids_input_method("upload");
+        $state->b_gene_ids_file($filename);
+        $state->b_user_gene_ids_file($upload_filename);
     }
 
     #

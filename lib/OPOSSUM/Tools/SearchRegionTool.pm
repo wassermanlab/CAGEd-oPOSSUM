@@ -634,6 +634,7 @@ sub intersect_regions
     my $in_file             = $args{-in_regions_file};
     my $intersecting_file   = $args{-intersecting_regions_file};
     my $out_file            = $args{-out_regions_file};
+    my $opt                 = $args{-options} || '';
 
     unless ($in_file) {
         carp "intersect_regions: no input regions file name provided!\n";
@@ -659,7 +660,7 @@ sub intersect_regions
     #$out_file = catfile($self->dir, $out_file) if $self->dir;
 
     my $cmd =
-        "$BT_INTERSECT_EXEC -a $in_file -b $intersecting_file > $out_file";
+        "$BT_INTERSECT_EXEC -a $in_file -b $intersecting_file $opt > $out_file";
 
     my $out = `exec 2>&1; $cmd`;
     my $status = $? >> 8;

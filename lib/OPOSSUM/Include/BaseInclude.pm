@@ -1090,8 +1090,7 @@ sub write_sequences
 
 sub fetch_tss_by_names_file
 {
-    my ($tssa, $torb, $tss_names_file, $tss_only, $gene_ids, $job_args
-    ) = @_;
+    my ($tssa, $torb, $tss_names_file, $tss_only, $gene_ids, $job_args) = @_;
 
     my $logger = $job_args->{-logger};
 

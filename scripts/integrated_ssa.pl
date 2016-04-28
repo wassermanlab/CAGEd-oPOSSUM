@@ -585,6 +585,9 @@ my $sra = $opdba->get_SearchRegionAdaptor
 my $tfbsa = $opdba->get_TFBSAdaptor
     || fatal("Could not get TFBSAdaptor", \%job_args);
 
+my $gdba = $opdba->get_GeneAdaptor
+    || fatal("Could not get GeneAdaptor", \%job_args);
+
 my $db_info = $dbia->fetch_db_info();
 unless ($db_info) {
     fatal("Could not fetch CAGEd-oPOSSUM DB info", \%job_args);
@@ -617,35 +620,34 @@ unless ($db_info) {
 #}
 
 my $t_tss_type = $job_args{-t_tss_type};
-if ($t_tss_type eq 'fantom5') {
+
+#
+# Get optional gene IDs on which to filter target CAGE peaks. We need these
+# BEFORE we retrieve CAGE peaks below.
+#
+if ($t_gene_ids_file && !@t_gene_ids) {
     #
-    # Get optional gene IDs on which to filter target CAGE peaks. We need these
-    # BEFORE we retrieve CAGE peaks below.
+    # Read gene IDs from file.
     #
-    if ($t_gene_ids_file && !@t_gene_ids) {
-        #
-        # Read gene IDs from file.
-        #
-        $logger->info("Reading target gene IDs from file $t_gene_ids_file");
+    $logger->info("Reading target gene IDs from file $t_gene_ids_file");
 
-        my $gene_ids = read_gene_ids_from_file($t_gene_ids_file, \%job_args);
+    my $gene_ids = read_gene_ids_from_file($t_gene_ids_file, \%job_args);
 
-        unless ($gene_ids) {
-            fatal(
-                "No target filtering gene IDs read from file $t_gene_ids_file",
-                \%job_args
-            );
-        }
-
-        $logger->info(
-            sprintf(
-                "Read %d target filtering gene IDs from file $t_gene_ids_file",
-                scalar @$gene_ids
-            )
+    unless ($gene_ids) {
+        fatal(
+            "No target filtering gene IDs read from file $t_gene_ids_file",
+            \%job_args
         );
-
-        @t_gene_ids = @$gene_ids;
     }
+
+    $logger->info(
+        sprintf(
+            "Read %d target filtering gene IDs from file $t_gene_ids_file",
+            scalar @$gene_ids
+        )
+    );
+
+    @t_gene_ids = @$gene_ids;
 }
 
 #
@@ -662,27 +664,97 @@ if ($t_tss_type eq 'fantom5') {
 # gene/proteins IDs.
 #
 $logger->info("Fetching target CAGE peaks");
+
+my $t_srt = OPOSSUM::Tools::SearchRegionTool->new(
+    -species    => $species,
+    -t_or_b     => 'target',
+    -dir        => $results_dir
+);
+
+unless ($t_srt) {
+    fatal("Error initializing target search region tool", \%job_args);
+}
+
 my $t_tss;
 my $t_experiments;
 if ($t_tss_regions_file) {
-    #
-    # Read user defined target CAGE peak regions from the specified file
-    #
-    $logger->info(
-        "Reading user defined target CAGE peaks from file"
-        . " $t_tss_regions_file"
-    );
+    if (@t_gene_ids) {
+        #
+        # Now also implementing gene filters for user supplied CAGE peaks
+        #
+        $logger->info("Fetching target filtering gene promoter regions");
 
-    $t_tss = read_tss_regions_from_file($t_tss_regions_file, \%job_args);
-
-    unless ($t_tss) {
-        fatal("Error reading user defined target CAGE peaks."
-            . " Please make sure that at least the first 6 columns"
-            . " (chromosome, start, end, name, score and strand)"
-            . " are defined. Note the score is not used and can be set to"
-            . " some dummy value, e.g. 0.",
-            \%job_args
+        my $t_gene_prom_srs = fetch_gene_promoter_regions(
+            $gdba, \@t_gene_ids,
+            FILTER_TSS_UPSTREAM_BP,
+            FILTER_TSS_DOWNSTREAM_BP
         );
+
+        unless ($t_gene_prom_srs) {
+            fatal("No target filtering gene promoter regions obtained");
+        }
+
+        $job_args{-t_gene_prom_srs} = $t_gene_prom_srs;
+
+        $logger->info(
+            "Intersecting target user defined CAGE peaks with filtering gene"
+            . " promoter regions"
+        );
+
+        my $t_gene_prom_srs_file = catfile(
+            $results_dir, 't_gene_promoter_search_regions.bed'
+        );
+
+        my $ok = $t_srt->write_bed(
+            -filename   => $t_gene_prom_srs_file,
+            -regions    => $t_gene_prom_srs
+        );
+
+        unless ($ok) {
+            fatal("Error writing target promoter regions file");
+        }
+
+        my $t_gene_filtered_tss_file = catfile(
+            $results_dir, 't_gene_filtered_tss.bed'
+        );
+
+        $ok = $t_srt->intersect_regions(
+            -in_regions_file             => $t_tss_regions_file,
+            -intersecting_regions_file   => $t_gene_prom_srs_file,
+            -out_regions_file            => $t_gene_filtered_tss_file,
+            -options                     => '-u -wa'
+        );
+
+        unless ($ok) {
+            fatal(
+                "Error intersecting target CAGE peaks with filtering gene"
+                . " promoter regions"
+            );
+        }
+
+        $t_tss = read_tss_regions_from_file(
+            $t_gene_filtered_tss_file, \%job_args
+        );
+    } else {
+        #
+        # Read user defined target CAGE peak regions from the specified file
+        #
+        $logger->info(
+            "Reading user defined target CAGE peaks from file"
+            . " $t_tss_regions_file"
+        );
+
+        $t_tss = read_tss_regions_from_file($t_tss_regions_file, \%job_args);
+
+        unless ($t_tss) {
+            fatal("Error reading user defined target CAGE peaks."
+                . " Please make sure that at least the first 6 columns"
+                . " (chromosome, start, end, name, score and strand)"
+                . " are defined. Note the score is not used and can be set to"
+                . " some dummy value, e.g. 0.",
+                \%job_args
+            );
+        }
     }
 } elsif ($t_tss_names_file) {
     #
@@ -734,16 +806,6 @@ my $num_t_tss = scalar @$t_tss;
 $logger->info("Number of target CAGE peaks: $num_t_tss");
 
 $logger->info("Computing target CAGE peak search regions");
-
-my $t_srt = OPOSSUM::Tools::SearchRegionTool->new(
-    -species    => $species,
-    -t_or_b     => 'target',
-    -dir        => $results_dir
-);
-
-unless ($t_srt) {
-    fatal("Error initializing target search region tool", \%job_args);
-}
 
 my $t_search_regions_file = catfile($results_dir, 't_search_regions.bed');
 my $ok = $t_srt->compute_tss_search_regions(
@@ -826,27 +888,97 @@ if ($b_tss_type eq 'fantom5') {
 # indicated to be TSSs and/or  whether they are associated to specific
 # gene/proteins IDs.
 #
+
+my $b_srt = OPOSSUM::Tools::SearchRegionTool->new(
+    -species    => $species,
+    -t_or_b     => 'background',
+    -dir        => $results_dir
+);
+
+unless ($b_srt) {
+    fatal("Error initializing background search region tool", \%job_args);
+}
+
 my $b_tss;
 my $b_experiments;
 if ($b_tss_regions_file) {
-    #
-    # Read user defined background CAGE peak regions from the specified file
-    #
-    $logger->info(
-        "Reading user defined background CAGE peaks from file"
-        . " $b_tss_regions_file"
-    );
+    if (@b_gene_ids) {
+        #
+        # Now also implementing gene filters for user supplied CAGE peaks
+        #
+        $logger->info("Fetching background filtering gene promoter regions");
 
-    $b_tss = read_tss_regions_from_file($b_tss_regions_file, \%job_args);
-
-    unless ($b_tss) {
-        fatal("Error reading user defined background CAGE peaks."
-            . " Please make sure that at least the first 6 columns"
-            . " (chromosome, start, end, name, score and strand)"
-            . " are defined. Note the score is not used and can be set to"
-            . " some dummy value, e.g. 0.",
-            \%job_args
+        my $b_gene_prom_srs = fetch_gene_promoter_regions(
+            $gdba, \@b_gene_ids,
+            FILTER_TSS_UPSTREAM_BP,
+            FILTER_TSS_DOWNSTREAM_BP
         );
+
+        unless ($b_gene_prom_srs) {
+            fatal("No background filtering gene promoter regions obtained");
+        }
+
+        $job_args{-b_gene_prom_srs} = $b_gene_prom_srs;
+
+        $logger->info(
+            "Intersecting background user defined CAGE peaks with filtering gene"
+            . " promoter regions"
+        );
+
+        my $b_gene_prom_srs_file = catfile(
+            $results_dir, 'b_gene_promoter_search_regions.bed'
+        );
+
+        my $ok = $b_srt->write_bed(
+            -filename   => $b_gene_prom_srs_file,
+            -regions    => $b_gene_prom_srs
+        );
+
+        unless ($ok) {
+            fatal("Error writing background promoter regions file");
+        }
+
+        my $b_gene_filtered_tss_file = catfile(
+            $results_dir, 'b_gene_filtered_tss.bed'
+        );
+
+        $ok = $b_srt->intersect_regions(
+            -in_regions_file             => $b_tss_regions_file,
+            -intersecting_regions_file   => $b_gene_prom_srs_file,
+            -out_regions_file            => $b_gene_filtered_tss_file,
+            -options                     => '-u -wa'
+        );
+
+        unless ($ok) {
+            fatal(
+                "Error intersecting background CAGE peaks with filtering gene"
+                . " promoter regions"
+            );
+        }
+
+        $b_tss = read_tss_regions_from_file(
+            $b_gene_filtered_tss_file, \%job_args
+        );
+    } else {
+        #
+        # Read user defined background CAGE peak regions from the specified file
+        #
+        $logger->info(
+            "Reading user defined background CAGE peaks from file"
+            . " $b_tss_regions_file"
+        );
+
+        $b_tss = read_tss_regions_from_file($b_tss_regions_file, \%job_args);
+
+        unless ($b_tss) {
+            fatal("Error reading user defined background CAGE peaks."
+                . " Please make sure that at least the first 6 columns"
+                . " (chromosome, start, end, name, score and strand)"
+                . " are defined. Note the score is not used and can be set to"
+                . " some dummy value, e.g. 0.",
+                \%job_args
+            );
+        }
     }
 } elsif ($b_tss_names_file) {
     #
@@ -917,16 +1049,6 @@ $job_args{-b_experiments} = $b_experiments if $b_experiments;
 # the random set.
 #
 $job_args{-b_tss} = $b_tss if $b_tss && !$b_is_rand;
-
-my $b_srt = OPOSSUM::Tools::SearchRegionTool->new(
-    -species    => $species,
-    -t_or_b     => 'background',
-    -dir        => $results_dir
-);
-
-unless ($b_srt) {
-    fatal("Error initializing background search region tool", \%job_args);
-}
 
 my $tf_set = get_tfbs_matrix_set(\%job_args);
 
@@ -1091,7 +1213,7 @@ if ($b_is_rand) {
               \%job_args);
     }
 
-    $b_search_regions = create_search_region_list_from_bioseq_list($b_seqs);
+    #$b_search_regions = create_search_region_list_from_bioseq_list($b_seqs);
 } else {
     $logger->info("Computing background CAGE peak search regions");
 
@@ -1398,7 +1520,7 @@ if ($b_tss_type eq 'custom' || $tf_type eq 'custom') {
     #
     $logger->info("Searching background search region sequences for TFBSs");
 
-    my $b_sr_tfbs_map = search_regions($tf_set, $b_search_regions, $threshold);
+    $b_sr_tfbs_map = search_regions($tf_set, $b_search_regions, $threshold);
 
     unless ($b_sr_tfbs_map) {
         fatal(
@@ -3053,8 +3175,64 @@ sub post_process_homer_results_html
     close(FH);
 }
 
+sub fetch_gene_promoter_regions
+{
+    my ($ga, $gene_ids, $upstream_bp, $downstream_bp) = @_;
+
+    my $genes = $ga->fetch_by_external_ids($gene_ids);
+
+    unless ($genes) {
+        warning("Could not fetch genes by external ID list");
+        return;
+    }
+
+    my @tss_regions;
+    foreach my $gene (@$genes) {
+        my $strand = $gene->strand();
+
+        $gene->fetch_promoters();
+        foreach my $promoter (@{$gene->promoters()}) {
+            my $tss = $promoter->tss();
+
+            my $pstart;
+            my $pend;
+            if ($strand == 1) {
+                $pstart = $tss - $upstream_bp;
+                $pend   = $tss + $downstream_bp - 1;
+            } elsif ($strand == -1) {
+                $pstart = $tss - $upstream_bp + 1; 
+                $pend   = $tss + $downstream_bp;
+            } else {
+                $pstart = $tss - $upstream_bp;
+                $pend   = $tss + $downstream_bp;
+            }
+
+            push @tss_regions, OPOSSUM::SearchRegion->new(
+                -id     => sprintf("chr%s:%d-%d", $gene->chr(), $pstart, $pend),
+                -chrom  => $gene->chr(),
+                -start  => $pstart,
+                -end    => $pend,
+                -strand => $strand == -1 ? '-' : '+'
+            );
+        }
+    }
+
+    return @tss_regions ? \@tss_regions : undef;
+}
+
 sub cleanup
 {
+    my $results_dir = $job_args{-results_dir};
+    my $cl_results_dir = $job_args{-cl_results_dir};
+
+    my @data_files = glob("$results_dir/*.data");
+
+    if ($cl_results_dir) {
+        push @data_files, glob("$cl_results_dir/*.data");
+    }
+
+    unlink (@data_files);
+
     if ($b_is_rand) {
         remove_tree($homer_preparsed_dir, {safe => 1});
     }
