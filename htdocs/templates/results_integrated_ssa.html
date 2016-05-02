@@ -198,15 +198,23 @@
 -->
 
 
+[%IF homer_results_html_file%]
+<br>
+<br>
+  HOMER Analysis Results:&nbsp;
+  <a href="[%homer_results_html_file%]">HOMER results</a>
+[%END%]
+
 [%IF cluster_results_subdir%]
 <br>
 <br>
-  TFBS Cluster Results:&nbsp;<a href="[%cluster_results_subdir%]/results.html">TFBS Cluster Results</a>
+  TFBS Cluster Analysis Results:&nbsp;
+  <a href="[%cluster_results_subdir%]/results.html">Cluster Results</a>
 [%END%]
 
 <br>
 <br>
-<h3>Results</h3>
+<h3>Main Results</h3>
 &nbsp;[<a href="[%rel_htdocs_path%]/help/option_details.html#results_table" target="help">HELP</a>]
 
 [%IF results%]
@@ -219,6 +227,9 @@
 
   <table id="results_summary_table" class="sortable" cellpadding="2" cellspacing="0">
     <tr class="table_title">
+      [%IF tf_select_criteria != 'custom'%]
+        <th title="Logo">JASPAR Logo</th>
+      [%END%]
       <th title="TF name (click to sort)">TF</th>
       [%IF tf_select_criteria == 'custom'%]
         <th title="TF ID (click to sort)">TF ID</th>
@@ -247,6 +258,9 @@
       [%tf = tf_set.get_matrix(tf_id)%]
 
       <tr class="table_text">
+        [%IF tf_select_criteria != 'custom'%]
+          <td><img src="[%rel_htdocs_path%]/images/logos/[%tf.ID%].png" align="center"></td>
+        [%END%]
         [%IF result.bg_seq_hits == 0 and result.t_seq_hits > 0%]
           <td><b class="warn_table_text">*[%tf.name%]</b></td>
         [%ELSE%]
@@ -339,12 +353,6 @@
   <p class="text" align="center">
   <a href="[%results_file%]" target="_blank">Download as a tab delimited text file</a> (results will be kept on the server for [%result_retain_days%] days after analysis)
   </p>
-
-  [%IF homer_results_html_file%]
-    <p class="text" align="center">
-    <a href="[%homer_results_html_file%]" target="_blank">HOMER results</a>
-    </p>
-  [%END%]
 
   <p class="text" align="center">
   View plot of <a href="[%zscore_plot_file%]" target="_blank">Z-score vs. %GC content</a>

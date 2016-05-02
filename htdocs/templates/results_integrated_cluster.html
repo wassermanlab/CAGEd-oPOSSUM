@@ -212,6 +212,7 @@
 
   <table id="results_summary_table" class="sortable" cellpadding="2" cellspacing="0">
     <tr class="table_title">
+      <th title="Cluster Logo">Cluster Logo</th>
       <th title="Cluster ID (click to sort)">Cluster ID</th>
       <th title="Target CAGE peak region hits (click to sort)">Target CAGE peak region hits</th>
       <th title="Target CAGE peak region non-hits (click to sort)">Target CAGE peak region non-hits</th>
@@ -230,6 +231,7 @@
       [%cl = tf_cluster_set.get_tf_cluster(cl_id)%]
 
       <tr class="table_text">
+        <td><img src="[%rel_htdocs_path%]/images/logos/tfbs_clusters/[%cl.name%].png" align="center"></td>
         [%IF result.bg_seq_hits == 0 and result.t_seq_hits > 0%]
           <td><b class="warn_table_text"><a href="[%cluster_info_url%]/[%cl.name%].html" target="_blank">*[%cl.name%]</a></b></td>
         [%ELSE%]
