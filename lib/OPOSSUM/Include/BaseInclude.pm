@@ -42,6 +42,7 @@ use OPOSSUM::TFSet;
 use OPOSSUM::TFBS;
 use OPOSSUM::Analysis::Counts;
 use OPOSSUM::TSS;
+use TFBSCluster::DBSQL::DBAdaptor;
 
 use Bio::SeqIO;
 
