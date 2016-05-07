@@ -299,6 +299,8 @@ sub parse_upload_filename
     my ($self, $param) = @_;
 
     my $filename = $self->query->param($param);
+    #my $fh = $self->query->upload($param);
+    #my $filename = $fh->filename;
 
     return unless defined $filename;
 
@@ -318,6 +320,67 @@ sub parse_upload_filename
     return unless defined $filename;
 
     return $filename;
+}
+
+sub upload_and_parse_filename
+{
+    my ($self, $cgi_param_name) = @_;
+
+    printf STDERR "upload_and_parse_filename() called with cgi param"
+        . " '$cgi_param_name'\n";
+
+    my $q = $self->query;
+
+    my $tmp_user_filename = $q->param($cgi_param_name);
+
+    #
+    # The CGI module changed it's implementation of temporary (upload) files.
+    # Now for some *unknown* reason, although retrieving the user entered
+    # file name with e.g. $q->param('cgi_param_name') appears to correctly
+    # return a simple string file name, when it is later assigned to and
+    # stored in the state object, it actually gets stored as something like
+    # e.g. 'CGI::File::Temp=GLOB(0x13692f48)'. Quoting the file name seems to
+    # "force" it to be treated as a string.
+    #
+    my $user_filename = "$tmp_user_filename";
+
+    #
+    # This should return a CGI::::File::Temp object which is also just a
+    # File::Temp object.
+    #
+    my $fh = $q->upload($cgi_param_name);
+
+    return () unless $fh;
+
+    printf STDERR "upload_and_parse_filename() filehande obtained\n";
+
+    # This is the local temporary file name
+    my $tmp_filename = $fh->filename;
+
+    return ($fh, undef) unless defined $user_filename;
+
+    printf STDERR "upload_and_parse_filename() user file name '$user_filename'"
+        . " obtained\n";
+
+    #
+    # Strip leading trailing space
+    #
+    $user_filename =~ s/^\s+//;
+    $user_filename =~ s/\s+$//;
+
+    return ($fh, undef) unless defined $user_filename;
+
+    #
+    # Strip path
+    #
+    $user_filename =~ s/.*\///;
+
+    return ($fh, undef) unless defined $user_filename;
+
+    printf STDERR "upload_and_parse_filename() final parsed file name"
+        . " = '$user_filename'\n";
+
+    return ($fh, $user_filename);
 }
 
 sub create_local_file_from_text
@@ -372,6 +435,8 @@ sub create_local_file_from_upload
 
     my $file = $q->param($cgi_file_param);
     my $fh   = $q->upload($cgi_file_param);
+    #my $fh = $q->upload($cgi_file_param);
+    #my $file = $fh->filename;
 
     my $text;
     while (my $line = <$fh>) {
@@ -397,6 +462,45 @@ sub create_local_file_from_upload
 
     unless (open(FH, ">$localpath")) {
         $self->_error("Unable to create local file $localpath");
+        return;
+    }
+
+    print FH $text;
+
+    close(FH);
+
+    return 1;
+}
+
+sub create_local_file_from_upload_fh
+{
+    my ($self, $temp_fh, $local_filename) = @_;
+
+    my $text;
+    while (my $line = <$temp_fh>) {
+        $text .= $line;
+    }
+
+    unless ($text) {
+        my $temp_filename = $temp_fh->filename;
+        $self->_error("Uploaded temp. file $temp_filename is empty");
+        return;
+    }
+
+    #
+    # Strip leading trailing space
+    #
+    $text =~ s/^\s+//;
+    $text =~ s/\s+$//;
+
+    # Convert DOS style <CR><LF> to linux <LF>
+    $text =~ s/\r\n/\n/g;
+
+    # Convert older Mac style <CR> to linux <LF>
+    $text =~ s/\r/\n/g;
+
+    unless (open(FH, ">$local_filename")) {
+        $self->_error("Unable to create local file $local_filename");
         return;
     }
 

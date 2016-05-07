@@ -531,7 +531,7 @@ sub target_cage_data_selected
             $self->_error(
                 "Could not create local target TSS names file $filename"
             );
-            return;
+            return 0;
         }
 
         $state->t_tss_type('fantom5');
@@ -539,64 +539,73 @@ sub target_cage_data_selected
         #$state->t_tss_names($tss_names);
         $state->t_tss_names_file($filename);
     } elsif (
-        my $upload_filename = $self->parse_upload_filename('tss_names_file')
+        my ($fh, $user_filename)
+            = $self->upload_and_parse_filename('tss_names_file')
     ) {
-        my $filename = "$results_dir/t_tss_names.txt";
+        my $local_filename = "$results_dir/t_tss_names.txt";
 
-        unless (
-            $self->create_local_file_from_upload($filename, 'tss_names_file')
-        ) {
+        unless ($self->create_local_file_from_upload_fh($fh, $local_filename)) {
+            close($fh);
             $self->_error(
-                "Could not create local target TSS names file $filename"
+                "Could not create local target TSS names file $local_filename"
+                . " from uploaded user file $user_filename"
+            );
+            return 0;
+        }
+        close($fh);
+
+        $state->t_tss_type('fantom5');
+        $state->t_tss_input_method('upload');
+        $state->t_tss_names_file($local_filename);
+        $state->t_user_tss_names_file($user_filename);
+    } elsif (my $text = $self->parse_textbox('custom_tss_text')) {
+        my $local_filename = "$results_dir/t_custom_tss.txt";
+
+        unless ($self->create_local_file_from_text($local_filename, $text)) {
+            $self->_error(
+                "Could not create local target custom TSS file $local_filename"
             );
             return 0;
         }
 
-        $state->t_tss_type('fantom5');
-        $state->t_tss_input_method('upload');
-        $state->t_tss_names_file($filename);
-        $state->t_user_tss_names_file($upload_filename);
-    } elsif (my $text = $self->parse_textbox('custom_tss_text')) {
-        my $filename = "$results_dir/t_custom_tss.txt";
-
-        unless ($self->create_local_file_from_text($filename, $text)) {
-            $self->_error(
-                "Could not create local target custom TSS file $filename"
-            );
-            return;
-        }
-
-        unless ($self->check_file_format($filename, 'bed6')) {
+        unless ($self->check_file_format($local_filename, 'bed6')) {
             $self->_error("Error parsing BED formatted CAGE peaks text");
-            return;
+            return 0;
         }
 
         $state->t_tss_type('custom');
         $state->t_tss_input_method('paste');
-        $state->t_custom_tss_file($filename);
+        $state->t_custom_tss_file($local_filename);
     } elsif (
-        my $upload_filename = $self->parse_upload_filename('custom_tss_file')
+        my ($fh, $user_filename)
+            = $self->upload_and_parse_filename('custom_tss_file')
     ) {
-        my $filename = "$results_dir/t_custom_tss.txt";
+        my $local_filename = "$results_dir/t_custom_tss.txt";
 
-        unless ($self->create_local_file_from_upload(
-            $filename, 'custom_tss_file'
-        )) {
+        printf STDERR "Custom TSS file: $user_filename\n" if $user_filename;
+
+        unless ($self->create_local_file_from_upload_fh($fh, $local_filename)) {
+            close($fh);
             $self->_error(
-                "Could not create local target custom TSS file $filename"
+                "Could not create local target custom TSS file $local_filename"
+                . " from uploaded user file $user_filename"
             );
-            return;
+            return 0;
         }
+        close($fh);
 
-        unless ($self->check_file_format($filename, 'bed6')) {
-            $self->_error("Error parsing CAGE peaks BED file $upload_filename");
-            return;
+        unless ($self->check_file_format($local_filename, 'bed6')) {
+            $self->_error("Error parsing CAGE peaks BED file $user_filename");
+            return 0;
         }
 
         $state->t_tss_type('custom');
         $state->t_tss_input_method('upload');
-        $state->t_custom_tss_file($filename);
-        $state->t_user_custom_tss_file($upload_filename);
+        $state->t_custom_tss_file($local_filename);
+        $state->t_user_custom_tss_file($user_filename);
+
+        printf STDERR "Custom TSS file from state: %s\n",
+            $state->t_user_custom_tss_file;
     } else {
         unless ($self->opossum_db_connect($species)) {
             $self->_error("Could not connect to CAGEd-oPOSSUM DB");
@@ -721,78 +730,82 @@ sub background_cage_data_selected
     $state->b_relative_expression(undef);
     $state->b_expression_input_method(undef);
     if (my $tss_names = $self->parse_textbox_as_list('tss_names_text')) {
-        my $filename = "$results_dir/b_tss_names.txt";
+        my $local_filename = "$results_dir/b_tss_names.txt";
 
-        unless ($self->create_local_file_from_list($filename, $tss_names)) {
+        unless ($self->create_local_file_from_list($local_filename, $tss_names)) {
             $self->_error(
-                "Could not create local background TSS names file $filename"
-            );
-            return;
-        }
-
-        $state->b_tss_type('fantom5');
-        $state->b_tss_input_method('paste');
-        #$state->b_tss_names($tss_names);
-        $state->b_tss_names_file($filename);
-    } elsif (
-        my $upload_filename = $self->parse_upload_filename('tss_names_file')
-    ) {
-        my $filename = "$results_dir/b_tss_names.txt";
-
-        unless (
-            $self->create_local_file_from_upload($filename, 'tss_names_file')
-        ) {
-            $self->_error(
-                "Could not create local background TSS names file $filename"
+                "Could not create local background TSS names file $local_filename"
             );
             return 0;
         }
 
         $state->b_tss_type('fantom5');
-        $state->b_tss_input_method('upload');
-        $state->b_tss_names_file($filename);
-        $state->b_user_tss_names_file($upload_filename);
-    } elsif (my $text = $self->parse_textbox('custom_tss_text')) {
-        my $filename = "$results_dir/b_custom_tss.txt";
+        $state->b_tss_input_method('paste');
+        #$state->b_tss_names($tss_names);
+        $state->b_tss_names_file($local_filename);
+    } elsif (
+        my ($fh, $user_filename)
+            = $self->upload_and_parse_filename('tss_names_file')
+    ) {
+        my $local_filename = "$results_dir/b_tss_names.txt";
 
-        unless ($self->create_local_file_from_text($filename, $text)) {
+        unless ($self->create_local_file_from_upload_fh($fh, $local_filename)) {
+            close($fh);
             $self->_error(
-                "Could not create local target custom TSS file $filename"
+                "Could not create local background TSS names file"
+                . " $local_filename from uploaded user file $user_filename"
             );
-            return;
+            return 0;
+        }
+        close($fh);
+
+        $state->b_tss_type('fantom5');
+        $state->b_tss_input_method('upload');
+        $state->b_tss_names_file($local_filename);
+        $state->b_user_tss_names_file($user_filename);
+    } elsif (my $text = $self->parse_textbox('custom_tss_text')) {
+        my $local_filename = "$results_dir/b_custom_tss.txt";
+
+        unless ($self->create_local_file_from_text($local_filename, $text)) {
+            $self->_error(
+                "Could not create local target custom TSS file $local_filename"
+            );
+            return 0;
         }
 
-        unless ($self->check_file_format($filename, 'bed6')) {
+        unless ($self->check_file_format($local_filename, 'bed6')) {
             $self->_error("Error parsing BED formatted CAGE peaks text");
-            return;
+            return 0;
         }
 
         $state->b_tss_type('custom');
         $state->b_tss_input_method('paste');
-        $state->b_custom_tss_file($filename);
+        $state->b_custom_tss_file($local_filename);
     } elsif (
-        my $upload_filename = $self->parse_upload_filename('custom_tss_file')
+        my ($fh, $user_filename)
+            = $self->upload_and_parse_filename('custom_tss_file')
     ) {
-        my $filename = "$results_dir/b_custom_tss.txt";
+        my $local_filename = "$results_dir/b_custom_tss.txt";
 
-        unless ($self->create_local_file_from_upload(
-            $filename, 'custom_tss_file'
-        )) {
+        unless ($self->create_local_file_from_upload_fh($fh, $local_filename)) {
+            close($fh);
             $self->_error(
-                "Could not create local target custom TSS file $filename"
+                "Could not create local target custom TSS file $local_filename"
+                . " from uploaded user file $user_filename"
             );
-            return;
+            return 0;
         }
+        close($fh);
 
-        unless ($self->check_file_format($filename, 'bed6')) {
-            $self->_error("Error parsing CAGE peaks BED file $upload_filename");
-            return;
+        unless ($self->check_file_format($local_filename, 'bed6')) {
+            $self->_error("Error parsing CAGE peaks BED file $user_filename");
+            return 0;
         }
 
         $state->b_tss_type('custom');
         $state->b_tss_input_method('upload');
-        $state->b_custom_tss_file($filename);
-        $state->b_user_custom_tss_file($upload_filename);
+        $state->b_custom_tss_file($local_filename);
+        $state->b_user_custom_tss_file($user_filename);
     } elsif ($q->param('use_rand_bg')
     ) {
         $state->b_tss_type('fantom5');
@@ -949,88 +962,100 @@ sub target_filters_selected
     if (my $gene_ids
             = $self->parse_textbox_as_list('filter_gene_ids_text')
     ) {
-        my $filename = "$results_dir/t_gene_ids.txt";
+        printf STDERR "Target gene IDs pasted\n";
 
-        unless ($self->create_local_file_from_list($filename, $gene_ids)) {
+        my $local_filename = "$results_dir/t_gene_ids.txt";
+
+        unless ($self->create_local_file_from_list($local_filename, $gene_ids)) {
             $self->_error(
                 "Could not create local target genes IDs filter file"
-                . " $filename"
-            );
-            return;
-        }
-
-        $state->t_gene_ids_input_method("paste");
-        #$state->t_gene_ids($gene_ids);
-        $state->t_gene_ids_file($filename);
-    } elsif (
-        my $upload_filename
-            = $self->parse_upload_filename('filter_gene_ids_file')
-    ) {
-        my $filename = "$results_dir/t_gene_ids.txt";
-
-        unless($self->create_local_file_from_upload(
-            $filename, 'filter_gene_ids_file')
-        ) {
-            $self->_error(
-                "Could not create local target gene IDs filter file"
-                . " $filename"
+                . " $local_filename"
             );
             return 0;
         }
 
+        $state->t_gene_ids_input_method("paste");
+        #$state->t_gene_ids($gene_ids);
+        $state->t_gene_ids_file($local_filename);
+    } elsif (
+        my ($fh, $user_filename)
+            = $self->upload_and_parse_filename('filter_gene_ids_file')
+    ) {
+        printf STDERR "Target gene IDs uploaded\n";
+        printf STDERR "Filtering gene IDs file: $user_filename\n";
+
+        my $local_filename = "$results_dir/t_gene_ids.txt";
+
+        unless ($self->create_local_file_from_upload_fh($fh, $local_filename)) {
+            close($fh);
+            $self->_error(
+                "Could not create local target gene IDs filter file"
+                . " $local_filename from uploaded user file $user_filename"
+            );
+            return 0;
+        }
+        close($fh);
+
         $state->t_gene_ids_input_method("upload");
-        $state->t_gene_ids_file($filename);
-        $state->t_user_gene_ids_file($upload_filename);
+        $state->t_gene_ids_file($local_filename);
+        printf STDERR "Filtering gene IDs file to be assigned: $user_filename\n";
+        $state->t_user_gene_ids_file($user_filename);
+        printf STDERR "Filtering gene IDs file in state: %s\n",
+            $state->t_user_gene_ids_file();
     }
 
     #
     # Applies to both FANTOM5 and custom CAGE tag clusters
     #
     if (my $regions = $self->parse_textbox_as_list('filter_regions_text')) {
-        my $filename = "$results_dir/t_filter_regions.bed";
+        printf STDERR "Target filter regions pasted\n";
+ 
+        my $local_filename = "$results_dir/t_filter_regions.bed";
 
-        unless ($self->create_local_file_from_list($filename, $regions)) {
+        unless ($self->create_local_file_from_list($local_filename, $regions)) {
             $self->_error(
                 "Could not create local target filter regions file"
-                . " $filename"
-            );
-            return;
-        }
-
-        unless ($self->check_file_format($filename, 'bed3')) {
-            $self->_error("Error parsing BED formatted filter regions text");
-            return;
-        }
-
-        $state->t_filter_regions_input_method("paste");
-        #$state->t_filter_regions($regions);
-        $state->t_filter_regions_file($filename);
-    } elsif (
-        my $upload_filename
-            = $self->parse_upload_filename('filter_regions_file')
-    ) {
-        my $filename = "$results_dir/t_filter_regions.bed";
-
-        unless ($self->create_local_file_from_upload(
-            $filename, 'filter_regions_file')
-        ) {
-            $self->_error(
-                "Could not create local target filter regions file"
-                . " $filename"
+                . " $local_filename"
             );
             return 0;
         }
 
-        unless ($self->check_file_format($filename, 'bed3')) {
+        unless ($self->check_file_format($local_filename, 'bed3')) {
+            $self->_error("Error parsing BED formatted filter regions text");
+            return 0;
+        }
+
+        $state->t_filter_regions_input_method("paste");
+        #$state->t_filter_regions($regions);
+        $state->t_filter_regions_file($local_filename);
+    } elsif (
+        my ($fh, $user_filename)
+            = $self->upload_and_parse_filename('filter_regions_file')
+    ) {
+        printf STDERR "Target filter regions uploaded\n";
+
+        my $local_filename = "$results_dir/t_filter_regions.bed";
+
+        unless ($self->create_local_file_from_upload_fh($fh, $local_filename)) {
+            close($fh);
             $self->_error(
-                "Error parsing filter regions BED file $upload_filename"
+                "Could not create local target filter regions file"
+                . " $local_filename from uploaded user file $user_filename"
             );
-            return;
+            return 0;
+        }
+        close($fh);
+
+        unless ($self->check_file_format($local_filename, 'bed3')) {
+            $self->_error(
+                "Error parsing filter regions BED file $user_filename"
+            );
+            return 0;
         }
 
         $state->t_filter_regions_input_method("upload");
-        $state->t_filter_regions_file($filename);
-        $state->t_user_filter_regions_file($upload_filename);
+        $state->t_filter_regions_file($local_filename);
+        $state->t_user_filter_regions_file($user_filename);
     }
 
     return 1;
@@ -1068,7 +1093,7 @@ sub background_filters_selected
         #
         if ($q->param('use_tss_only')) {
             $state->b_use_tss_only(1);
-            printf STDERR "Target using TSS only\n";
+            printf STDERR "Background using TSS only\n";
         }
     }
 
@@ -1079,88 +1104,88 @@ sub background_filters_selected
     if (my $gene_ids
             = $self->parse_textbox_as_list('filter_gene_ids_text')
     ) {
-        my $filename = "$results_dir/b_gene_ids.txt";
+        my $local_filename = "$results_dir/b_gene_ids.txt";
 
-        unless ($self->create_local_file_from_list($filename, $gene_ids)) {
+        unless ($self->create_local_file_from_list($local_filename, $gene_ids)) {
             $self->_error(
                 "Could not create local background gene IDs filter file"
-                . " $filename"
-            );
-            return;
-        }
-
-        $state->b_gene_ids_input_method("paste");
-        #$state->b_gene_ids($gene_ids);
-        $state->b_gene_ids_file($filename);
-    } elsif (
-        my $upload_filename
-            = $self->parse_upload_filename('filter_gene_ids_file')
-    ) {
-        my $filename = "$results_dir/b_gene_ids.txt";
-
-        unless($self->create_local_file_from_upload(
-                $filename, 'filter_gene_ids_file')
-        ) {
-            $self->_error(
-                "Could not create local background gene IDs filter file"
-                . " $filename"
+                . " $local_filename"
             );
             return 0;
         }
 
+        $state->b_gene_ids_input_method("paste");
+        #$state->b_gene_ids($gene_ids);
+        $state->b_gene_ids_file($local_filename);
+    } elsif (
+        my ($fh, $user_filename)
+            = $self->upload_and_parse_filename('filter_gene_ids_file')
+    ) {
+        my $local_filename = "$results_dir/b_gene_ids.txt";
+
+        unless ($self->create_local_file_from_upload_fh($fh, $local_filename)) {
+            close($fh);
+            $self->_error(
+                "Could not create local background gene IDs filter file"
+                . " $local_filename from uploaded user file $user_filename"
+            );
+            return 0;
+        }
+        close($fh);
+
         $state->b_gene_ids_input_method("upload");
-        $state->b_gene_ids_file($filename);
-        $state->b_user_gene_ids_file($upload_filename);
+        $state->b_gene_ids_file($local_filename);
+        $state->b_user_gene_ids_file($user_filename);
     }
 
     #
     # Applies to both FANTOM5 and custom CAGE tag clusters
     #
     if (my $regions = $self->parse_textbox_as_list('filter_regions_text')) {
-        my $filename = "$results_dir/b_filter_regions.bed";
+        my $local_filename = "$results_dir/b_filter_regions.bed";
 
-        unless ($self->create_local_file_from_list($filename, $regions)) {
+        unless ($self->create_local_file_from_list($local_filename, $regions)) {
             $self->_error(
                 "Could not create local background filter regions file"
-                . " $filename"
-            );
-            return;
-        }
-
-        unless ($self->check_file_format($filename, 'bed3')) {
-            $self->_error("Error parsing BED formatted filter regions text");
-            return;
-        }
-
-        $state->b_filter_regions_input_method("paste");
-        #$state->b_filter_regions($regions);
-        $state->b_filter_regions_file($filename);
-    } elsif (
-        my $upload_filename
-            = $self->parse_upload_filename('filter_regions_file')
-    ) {
-        my $filename = "$results_dir/b_filter_regions.bed";
-
-        unless ($self->create_local_file_from_upload(
-                $filename, 'filter_regions_file')
-        ) {
-            $self->_error(
-                "Could not create local background filter regions file"
-                . " $filename"
+                . " $local_filename"
             );
             return 0;
         }
 
-        unless ($self->check_file_format($filename, 'bed3')) {
+        unless ($self->check_file_format($local_filename, 'bed3')) {
+            $self->_error("Error parsing BED formatted filter regions text");
+            return 0;
+        }
+
+        $state->b_filter_regions_input_method("paste");
+        #$state->b_filter_regions($regions);
+        $state->b_filter_regions_file($local_filename);
+    } elsif (
+        my ($fh, $user_filename)
+            = $self->upload_and_parse_filename('filter_regions_file')
+    ) {
+        my $local_filename = "$results_dir/b_filter_regions.bed";
+
+        unless ($self->create_local_file_from_upload_fh($fh, $local_filename)) {
+            close($fh);
             $self->_error(
-                "Error parsing filter regions BED file $upload_filename"
+                "Could not create local background filter regions file"
+                . " $local_filename from uploaded user file $user_filename"
             );
-            return;
+            return 0;
+        }
+        close($fh);
+
+        unless ($self->check_file_format($local_filename, 'bed3')) {
+            $self->_error(
+                "Error parsing filter regions BED file $user_filename"
+            );
+            return 0;
         }
 
         $state->b_filter_regions_input_method("upload");
-        $state->b_filter_regions_file($filename);
-        $state->b_user_filter_regions_file($upload_filename);
+        $state->b_filter_regions_file($local_filename);
+        $state->b_user_filter_regions_file($user_filename);
     }
 
     return 1;
@@ -1218,35 +1243,37 @@ sub tfbs_parameters_selected
     $state->run_cluster_analysis(undef);
 
     if (my $text = $self->parse_textbox('matrix_paste_text')) {
-        my $filename = "$results_dir/matrices.txt";
+        my $local_filename = "$results_dir/matrices.txt";
 
-        unless ($self->create_local_file_from_text($filename, $text)) {
+        unless ($self->create_local_file_from_text($local_filename, $text)) {
             $self->_error(
-                "Could not create local TFBS profile matrices file $filename"
+                "Could not create local TFBS profile matrices file $local_filename"
             );
             return 0;
         }
 
         #$state->tfbs_matrix_text($text);
-        $state->tfbs_matrix_file($filename);
+        $state->tfbs_matrix_file($local_filename);
         $state->tf_select_criteria('custom');
         $state->tf_select_method('paste');
     } elsif (
-        my $upload_filename = $self->parse_upload_filename('matrix_upload_file')
+        my ($fh, $user_filename)
+            = $self->upload_and_parse_filename('matrix_upload_file')
     ) {
-        my $filename = "$results_dir/matrices.txt";
+        my $local_filename = "$results_dir/matrices.txt";
 
-        unless ($self->create_local_file_from_upload(
-            $filename, 'matrix_upload_file'
-        )) {
+        unless ($self->create_local_file_from_upload_fh($fh, $local_filename)) {
+            close($fh);
             $self->_error(
-                "Could not create local TFBS profile matrices file $filename"
+                "Could not create local TFBS profile matrices file"
+                . " $local_filename from uploaded user file $user_filename"
             );
             return 0;
         }
+        close($fh);
 
-        $state->tfbs_matrix_file($filename);
-        $state->user_tfbs_matrix_file($upload_filename);
+        $state->tfbs_matrix_file($local_filename);
+        $state->user_tfbs_matrix_file($user_filename);
         $state->tf_select_criteria('custom');
         $state->tf_select_method('upload');
     } else {
@@ -1254,11 +1281,14 @@ sub tfbs_parameters_selected
 
         my @tf_ids;
         if ($collection eq 'CORE') {
-            push @tf_ids, $q->param('core_tfs');
+            #push @tf_ids, $q->param('core_tfs');
+            @tf_ids = $q->multi_param('core_tfs');
         } elsif ($collection eq 'PBM') {
-            push @tf_ids, $q->param('pbm_tfs');
+            #push @tf_ids, $q->param('pbm_tfs');
+            @tf_ids = $q->multi_param('pbm_tfs');
         } elsif ($collection eq 'PENDING') {
-            push @tf_ids, $q->param('pending_tfs');
+            #push @tf_ids, $q->param('pending_tfs');
+            @tf_ids = $q->multi_param('pending_tfs');
         }
 
         if (scalar @tf_ids > 0) {
@@ -1271,21 +1301,24 @@ sub tfbs_parameters_selected
             if ($collection eq 'CORE') {
                 $min_ic = $q->param('core_min_ic');
                 if ($num_dflt_tax_groups > 1) {
-                    @tax_groups = $q->param("core_tax_groups");
+                    #@tax_groups = $q->param("core_tax_groups");
+                    @tax_groups = $q->multi_param("core_tax_groups");
                 } else {
                     @tax_groups = @dflt_tax_groups;
                 }
             } elsif ($collection eq 'PBM') {
                 $min_ic = $q->param('pbm_min_ic');
                 if ($num_dflt_tax_groups > 1) {
-                    @tax_groups = $q->param("pbm_tax_groups");
+                    #@tax_groups = $q->param("pbm_tax_groups");
+                    @tax_groups = $q->multi_param("pbm_tax_groups");
                 } else {
                     @tax_groups = @dflt_tax_groups;
                 }
             } elsif ($collection eq 'PENDING') {
                 $min_ic = $q->param('pending_min_ic');
                 if ($num_dflt_tax_groups > 1) {
-                    @tax_groups = $q->param("pending_tax_groups");
+                    #@tax_groups = $q->param("pending_tax_groups");
+                    @tax_groups = $q->multi_param("pending_tax_groups");
                 } else {
                     @tax_groups = @dflt_tax_groups;
                 }
@@ -1462,6 +1495,12 @@ sub results
     } elsif ($t_tss_type eq 'custom') {
         # This is the same whether the input method is 'upload' or 'paste'
         $command .= " -trf " . $state->t_custom_tss_file();
+
+        if (defined $state->t_user_custom_tss_file()) {
+            printf STDERR "Custom TSS file read from re-loaded state): %s\n",
+                $state->t_user_custom_tss_file;
+            $command .= " -utrf " . $state->t_user_custom_tss_file();
+        }
     }
 
     if ($state->t_use_tss_only()) {
@@ -1537,6 +1576,10 @@ sub results
     } elsif ($b_tss_type eq 'custom') {
         # This is the same whether the input method is 'upload' or 'paste'
         $command .= " -brf " . $state->b_custom_tss_file();
+
+        if (defined $state->b_user_tss_names_file()) {
+            $command .= " -ubrf " . $state->b_user_custom_tss_file();
+        }
     }
 
     if ($state->b_use_tss_only()) {
@@ -1727,6 +1770,7 @@ sub results
                                 => $state->b_user_filter_regions_file(),
         t_user_tss_names_file   => $state->t_user_tss_names_file(),
         b_user_tss_names_file   => $state->b_user_tss_names_file(),
+        tf_select_criteria      => $state->tf_select_criteria(),
         tf_select_method        => $state->tf_select_method(),
         #t_cr_gc_content        => $t_cr_gc_content,
         #b_cr_gc_content        => $b_cr_gc_content,
