@@ -378,6 +378,7 @@ use OPOSSUM::Tools::SearchRegionTool;
 use OPOSSUM::Tools::Homer;
 #use Statistics::Distributions;
 use OPOSSUM::Include::TCAInclude;
+use TFBSCluster::DBSQL::DBAdaptor;
 
 #
 # Not used any more. We are fetching sequences using BEDTools now.
@@ -1486,6 +1487,10 @@ if ($b_tss_type eq 'custom' || $tf_type eq 'custom') {
     # In which case we do not need to create it again.
     #
     unless (-f $b_seq_file) {
+        unless ($b_seq_file) {
+            $b_seq_file = catfile($results_dir, 'b_search_sequences.fa');
+        }
+
         $ok = $b_srt->extract_search_region_sequences(
             -regions_file   => $b_search_regions_file,
             -out_seq_file   => $b_seq_file
@@ -1585,7 +1590,7 @@ if ($b_tss_type eq 'custom' || $tf_type eq 'custom') {
         -tf_ids         => $tf_ids
     );
 
-    unless ($t_counts) {
+    unless ($b_counts) {
         fatal("Error computing background TFBS counts", \%job_args);
     }
 }
@@ -1786,7 +1791,7 @@ sub do_cluster_analysis
     $job_args{-cl_results_dir}     = $cl_results_dir;
     $job_args{-cl_rel_results_dir} = $cl_rel_results_dir;
 
-    make_path($cl_results_dir, mode => 0700);
+    make_path($cl_results_dir, {mode => 0700});
 
     my $cldba = tfbs_cluster_db_connect();
     unless ($cldba) {
