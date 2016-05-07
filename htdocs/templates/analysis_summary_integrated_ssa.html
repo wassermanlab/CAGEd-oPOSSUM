@@ -1,6 +1,6 @@
 <p class="text">
   Your CAGEd-oPOSSUM analysis has been successfully submitted.<br>
-  A notification will be e-mailed to you at [%email%] when the analysis is completed
+  A notification email will be sent to you at the address you provided, <b>[%email%]</b> when the analysis has completed.
 </p>
 
 <h3>Selected Parameters</h3>
@@ -16,6 +16,8 @@
     <td class="table_title">Submitted:</td>
     <td class="table_text">[%submitted_time%]</td>
   </tr>
+
+  <tr></tr>
 
   <!-- Target TSS summary -->
   [%IF t_tss_type == 'fantom5'%]
@@ -64,24 +66,26 @@
         <td class="table_text">[%t_user_tss_names_file%]</td>
       </tr>
     [%ELSIF t_tss_input_method == 'paste'%]
-      <!-- Do not want to display all pasted peak names here but
-           perhaps give a count of the number of peaks  pasted? -->
+      <!-- Perhaps give a count of the number of peaks  pasted? -->
+      <tr>
+        <td class="table_title">Target FANTOM5 CAGE peak names:</td>
+        <td class="table_text">Pasted</td>
+      </tr>
     [%END%]
   [%ELSIF t_tss_type == 'custom'%]
     <tr>
       <td class="table_title">Target CAGE peak type:</td>
-      <td class="table_text">Custom (user defined)</td>
+      <td class="table_text">User defined</td>
     </tr>
     [%IF t_tss_input_method == 'upload'%]
       <tr>
-        <td class="table_title">Target custom CAGE peaks</td>
-        <td class="table_text">Uploaded file: [%t_user_custom_tss_file%]</td>
+        <td class="table_title">Target CAGE peaks uploaded file:</td>
+        <td class="table_text">[%t_user_custom_tss_file%]</td>
       </tr>
     [%ELSIF t_tss_input_method == 'paste'%]
-      <!-- Do not want to display all pasted regions here but perhaps give a
-           count of the number of regions pasted? -->
+      <!-- Perhaps give a count of the number of regions pasted? -->
       <tr>
-        <td class="table_title">Target custom CAGE peaks:</td>
+        <td class="table_title">Target CAGE peaks:</td>
         <td class="table_text">Pasted</td>
       </tr>
     [%END%]
@@ -97,21 +101,21 @@
         <td class="table_text">No</td>
       [%END%]
     </tr>
-
-    [%IF t_gene_ids_input_method == 'upload'%]
-      <tr>
-        <td class="table_title">Target associated gene IDs filter file:</td>
-        <td class="table_text">[%t_user_gene_ids_file%]</td>
-      </tr>
-    [%ELSIF t_gene_ids_input_method == 'paste'%]
-      <tr>
-        <td class="table_title">Target Associated gene IDs filter provided:</td>
-        <td class="table_text">Yes</td>
-      </tr>
-    [%END%]
   [%END%]
 
   <!-- Applies to both FANTOM5 and custom CAGE peaks -->
+  [%IF t_gene_ids_input_method == 'upload'%]
+    <tr>
+      <td class="table_title">Target associated gene IDs filter file:</td>
+      <td class="table_text">[%t_user_gene_ids_file%]</td>
+    </tr>
+  [%ELSIF t_gene_ids_input_method == 'paste'%]
+    <tr>
+      <td class="table_title">Target Associated gene IDs filter:</td>
+      <td class="table_text">Pasted</td>
+    </tr>
+  [%END%]
+
   [%IF t_filter_regions_input_method == 'upload'%]
     <tr>
       <td class="table_title">Target filtering regions file:</td>
@@ -119,10 +123,12 @@
     </tr>
   [%ELSIF t_filter_regions_input_method == 'paste'%]
     <tr>
-      <td class="table_title">Target filtering regions provided:</td>
-      <td class="table_text">Yes</td>
+      <td class="table_title">Target filtering regions:</td>
+      <td class="table_text">Pasted</td>
     </tr>
   [%END%]
+
+  <tr></tr>
 
   <!-- Background TSS summary -->
   [%IF b_tss_type == 'fantom5'%]
@@ -171,24 +177,26 @@
         <td class="table_text">[%b_user_tss_names_file%]</td>
       </tr>
     [%ELSIF b_tss_input_method == 'paste'%]
-      <!-- Do not want to display all pasted peak names here but
-           perhaps give a count of the number of peaks  pasted? -->
+      <!-- Perhaps give a count of the number of peaks  pasted? -->
+      <tr>
+        <td class="table_title">Background FANTOM5 CAGE peak names:</td>
+        <td class="table_text">Pasted</td>
+      </tr>
     [%END%]
   [%ELSIF b_tss_type == 'custom'%]
     <tr>
       <td class="table_title">Background CAGE peak type:</td>
-      <td class="table_text">Custom (user defined)</td>
+      <td class="table_text">User defined</td>
     </tr>
     [%IF b_tss_input_method == 'upload'%]
       <tr>
-        <td class="table_title">Background custom CAGE peaks</td>
-        <td class="table_text">Uploaded file: [%b_user_custom_tss_file%]</td>
+        <td class="table_title">Background user CAGE peaks file:</td>
+        <td class="table_text">[%b_user_custom_tss_file%]</td>
       </tr>
     [%ELSIF b_tss_input_method == 'paste'%]
-      <!-- Do not want to display all pasted regions here but perhaps give a
-           count of the number of regions pasted? -->
+      <!-- Perhaps give a count of the number of regions pasted? -->
       <tr>
-        <td class="table_title">Background custom CAGE peaks:</td>
+        <td class="table_title">Background user CAGE peaks:</td>
         <td class="table_text">Pasted</td>
       </tr>
     [%END%]
@@ -204,21 +212,21 @@
         <td class="table_text">No</td>
       [%END%]
     </tr>
-
-    [%IF b_gene_ids_input_method == 'upload'%]
-      <tr>
-        <td class="table_title">Background associated gene IDs filter file:</td>
-        <td class="table_text">[%b_user_gene_ids_file%]</td>
-      </tr>
-    [%ELSIF b_gene_ids_input_method == 'paste'%]
-      <tr>
-        <td class="table_title">Background associated gene IDs filter provided:</td>
-        <td class="table_text">Yes</td>
-      </tr>
-    [%END%]
   [%END%]
 
   <!-- Applies to both FANTOM5 and custom CAGE peaks -->
+  [%IF b_gene_ids_input_method == 'upload'%]
+    <tr>
+      <td class="table_title">Background associated gene IDs filter file:</td>
+      <td class="table_text">[%b_user_gene_ids_file%]</td>
+    </tr>
+  [%ELSIF b_gene_ids_input_method == 'paste'%]
+    <tr>
+      <td class="table_title">Background associated gene IDs filter:</td>
+      <td class="table_text">Pasted</td>
+    </tr>
+  [%END%]
+
   [%IF b_filter_regions_input_method == 'upload'%]
     <tr>
       <td class="table_title">Background filtering regions file:</td>
@@ -230,6 +238,8 @@
       <td class="table_text">Yes</td>
     </tr>
   [%END%]
+
+  <tr></tr>
 
   <!-- TFBS profile selection summary -->
   [%IF tf_select_criteria == 'jaspar'%]
@@ -267,7 +277,7 @@
   [%ELSIF tf_select_criteria == 'custom'%]
     <tr>
       <td class="table_title">TFBS profile type:</td>
-      <td class="table_text">Custom (user defined)</td>
+      <td class="table_text">User defined</td>
     </tr>
   [%END%] <!-- if collection -->
 
@@ -302,6 +312,8 @@
       <td class="table_text">All results with a Z-score >= [%zscore_cutoff%] and a Fisher score >= [%fisher_cutoff%] and a K-S p-value <= [%ks_cutoff%] sorted by [%display_sort_by%]</td>
     [%END%]
   </tr>
+
+  <tr></tr>
 
   <tr>
     <td class="table_title">The results will be sent to the following email:</td>
