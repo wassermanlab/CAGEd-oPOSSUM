@@ -844,35 +844,34 @@ unless ($t_seq_length) {
 $logger->info("Total target search region length: $t_seq_length");
 
 my $b_tss_type = $job_args{-b_tss_type};
-if ($b_tss_type eq 'fantom5') {
+
+#
+# Get optional gene IDs on which to filter background TSSs. We need these
+# BEFORE we retrieve CAGE peaks below.
+#
+if ($b_gene_ids_file && !@b_gene_ids) {
     #
-    # Get optional gene IDs on which to filter background TSSs. We need these
-    # BEFORE we retrieve CAGE peaks below.
+    # Read gene IDs from file.
     #
-    if ($b_gene_ids_file && !@b_gene_ids) {
-        #
-        # Read gene IDs from file.
-        #
-        $logger->info("Reading background gene IDs from file $b_gene_ids_file");
+    $logger->info("Reading background gene IDs from file $b_gene_ids_file");
 
-        my $gene_ids = read_gene_ids_from_file($b_gene_ids_file, \%job_args);
+    my $gene_ids = read_gene_ids_from_file($b_gene_ids_file, \%job_args);
 
-        unless ($gene_ids) {
-            fatal(
-                "No background filtering gene IDs read from file"
-                . " $b_gene_ids_file", \%job_args
-            );
-        }
-
-        $logger->info(
-            sprintf(
-                "Read %d background filtering gene IDs from file"
-                . " $b_gene_ids_file", scalar @$gene_ids
-            )
+    unless ($gene_ids) {
+        fatal(
+            "No background filtering gene IDs read from file"
+            . " $b_gene_ids_file", \%job_args
         );
-
-        @b_gene_ids = @$gene_ids;
     }
+
+    $logger->info(
+        sprintf(
+            "Read %d background filtering gene IDs from file"
+            . " $b_gene_ids_file", scalar @$gene_ids
+        )
+    );
+
+    @b_gene_ids = @$gene_ids;
 }
 
 #
@@ -1486,7 +1485,7 @@ if ($b_tss_type eq 'custom' || $tf_type eq 'custom') {
     # We may have already created the background sequences file with HOMER.
     # In which case we do not need to create it again.
     #
-    unless (-f $b_seq_file) {
+    unless ($b_seq_file && -f $b_seq_file) {
         unless ($b_seq_file) {
             $b_seq_file = catfile($results_dir, 'b_search_sequences.fa');
         }
@@ -2743,7 +2742,15 @@ sub write_results_text
 
     return unless $results && $results->[0];
 
-    my $text = "TF\tJASPAR ID\tClass\tFamily\tTax Group\tIC\tGC Content\tTarget region hits\tTarget region non-hits\tBackground region hits\tBackground region non-hits\tTarget TFBS hits\tTarget TFBS nucleotide rate\tBackground TFBS hits\tBackground TFBS nucleotide rate\tZ-score\tFisher score\n";
+    my $tf_type = $job_args->{-tf_type};
+
+    my $text;
+
+    if ($tf_type eq 'jaspar') {
+        $text = "TF\tJASPAR ID\tClass\tFamily\tTax Group\tIC\tGC Content\tTarget region hits\tTarget region non-hits\tBackground region hits\tBackground region non-hits\tTarget TFBS hits\tTarget TFBS nucleotide rate\tBackground TFBS hits\tBackground TFBS nucleotide rate\tZ-score\tFisher score\n";
+    } else {
+        $text = "TF\tTF ID\tClass\tFamily\tTax Group\tIC\tGC Content\tTarget region hits\tTarget region non-hits\tBackground region hits\tBackground region non-hits\tTarget TFBS hits\tTarget TFBS nucleotide rate\tBackground TFBS hits\tBackground TFBS nucleotide rate\tZ-score\tFisher score\n";
+    }
 
     foreach my $result (@$results) {
         my $tf = $tf_set->get_tf($result->id());
@@ -2877,6 +2884,7 @@ sub write_results_html
         #num_b_seq_ids       => @b_sr_ids ? scalar @b_sr_ids : 0,
         tf_db               => $tf_db,
         tf_set              => $tf_set,
+        tf_type             => $tf_type,
         tf_select_criteria  => $tf_select_criteria,
         #t_cr_gc_content     => $t_cr_gc_content,
         #b_cr_gc_content     => $b_cr_gc_content,

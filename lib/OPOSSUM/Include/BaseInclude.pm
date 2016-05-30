@@ -1791,7 +1791,7 @@ sub write_tfbs_details_text_from_data
         return;
     }
 
-    write_tfbs_details_text_header(\*OFH, $tf);
+    write_tfbs_details_text_header(\*OFH, $tf, $job_args);
 
     my $last_region = '';
     while (my $line = <DFH>) {
@@ -1825,7 +1825,9 @@ sub write_tfbs_details_text_from_data
 
 sub write_tfbs_details_text_header
 {
-    my ($fh, $tf) = @_;
+    my ($fh, $tf, $job_args) = @_;
+
+    my $tf_type = $job_args->{-tf_type};
 
     my $total_ic;
     if ($tf->isa("TFBS::Matrix::PFM")) {
@@ -1837,10 +1839,19 @@ sub write_tfbs_details_text_header
     printf $fh "%s Binding Sites\n\n", $tf->name();
 
     printf $fh "TF name:\t%s\n", $tf->name();
-    printf $fh "JASPAR ID:\t%s\n", $tf->ID();
-    printf $fh "Class:\t%s\n", $tf->class() || '';
-    printf $fh "Family:\t%s\n", $tf->tag('family') || '';
-    printf $fh "Tax group:\t%s\n", $tf->tag('tax_group') || '';
+
+    if ($tf_type eq 'jaspar') {
+        printf $fh "JASPAR ID:\t%s\n", $tf->ID();
+        printf $fh "Class:\t%s\n", $tf->class() || '';
+        printf $fh "Family:\t%s\n", $tf->tag('family') || '';
+        printf $fh "Tax group:\t%s\n", $tf->tag('tax_group') || '';
+    } else {
+        printf $fh "TF ID:\t%s\n", $tf->ID();
+        printf $fh "Class:\tNA\n";
+        printf $fh "Family:\tNA\n";
+        printf $fh "Tax group:\tNA\n";
+    }
+
     printf $fh "GC content:\t%s\n",
         sprintf("%.3f", $tf->tag('gc_content')) || '';
     printf $fh "Information content:\t%s\n", $total_ic;
@@ -1857,6 +1868,7 @@ sub write_tfbs_details_html_from_data
     my $tf_name = $tf->name();
     my $tf_id   = $tf->ID();
 
+    my $tf_type         = $job_args->{-tf_type};
     my $job_id          = $job_args->{-job_id};
     my $heading         = $job_args->{-heading};
     my $bg_color_class  = $job_args->{-bg_color_class};
@@ -1896,6 +1908,7 @@ sub write_tfbs_details_html_from_data
         jaspar_url          => JASPAR_URL,
         tf_db               => $tf_db,
         tf                  => $tf,
+        tf_type             => $tf_type,
         rel_results_dir     => $rel_results_dir,
         data_file           => $data_file,
         tfbs_details_file   => "$fname.txt",

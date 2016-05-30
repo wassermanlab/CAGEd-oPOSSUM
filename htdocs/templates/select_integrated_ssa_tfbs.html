@@ -67,6 +67,26 @@ function verify(f)
     return false;
 }
 
+function toggleClusterAnalysis()
+{
+    //alert("toggleClusterAnalysis called");
+
+    rca = document.getElementById("run_cluster_analysis");
+
+    if (   document.getElementById("matrix_paste_text").value != ''
+        || document.getElementById("matrix_upload_file").value != '')
+    {
+        //alert("Cluster Analysis disabled");
+        rca.checked = false;
+        rca.disabled = true;
+        //rca.readonly = true;
+    } else {
+        //alert("Cluster Analysis enabled");
+        rca.disabled = false;
+        //rca.readonly = false;
+    }
+}
+
 </script>
 
 <form name="input" enctype="multipart/form-data" method="post" onSubmit="return verify(this)" target="_blank">
@@ -143,18 +163,20 @@ function verify(f)
 
     Paste one or more custom TFBS profiles:
     <br>
-    <textarea name="matrix_paste_text" rows=10 cols=60 wrap=SOFT"></textarea>
+    <textarea ID="matrix_paste_text" name="matrix_paste_text" rows=10 cols=60
+      wrap="SOFT" oninput="toggleClusterAnalysis()"></textarea>
     <input type="button" name="clear_matrix_paste_text" value="Clear"
-      onClick="{input.matrix_paste_text.value=''}">
+      onClick="{input.matrix_paste_text.value=''}; toggleClusterAnalysis()">
     <br>
     <br>
 
     <b>OR</b> upload a file containing one or more TFBS profiles:
     <br>
     <span class="subtext">
-      <input type="file" name="matrix_upload_file" size="33">
+      <input type="file" ID="matrix_upload_file" name="matrix_upload_file"
+        size="33" onchange="toggleClusterAnalysis()">
       <input type="button" name="clear_matrix_upload_file" value="Clear"
-        onClick="{input.matrix_upload_file.value=''}">
+        onClick="{input.matrix_upload_file.value=''}; toggleClusterAnalysis()">
     </span>
 
     <br><br>
@@ -213,7 +235,10 @@ function verify(f)
 
     <input type="checkbox" name="run_homer_motif_analysis"> Also run <a href="[%homer_url%]" target="_blank">HOMER</a> motif analysis&nbsp;&nbsp;[<a href="[%rel_htdocs_path%]/help/option_details.html#output_details" target="help">?</a>]
     <br>
-    <input type="checkbox" name="run_cluster_analysis"> Also run TFBS cluster analysis
+    <div class="checkbox">
+      <input type="checkbox" ID="run_cluster_analysis" name="run_cluster_analysis">
+      <label for="run_cluster_analysis" class="control-label">Also run TFBS cluster analysis (JASPAR profiles only)</label>
+    </div>
 
     <br>
     <br>

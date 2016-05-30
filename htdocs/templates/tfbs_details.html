@@ -13,22 +13,41 @@
       <td align="left" class="table_title">TF name:</td>
       <td align="left" class="table_text">[%tf.name%]</td>
     </tr>
-    <tr class="table_text">
-      <td align="left" class="table_title">JASPAR ID:</td>
-      <td align="left" class="table_text"><a href="javascript:newWindow=window.open('[%jaspar_url%]?rm=present&collection=[%tf.tag('collection')%]&ID=[%tf.ID%]', '[%tf.ID%]', 'width=850,height=700,toolbar=0,location=0,directories=0,status=0,menuBar=0,scrollBars=1'); newWindow.focus()">[%tf.ID%]</a></td>
-    </tr>
-    <tr class="table_text">
-      <td align="left" class="table_title">Class:</td>
-      <td align="left" class="table_text">[%tf.class%]</td>
-    </tr>
-    <tr class="table_text">
-      <td align="left" class="table_title">Family:</td>
-      <td align="left" class="table_text">[%tf.tag('family')%]</td>
-    </tr>
-    <tr class="table_text">
-      <td align="left" class="table_title">Tax group:</td>
-      <td align="left" class="table_text">[%tf.tag('tax_group')%]</td>
-    </tr>
+    [%IF tf_type == 'jaspar'%]
+      <tr class="table_text">
+        <td align="left" class="table_title">JASPAR ID:</td>
+        <td align="left" class="table_text"><a href="javascript:newWindow=window.open('[%jaspar_url%]?rm=present&collection=[%tf.tag('collection')%]&ID=[%tf.ID%]', '[%tf.ID%]', 'width=850,height=700,toolbar=0,location=0,directories=0,status=0,menuBar=0,scrollBars=1'); newWindow.focus()">[%tf.ID%]</a></td>
+      </tr>
+      <tr class="table_text">
+        <td align="left" class="table_title">Class:</td>
+        <td align="left" class="table_text">[%tf.class%]</td>
+      </tr>
+      <tr class="table_text">
+        <td align="left" class="table_title">Family:</td>
+        <td align="left" class="table_text">[%tf.tag('family')%]</td>
+      </tr>
+      <tr class="table_text">
+        <td align="left" class="table_title">Tax group:</td>
+        <td align="left" class="table_text">[%tf.tag('tax_group')%]</td>
+      </tr>
+    [%ELSE%]
+      <tr class="table_text">
+        <td align="left" class="table_title">TF ID:</td>
+        <td align="left" class="table_text">[%tf.ID%]</td>
+      </tr>
+      <tr class="table_text">
+        <td align="left" class="table_title">Class:</td>
+        <td align="left" class="table_text">NA</td>
+      </tr>
+      <tr class="table_text">
+        <td align="left" class="table_title">Family:</td>
+        <td align="left" class="table_text">NA</td>
+      </tr>
+      <tr class="table_text">
+        <td align="left" class="table_title">Tax group:</td>
+        <td align="left" class="table_text">NA</td>
+      </tr>
+    [%END%]
     <tr class="table_text">
       <td align="left" class="table_title">GC content:</td>
       <td align="left" class="table_text">

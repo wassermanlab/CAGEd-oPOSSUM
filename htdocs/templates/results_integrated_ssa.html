@@ -82,12 +82,12 @@
     <td class="table_title">Number of background CAGE peak regions:</td>
     <td class="table_text">[%num_b_search_regions%]</td>
   </tr>
-  [%IF tf_select_criteria == 'custom'%]
+  [%IF tf_type == 'custom'%]
     <tr>
       <td class="table_title">TFBS profile type:</td>
-      <td class="table_text">Custom</td>
+      <td class="table_text">User defined</td>
     </tr>
-  [%ELSE%]
+  [%ELSE%]  <!-- tf_type = 'jaspar' -->
     <tr>
       <td class="table_title">TFBS profile type:</td>
       <td class="table_text">JASPAR</td>
@@ -227,11 +227,11 @@
 
   <table id="results_summary_table" class="sortable" cellpadding="2" cellspacing="0">
     <tr class="table_title">
-      [%IF tf_select_criteria != 'custom'%]
+      [%IF tf_type == 'jaspar'%]
         <th title="Logo">JASPAR Logo</th>
       [%END%]
       <th title="TF name (click to sort)">TF</th>
-      [%IF tf_select_criteria == 'custom'%]
+      [%IF tf_type == 'custom'%]
         <th title="TF ID (click to sort)">TF ID</th>
       [%ELSE%]
         <th title="JASPAR ID (click to sort)">JASPAR ID</th>
@@ -258,7 +258,7 @@
       [%tf = tf_set.get_matrix(tf_id)%]
 
       <tr class="table_text">
-        [%IF tf_select_criteria != 'custom'%]
+        [%IF tf_type == 'jaspar'%]
           <td><img src="[%rel_htdocs_path%]/images/logos/[%tf.ID%].png" align="center"></td>
         [%END%]
         [%IF result.bg_seq_hits == 0 and result.t_seq_hits > 0%]
@@ -267,16 +267,19 @@
           <td>[%tf.name%]</td>
         [%END%]
         [%collection = tf.tag('collection')%]
-        <td>
-        [%IF collection != 'PENDING'%]
+        [%IF tf_type == 'jaspar'%]
+          <td>
           <a href="javascript:newWindow=window.open('[%jaspar_url%]?rm=present&collection=[%collection%]&ID=[%tf.ID%]', '[%tf.ID%]', 'width=850,height=700,toolbar=0,location=0,directories=0,status=0,menuBar=0,scrollBars=1'); newWindow.focus()">[%tf.ID%]</a>
+          </td>
+          <td>[%tf.class%]</td>
+          <td>[%tf.tag('family')%]</td>
+          <td>[%tf.tag('tax_group')%]</td>
         [%ELSE%]
-          [%tf.ID%]
+          <td>[%tf.ID%]</td>
+          <td>NA</td>
+          <td>NA</td>
+          <td>NA</td>
         [%END%]
-        </td>
-        <td>[%tf.class%]</td>
-        <td>[%tf.tag('family')%]</td>
-        <td>[%tf.tag('tax_group')%]</td>
         [%total_ic = formatf(3, tf.to_ICM.total_ic)%]
         <td align=right>
         [%IF total_ic > high_matrix_ic or total_ic < low_matrix_ic%]
