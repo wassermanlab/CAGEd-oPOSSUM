@@ -48,6 +48,7 @@ experiment_ssa.pl
       [-ubtssf FILE]
       [-utrf FILE]
       [-ubrf FILE]
+      [-utfmf FILE]
 
 =head1 ARGUMENTS
 
@@ -315,6 +316,10 @@ e.g: -tax vertebrates -tax "insects, nematodes"
             Original name of the user supplied user defined background CAGE
             peak regions file for informational display purposes only.
 
+     -utfmf FILE
+             Original name of the user supplied file containing one or more
+             "custom" TFBS profile matrices for informational purposes only. 
+
 =head1 DESCRIPTION
 
 Take one or more target experiment IDs, optional background experiment IDs
@@ -453,6 +458,7 @@ my $user_t_tss_names_file;
 my $user_b_tss_names_file;
 my $user_t_tss_regions_file;
 my $user_b_tss_regions_file;
+my $user_tf_matrix_file;
 GetOptions(
     'species|s=s'   => \$species,
     'dir|d=s'       => \$results_dir,
@@ -511,6 +517,7 @@ GetOptions(
     'ubtssf=s'      => \$user_b_tss_names_file,
     'utrf=s'        => \$user_t_tss_regions_file,
     'ubrf=s'        => \$user_b_tss_regions_file,
+    'utfmf=s'       => \$user_tf_matrix_file,
     'help|h|?'      => \$help
 );
 
@@ -2267,8 +2274,11 @@ sub parse_args
     }
 
     if ($tf_matrix_file) {
+        $user_tf_matrix_file = $tf_matrix_file unless $user_tf_matrix_file;
+
         $job_args{-tf_type} = 'custom';
         $job_args{-tf_matrix_file} = $tf_matrix_file;
+        $job_args{-user_tf_matrix_file} = $user_tf_matrix_file;
     } else {
         $job_args{-tf_type} = 'jaspar';
 
@@ -2826,6 +2836,7 @@ sub write_results_html
     my $bg_color_class      = $job_args->{-bg_color_class};
     my $tf_type             = $job_args->{-tf_type};
     my $tf_select_criteria  = $job_args->{-tf_select_criteria};
+    my $user_tf_matrix_file = $job_args->{-user_tf_matrix_file};
 
     my $homer_rel_results_text_file;
     my $homer_rel_results_html_file;
@@ -2911,14 +2922,21 @@ sub write_results_html
         homer_results_html_file  => $homer_rel_results_html_file,
         homer_results_text_file  => $homer_rel_results_text_file,
         message             => $message,
+
+        t_use_tss_only      => $t_tss_only,
+        b_use_tss_only      => $b_tss_only,
         user_t_exp_ids_file => $user_t_exp_ids_file,
         user_b_exp_ids_file => $user_b_exp_ids_file,
+        user_t_tss_names_file => $user_t_tss_names_file,
+        user_b_tss_names_file => $user_b_tss_names_file,
+        user_t_tss_regions_file => $user_t_tss_regions_file,
+        user_b_tss_regions_file => $user_b_tss_regions_file,
         user_t_gene_ids_file => $user_t_gene_ids_file,
         user_b_gene_ids_file => $user_b_gene_ids_file,
         user_t_filter_regions_file => $user_t_filter_regions_file,
         user_b_filter_regions_file => $user_b_filter_regions_file,
-        user_t_tss_names_file => $user_t_tss_names_file,
-        user_b_tss_names_file => $user_b_tss_names_file,
+        user_tf_matrix_file => $user_tf_matrix_file,
+
         write_tfbs_details  => $write_details,
         email               => $email,
 
@@ -3014,6 +3032,10 @@ sub write_cluster_results_html
     my $results_dir         = $job_args->{-cl_results_dir};
     my $rel_results_dir     = $job_args->{-cl_rel_results_dir};
     my $tf_cluster_set      = $job_args->{-tf_cluster_set};
+    my $heading             = $job_args->{-cluster_heading};
+    my $bg_color_class      = $job_args->{-bg_color_class};
+    my $tf_type             = $job_args->{-tf_type};
+    my $tf_select_criteria  = $job_args->{-tf_select_criteria};
 
     my $warn_zero_bg_hits = 0;
     foreach my $result (@$results) {
@@ -3029,10 +3051,6 @@ sub write_cluster_results_html
     } else {
         $result_type = 'top_x_results';
     }
-
-    my $heading             = $job_args->{-cluster_heading};
-    my $bg_color_class      = $job_args->{-bg_color_class};
-    my $tf_select_criteria  = $job_args->{-tf_select_criteria};
 
     my $title = "CAGEd-oPOSSUM $heading";
 
@@ -3074,9 +3092,10 @@ sub write_cluster_results_html
         #num_b_seq_ids       => @b_sr_ids ? scalar @b_sr_ids : 0,
         tf_db               => $tf_db,
         cl_db               => TFBS_CLUSTER_DB_NAME,
+        tf_type             => $tf_type,
+        tf_select_criteria  => $tf_select_criteria,
         tf_set              => $tf_set,
         tf_cluster_set      => $tf_cluster_set,
-        tf_select_criteria  => $tf_select_criteria,
         #t_cr_gc_content     => $t_cr_gc_content,
         #b_cr_gc_content     => $b_cr_gc_content,
         collections         => \@collections,
@@ -3098,14 +3117,19 @@ sub write_cluster_results_html
         zscore_plot_file    => ZSCORE_PLOT_FILENAME,
         fisher_plot_file    => FISHER_PLOT_FILENAME,
         message             => $message,
+
+        user_t_tss_only     => $t_tss_only,
+        user_b_tss_only     => $b_tss_only,
         user_t_exp_ids_file => $user_t_exp_ids_file,
         user_b_exp_ids_file => $user_b_exp_ids_file,
+        user_t_tss_names_file => $user_t_tss_names_file,
+        user_b_tss_names_file => $user_b_tss_names_file,
+        user_t_tss_regions_file => $user_t_tss_regions_file,
+        user_b_tss_regions_file => $user_b_tss_regions_file,
         user_t_gene_ids_file => $user_t_gene_ids_file,
         user_b_gene_ids_file => $user_b_gene_ids_file,
         user_t_filter_regions_file => $user_t_filter_regions_file,
         user_b_filter_regions_file => $user_b_filter_regions_file,
-        user_t_tss_names_file => $user_t_tss_names_file,
-        user_b_tss_names_file => $user_b_tss_names_file,
         write_tfbs_details  => $write_details,
         email               => $email,
 

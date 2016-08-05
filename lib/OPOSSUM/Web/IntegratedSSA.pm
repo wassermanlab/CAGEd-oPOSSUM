@@ -1395,7 +1395,11 @@ sub tfbs_parameters_selected
     $state->result_sort_by($q->param('result_sort_by'));
     $state->tfbs_details($q->param('tfbs_details'));
     $state->run_homer_motif_analysis($q->param('run_homer_motif_analysis'));
-    $state->run_cluster_analysis($q->param('run_cluster_analysis'));
+
+
+    unless ($state->tf_select_criteria() eq 'custom') {
+        $state->run_cluster_analysis($q->param('run_cluster_analysis'));
+    }
 
     my $email = $q->param('email');
     unless (defined $email) {
@@ -1612,6 +1616,7 @@ sub results
     my $tf_select_method = $state->tf_select_method();
     if ($tf_select_method eq 'paste' || $tf_select_method eq 'upload') {
         $command .= " -tfmf " . $state->tfbs_matrix_file();
+        $command .= " -utfmf " . $state->user_tfbs_matrix_file();
     } elsif ($state->tf_select_method() eq 'specific') {
         $command .= " -tfids " . join ',', @$tf_ids;
 
@@ -1770,6 +1775,7 @@ sub results
                                 => $state->b_user_filter_regions_file(),
         t_user_tss_names_file   => $state->t_user_tss_names_file(),
         b_user_tss_names_file   => $state->b_user_tss_names_file(),
+        user_tfbs_matrix_file   => $state->user_tfbs_matrix_file(),
         tf_select_criteria      => $state->tf_select_criteria(),
         tf_select_method        => $state->tf_select_method(),
         #t_cr_gc_content        => $t_cr_gc_content,
