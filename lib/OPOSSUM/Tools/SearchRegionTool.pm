@@ -467,6 +467,16 @@ sub create_initial_tss_search_regions
 
         my $chrom_end = $chrom_lengths->{$chrom};
 
+        #
+        # Skip 'weird' chromosomes. e.g. encounterd the case of a user input
+        # BED file containing 'chr6_mcf_hap5'.
+        # DJA 2016/8/3
+        #
+        unless (defined $chrom_end) {
+            carp "Non-genomic chromosome $chrom encountered - skipping!\n";
+            next;
+        }
+
         $start = 1 if $start < 1;
         $end = $chrom_end if $end > $chrom_end;
 
