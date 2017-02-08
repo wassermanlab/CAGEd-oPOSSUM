@@ -106,33 +106,77 @@ if (@unfinished) {
                     -run_time       => $run_time
                 }
         } else {
-            my $error_line = `grep 'FATAL' $log_file`;
+            my $fatal_line = `grep 'FATAL' $log_file`;
 
-            if ($error_line) {
-                my ($error) = $error_line =~ /FATAL\s+(.*)/;
+            if ($fatal_line) {
+                #
+                # These jobs ended with a FATAL error and an email would
+                # have been sent to the user to make them aware.
+                #
+                # Report these as jobs which reported a fatal error.
+                #
+                my ($msg) = $fatal_line =~ /FATAL\s+(.*)/;
 
-                my $error_date = line_date($error_line);
-                my $error_time = datestr_to_localtime($error_date);
+                my $last_date = line_date($fatal_line);
+                my $last_time = datestr_to_localtime($last_date);
 
                 $error_job{$job_id} = {
                     -job_id         => $job_id,
                     -start_date     => $start_date,
-                    -end_date       => $error_date,
-                    -message        => $error
+                    -end_date       => $last_date,
+                    -msg_type       => 'FATAL',
+                    -message        => $msg
                 };
             } else {
+                #
+                # If the last line of the log file is an ERROR line then
+                # an email was sent to the user. Handle these as above for
+                # FATAL errors.
+                #
+                # Otherwise, these jobs ended unexpectedly without catching
+                # and reporting the error to the user via email. Report these
+                # as jobs which crashed without reporting an error.
+                #
                 my $last_line = job_last_line($log_file);
 
-                my ($info) = $last_line =~ /INFO\s+(.*)/;
+                my ($type, $msg) = $last_line =~ /(INFO|ERROR)\s+(.*)/;
 
-                my $last_date = line_date($last_line);
-                my $last_time = datestr_to_localtime($last_date);
+                if ($type) {
+                    my $last_date = line_date($last_line);
+                    my $last_time = datestr_to_localtime($last_date);
 
-                $crashed_job{$job_id} = {
-                    -job_id         => $job_id,
-                    -start_date     => $start_date,
-                    -end_date       => $last_date,
-                    -message        => $info
+                    if ($type eq 'ERROR') {
+                        $error_job{$job_id} = {
+                            -job_id         => $job_id,
+                            -start_date     => $start_date,
+                            -end_date       => $last_date,
+                            -msg_type       => 'FATAL',
+                            -message        => $msg
+                        };
+                    } elsif ($type eq 'INFO') {
+                        $crashed_job{$job_id} = {
+                            -job_id         => $job_id,
+                            -start_date     => $start_date,
+                            -end_date       => $last_date,
+                            -msg_type       => $type,
+                            -message        => $msg
+                        }
+                    }
+                } else {
+                    $last_line = job_last_info_or_error_line($log_file);
+
+                    my ($type, $msg) = $last_line =~ /(INFO|ERROR)\s+(.*)/;
+
+                    my $last_date = line_date($last_line);
+                    my $last_time = datestr_to_localtime($last_date);
+
+                    $crashed_job{$job_id} = {
+                        -job_id         => $job_id,
+                        -start_date     => $start_date,
+                        -end_date       => $last_date,
+                        -msg_type       => $type,
+                        -message        => $msg
+                    }
                 }
             }
         }
@@ -198,9 +242,10 @@ sub report_error_jobs
     ) {
         my $job = $jobs->{$job_id};
 
-        $$report .= sprintf "$job_id\t%s\t%s\t%s\n",
+        $$report .= sprintf "$job_id\t%s\t%s\t%s\t%s\n",
             $job->{-start_date},
             $job->{-end_date},
+            $job->{-msg_type},
             $job->{-message};
     }
 }
@@ -218,9 +263,10 @@ sub report_crashed_jobs
     ) {
         my $job = $jobs->{$job_id};
 
-        $$report .= sprintf "$job_id\t%s\t%s\t%s\n",
+        $$report .= sprintf "$job_id\t%s\t%s\t%s\t%s\n",
             $job->{-start_date},
             $job->{-end_date},
+            $job->{-msg_type},
             $job->{-message} ? $job->{-message} : '';
     }
 }
@@ -252,6 +298,23 @@ sub job_last_line
     my $log_file = shift;
 
     return `tail -1 $log_file`;
+}
+
+#
+# Find the last line in a CAGEd-oPOSSUM log file which actually has an INFO
+# of ERROR messages (some jobs which crash have an empty last line.
+#
+sub job_last_info_or_error_line
+{
+    my $log_file = shift;
+
+    my @lines = reverse `cat $log_file`;
+
+    foreach my $line (@lines) {
+        if ($line =~ /INFO/ || $line =~ /ERROR/) {
+            return $line;
+        }
+    }
 }
 
 sub email_report

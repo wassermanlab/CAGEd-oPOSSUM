@@ -1,4 +1,4 @@
-#!/usr/bin/env perl5.14
+#!/usr/bin/env perl
 
 =head1 NAME
 
@@ -55,6 +55,11 @@ sub clean_tempfiles
 {
     my @tempfiles = glob(OPOSSUM_TMP_PATH . "/*");
     foreach my $file (@tempfiles) {
+        if (-d $file) {
+            print "$file is a directory - skipping...";
+            next;
+        }
+
         #print "Processing temp. file $file\n";
         if (-M $file > REMOVE_TEMPFILES_OLDER_THAN) {
             #print "Temp. file $file is old\n";
@@ -68,10 +73,10 @@ sub clean_tempfiles
             my $group = getgrgid($sb->gid);
             print "Temp. file $file user is $user and group is $group\n";
             if ($user eq 'apache' && $group eq 'apache') {
-                #print "Removing temp. file $file\n";
+                print "Removing temp. file $file\n";
                 unlink $file;
             } else {
-                #print "Temp. file $file is not owned by Apache\n";
+                print "Temp. file $file is not owned by Apache\n";
             }
         }
     }
@@ -97,7 +102,7 @@ sub clean_resultfiles
             if ($user eq 'apache' && $group eq 'apache') {
                 if (-d $file) {
                     # remove entire tree if directory
-                    #print "Removing result directory $file\n";
+                    print "Removing result directory $file\n";
                     rmtree($file, 0, 0);
                 } elsif (-f $file) {
                     # unlink if file
@@ -105,7 +110,7 @@ sub clean_resultfiles
                     unlink($file);
                 }
             } else {
-                #print "Result file $file is not owned by Apache\n";
+                print "Result file $file is not owned by Apache\n";
             }
         }
     }
